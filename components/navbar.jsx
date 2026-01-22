@@ -180,7 +180,7 @@ export function Navbar() {
 
             {/* CTA Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
-              <Link href="/login">
+              <Link href="/auth/login">
                 <Button variant="ghost" size="sm" className="font-medium">
                   Entrar
                 </Button>
@@ -268,7 +268,7 @@ export function Navbar() {
               </div>
 
               <div className="flex gap-2 border-t-2 border-border pt-4">
-                <Link href="/login" className="flex-1">
+                <Link href="/auth/login" className="flex-1">
                   <Button variant="outline" className="w-full border-2 bg-transparent font-medium">
                     Entrar
                   </Button>
