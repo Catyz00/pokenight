@@ -47,7 +47,7 @@ export function Hero() {
     <section className="relative overflow-hidden">
       {/* Colorful Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-pokemon-yellow/5 to-pokemon-red/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-pokemon-yellow/5 to-pokemon-redxxxxxxxxxxxxx/10" />
         <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-pokemon-yellow/20 blur-3xl" />
         <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pokemon-red/10 blur-3xl" />
