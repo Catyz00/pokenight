@@ -4,46 +4,46 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* PokeNight Theme - Vibrant Purple & Pink */
-  --background: oklch(0.98 0.01 300);
-  --foreground: oklch(0.15 0.03 300);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.03 300);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.03 300);
-  --primary: oklch(0.4 0.2 310);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.02 330);
-  --secondary-foreground: oklch(0.3 0.03 300);
-  --muted: oklch(0.94 0.01 300);
-  --muted-foreground: oklch(0.5 0.02 300);
-  --accent: oklch(0.5 0.18 310);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.5 0.22 15);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0.02 300);
-  --input: oklch(0.92 0.01 300);
-  --ring: oklch(0.4 0.2 310);
-  --chart-1: oklch(0.4 0.2 310);
-  --chart-2: oklch(0.7 0.2 340);
-  --chart-3: oklch(0.9 0.15 100);
-  --chart-4: oklch(0.5 0.22 15);
-  --chart-5: oklch(0.5 0.18 310);
+  /* Nova Paleta Personalizada */
+  --background: #727287; /* Fundo cinza */
+  --foreground: #EAE4F2; /* Rosa claro para texto */
+  --card: #7e7d92; /* Card um pouco mais claro que o fundo */
+  --card-foreground: #EAE4F2;
+  --popover: #7e7d92;
+  --popover-foreground: #EAE4F2;
+  --primary: #E0ABBA; /* Rosa para botões */
+  --primary-foreground: #2a2a35;
+  --secondary: #9D70B1; /* Roxo para títulos */
+  --secondary-foreground: #EAE4F2;
+  --muted: #626177;
+  --muted-foreground: #d4cfe0;
+  --accent: #9D70B1; /* Roxo para destaques */
+  --accent-foreground: #EAE4F2;
+  --destructive: #c31c41;
+  --destructive-foreground: #EAE4F2;
+  --border: #8a8999;
+  --input: #626177;
+  --ring: #E0ABBA;
+  --chart-1: #E0ABBA;
+  --chart-2: #9D70B1;
+  --chart-3: #EAE4F2;
+  --chart-4: #c31c41;
+  --chart-5: #727287;
   --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.01 300);
-  --sidebar-foreground: oklch(0.15 0.03 300);
-  --sidebar-primary: oklch(0.4 0.2 310);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.94 0.02 300);
-  --sidebar-accent-foreground: oklch(0.15 0.03 300);
-  --sidebar-border: oklch(0.88 0.02 300);
-  --sidebar-ring: oklch(0.4 0.2 310);
+  --sidebar: #727287;
+  --sidebar-foreground: #EAE4F2;
+  --sidebar-primary: #E0ABBA;
+  --sidebar-primary-foreground: #2a2a35;
+  --sidebar-accent: #626177;
+  --sidebar-accent-foreground: #EAE4F2;
+  --sidebar-border: #8a8999;
+  --sidebar-ring: #E0ABBA;
   
-  /* PokeNight Brand Colors */
-  --pokenight-purple-dark: #670e94;
-  --pokenight-purple: #733ca9;
+  /* PokeNight Brand Colors - Atualizadas */
+  --pokenight-purple-dark: #7c5a8f;
+  --pokenight-purple: #9D70B1;
   --pokenight-yellow: #f9f962;
-  --pokenight-pink: #ea5092;
+  --pokenight-pink: #E0ABBA;
   --pokenight-red: #c31c41;
   
   /* Rank Colors */
@@ -54,42 +54,42 @@
   --rank-green: oklch(0.6 0.2 145);
   --rank-blue: oklch(0.55 0.22 250);
   --rank-black: oklch(0.25 0 0);
-  --rank-purple: #733ca9;
+  --rank-purple: #9D70B1;
 }
 
 .dark {
-  --background: oklch(0.12 0.03 300);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.15 0.03 300);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.14 0.03 300);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.55 0.2 310);
-  --primary-foreground: oklch(0.12 0.03 300);
-  --secondary: oklch(0.22 0.03 300);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.2 0.02 300);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.6 0.18 310);
-  --accent-foreground: oklch(0.12 0.03 300);
-  --destructive: oklch(0.55 0.22 15);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0.02 300);
-  --input: oklch(0.2 0.02 300);
-  --ring: oklch(0.55 0.2 310);
-  --chart-1: oklch(0.55 0.2 310);
-  --chart-2: oklch(0.7 0.18 340);
-  --chart-3: oklch(0.85 0.15 100);
-  --chart-4: oklch(0.55 0.2 15);
-  --chart-5: oklch(0.6 0.18 310);
-  --sidebar: oklch(0.1 0.03 300);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.55 0.2 310);
-  --sidebar-primary-foreground: oklch(0.12 0.03 300);
-  --sidebar-accent: oklch(0.18 0.02 300);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.22 0.02 300);
-  --sidebar-ring: oklch(0.55 0.2 310);
+  --background: #4a4a5a;
+  --foreground: #EAE4F2;
+  --card: #5a5a6a;
+  --card-foreground: #EAE4F2;
+  --popover: #4a4a5a;
+  --popover-foreground: #EAE4F2;
+  --primary: #E0ABBA;
+  --primary-foreground: #2a2a35;
+  --secondary: #9D70B1;
+  --secondary-foreground: #EAE4F2;
+  --muted: #3a3a4a;
+  --muted-foreground: #c4bfd0;
+  --accent: #9D70B1;
+  --accent-foreground: #EAE4F2;
+  --destructive: #c31c41;
+  --destructive-foreground: #EAE4F2;
+  --border: #6a6a7a;
+  --input: #3a3a4a;
+  --ring: #E0ABBA;
+  --chart-1: #E0ABBA;
+  --chart-2: #9D70B1;
+  --chart-3: #EAE4F2;
+  --chart-4: #c31c41;
+  --chart-5: #4a4a5a;
+  --sidebar: #4a4a5a;
+  --sidebar-foreground: #EAE4F2;
+  --sidebar-primary: #E0ABBA;
+  --sidebar-primary-foreground: #2a2a35;
+  --sidebar-accent: #3a3a4a;
+  --sidebar-accent-foreground: #EAE4F2;
+  --sidebar-border: #6a6a7a;
+  --sidebar-ring: #E0ABBA;
 }
 
 @theme inline {
