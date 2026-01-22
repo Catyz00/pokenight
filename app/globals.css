@@ -4,46 +4,46 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* PokeNight Theme - Vibrant Purple & Pink */
-  --background: oklch(0.98 0.01 300);
-  --foreground: oklch(0.15 0.03 300);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.03 300);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.03 300);
-  --primary: oklch(0.4 0.2 310);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.02 330);
-  --secondary-foreground: oklch(0.3 0.03 300);
-  --muted: oklch(0.94 0.01 300);
-  --muted-foreground: oklch(0.5 0.02 300);
-  --accent: oklch(0.5 0.18 310);
-  --accent-foreground: oklch(1 0 0);
+  /* PokeNight Theme - Custom Gray, Pink & Purple Palette */
+  --background: oklch(0.52 0.03 285);
+  --foreground: oklch(0.92 0.03 315);
+  --card: oklch(0.56 0.03 285);
+  --card-foreground: oklch(0.92 0.03 315);
+  --popover: oklch(0.56 0.03 285);
+  --popover-foreground: oklch(0.92 0.03 315);
+  --primary: oklch(0.78 0.08 355);
+  --primary-foreground: oklch(0.25 0.03 285);
+  --secondary: oklch(0.62 0.13 305);
+  --secondary-foreground: oklch(0.92 0.03 315);
+  --muted: oklch(0.48 0.02 285);
+  --muted-foreground: oklch(0.82 0.03 315);
+  --accent: oklch(0.62 0.13 305);
+  --accent-foreground: oklch(0.92 0.03 315);
   --destructive: oklch(0.5 0.22 15);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0.02 300);
-  --input: oklch(0.92 0.01 300);
-  --ring: oklch(0.4 0.2 310);
-  --chart-1: oklch(0.4 0.2 310);
-  --chart-2: oklch(0.7 0.2 340);
-  --chart-3: oklch(0.9 0.15 100);
+  --border: oklch(0.42 0.02 285);
+  --input: oklch(0.48 0.02 285);
+  --ring: oklch(0.78 0.08 355);
+  --chart-1: oklch(0.62 0.13 305);
+  --chart-2: oklch(0.78 0.08 355);
+  --chart-3: oklch(0.92 0.03 315);
   --chart-4: oklch(0.5 0.22 15);
-  --chart-5: oklch(0.5 0.18 310);
+  --chart-5: oklch(0.52 0.03 285);
   --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.01 300);
-  --sidebar-foreground: oklch(0.15 0.03 300);
-  --sidebar-primary: oklch(0.4 0.2 310);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.94 0.02 300);
-  --sidebar-accent-foreground: oklch(0.15 0.03 300);
-  --sidebar-border: oklch(0.88 0.02 300);
-  --sidebar-ring: oklch(0.4 0.2 310);
+  --sidebar: oklch(0.52 0.03 285);
+  --sidebar-foreground: oklch(0.92 0.03 315);
+  --sidebar-primary: oklch(0.78 0.08 355);
+  --sidebar-primary-foreground: oklch(0.25 0.03 285);
+  --sidebar-accent: oklch(0.62 0.13 305);
+  --sidebar-accent-foreground: oklch(0.92 0.03 315);
+  --sidebar-border: oklch(0.42 0.02 285);
+  --sidebar-ring: oklch(0.78 0.08 355);
   
   /* PokeNight Brand Colors */
-  --pokenight-purple-dark: #670e94;
-  --pokenight-purple: #733ca9;
+  --pokenight-purple-dark: #9D70B1;
+  --pokenight-purple: oklch(0.62 0.13 305);
   --pokenight-yellow: #f9f962;
-  --pokenight-pink: #ea5092;
+  --pokenight-pink: #E0ABBA;
   --pokenight-red: #c31c41;
   
   /* Rank Colors */
@@ -54,42 +54,42 @@
   --rank-green: oklch(0.6 0.2 145);
   --rank-blue: oklch(0.55 0.22 250);
   --rank-black: oklch(0.25 0 0);
-  --rank-purple: #733ca9;
+  --rank-purple: #9D70B1;
 }
 
 .dark {
-  --background: oklch(0.12 0.03 300);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.15 0.03 300);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.14 0.03 300);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.55 0.2 310);
-  --primary-foreground: oklch(0.12 0.03 300);
-  --secondary: oklch(0.22 0.03 300);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.2 0.02 300);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.6 0.18 310);
-  --accent-foreground: oklch(0.12 0.03 300);
+  --background: oklch(0.35 0.03 285);
+  --foreground: oklch(0.92 0.03 315);
+  --card: oklch(0.38 0.03 285);
+  --card-foreground: oklch(0.92 0.03 315);
+  --popover: oklch(0.38 0.03 285);
+  --popover-foreground: oklch(0.92 0.03 315);
+  --primary: oklch(0.78 0.08 355);
+  --primary-foreground: oklch(0.25 0.03 285);
+  --secondary: oklch(0.50 0.13 305);
+  --secondary-foreground: oklch(0.92 0.03 315);
+  --muted: oklch(0.30 0.02 285);
+  --muted-foreground: oklch(0.72 0.03 315);
+  --accent: oklch(0.65 0.13 305);
+  --accent-foreground: oklch(0.92 0.03 315);
   --destructive: oklch(0.55 0.22 15);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0.02 300);
-  --input: oklch(0.2 0.02 300);
-  --ring: oklch(0.55 0.2 310);
-  --chart-1: oklch(0.55 0.2 310);
-  --chart-2: oklch(0.7 0.18 340);
-  --chart-3: oklch(0.85 0.15 100);
+  --border: oklch(0.28 0.02 285);
+  --input: oklch(0.30 0.02 285);
+  --ring: oklch(0.78 0.08 355);
+  --chart-1: oklch(0.62 0.13 305);
+  --chart-2: oklch(0.78 0.08 355);
+  --chart-3: oklch(0.92 0.03 315);
   --chart-4: oklch(0.55 0.2 15);
-  --chart-5: oklch(0.6 0.18 310);
-  --sidebar: oklch(0.1 0.03 300);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.55 0.2 310);
-  --sidebar-primary-foreground: oklch(0.12 0.03 300);
-  --sidebar-accent: oklch(0.18 0.02 300);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.22 0.02 300);
-  --sidebar-ring: oklch(0.55 0.2 310);
+  --chart-5: oklch(0.52 0.03 285);
+  --sidebar: oklch(0.32 0.03 285);
+  --sidebar-foreground: oklch(0.92 0.03 315);
+  --sidebar-primary: oklch(0.78 0.08 355);
+  --sidebar-primary-foreground: oklch(0.25 0.03 285);
+  --sidebar-accent: oklch(0.42 0.10 305);
+  --sidebar-accent-foreground: oklch(0.92 0.03 315);
+  --sidebar-border: oklch(0.28 0.02 285);
+  --sidebar-ring: oklch(0.78 0.08 355);
 }
 
 @theme inline {
