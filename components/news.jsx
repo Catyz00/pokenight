@@ -59,7 +59,7 @@ const newsData = [
   },
 ]
 
-const getCategoryIcon = (category: string) => {
+const getCategoryIcon = (category) => {
   switch (category) {
     case "Evento":
       return Sparkles
@@ -74,7 +74,7 @@ const getCategoryIcon = (category: string) => {
   }
 }
 
-const getCategoryColor = (category: string) => {
+const getCategoryColor = (category) => {
   switch (category) {
     case "Evento":
       return "bg-gradient-to-r from-emerald-500 to-green-600 text-white border-0"

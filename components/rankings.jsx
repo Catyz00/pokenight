@@ -72,8 +72,8 @@ const tabs = [
   { id: "tower", label: "Torre", icon: Castle },
 ]
 
-const getRankBadgeColor = (color: string) => {
-  const colors: Record<string, string> = {
+const getRankBadgeColor = (color) => {
+  const colors = {
     "rank-gold": "bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950",
     "rank-silver": "bg-gradient-to-r from-slate-300 to-gray-400 text-slate-900",
     "rank-bronze": "bg-gradient-to-r from-orange-400 to-amber-600 text-orange-950",
@@ -86,7 +86,7 @@ const getRankBadgeColor = (color: string) => {
   return colors[color] || colors["rank-silver"]
 }
 
-const getPositionStyle = (index: number) => {
+const getPositionStyle = (index) => {
   if (index === 0) return { icon: Crown, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/30" }
   if (index === 1) return { icon: Medal, color: "text-slate-400", bg: "bg-slate-400/10 border-slate-400/30" }
   if (index === 2) return { icon: Medal, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/30" }
@@ -139,7 +139,7 @@ export function Rankings() {
                 </CardHeader>
                 <CardContent className="p-4">
                   <div className="space-y-3">
-                    {rankingsData[tab.id as keyof typeof rankingsData]
+                    {rankingsData[tab.id]
                       .sort((a, b) => b.score - a.score)
                       .map((player, index) => {
                         const position = getPositionStyle(index)

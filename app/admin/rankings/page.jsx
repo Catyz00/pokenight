@@ -57,7 +57,7 @@ const rankColors = [
   { value: "Purple", label: "Purple", color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
 ]
 
-const getRankColor = (rank: string) => {
+const getRankColor = (rank) => {
   const found = rankColors.find((r) => r.value === rank)
   return found?.color || "bg-zinc-500/20 text-zinc-400 border-zinc-500/20"
 }
@@ -68,7 +68,7 @@ export default function AdminRankings() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("level")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingPlayer, setEditingPlayer] = useState<typeof rankings[0] | null>(null)
+  const [editingPlayer, setEditingPlayer] = useState(null)
   const [formData, setFormData] = useState({
     name: "",
     rank: "Gold",
@@ -79,11 +79,11 @@ export default function AdminRankings() {
     .filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => b.score - a.score)
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id) => {
     setRankings(rankings.filter((item) => item.id !== id))
   }
 
-  const handleEdit = (player: typeof rankings[0]) => {
+  const handleEdit = (player) => {
     setEditingPlayer(player)
     setFormData({
       name: player.name,

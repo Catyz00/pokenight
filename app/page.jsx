@@ -1,9 +1,9 @@
-import { Navbar } from "@/components/navbar"
-import { Hero } from "@/components/hero"
-import { News } from "@/components/news"
-import { Rankings } from "@/components/rankings"
-import { Streamers } from "@/components/streamers"
-import { Footer } from "@/components/footer"
+import { Navbar } from '@/components/navbar'
+import { Hero } from '@/components/hero'
+import { News } from '@/components/news'
+import { Rankings } from '@/components/rankings'
+import { Streamers } from '@/components/streamers'
+import { Footer } from '@/components/footer'
 
 export default function HomePage() {
   return (

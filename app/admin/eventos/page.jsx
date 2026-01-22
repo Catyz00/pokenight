@@ -72,7 +72,7 @@ const initialEvents = [
   },
 ]
 
-const getTypeColor = (type: string) => {
+const getTypeColor = (type) => {
   switch (type) {
     case "Torneio":
       return "bg-amber-500/20 text-amber-400 border-amber-500/30"
@@ -85,7 +85,7 @@ const getTypeColor = (type: string) => {
   }
 }
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status) => {
   switch (status) {
     case "Ativo":
       return "bg-emerald-500/20 text-emerald-400"
@@ -109,7 +109,7 @@ export default function AdminEventos() {
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id) => {
     setEvents(events.filter((item) => item.id !== id))
   }
 
