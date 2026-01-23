@@ -117,7 +117,7 @@ export function Hero() {
               <Button
                 size="lg"
                 variant="outline"
-                className="gap-2 border-2 px-8 text-base font-semibold bg-transparent hover:bg-secondary"
+                className="gap-2 border-2 px-8 text-base font-semibold bg-transparent hover:bg-secondary hover:text-pokenight-text"
               >
                 <Play className="h-5 w-5" />
                 Como Jogar
@@ -174,7 +174,7 @@ export function Hero() {
               <Link href="/eventos" className="mt-4 block">
                 <Button
                   variant="ghost"
-                  className="w-full font-semibold text-primary hover:bg-primary/10 hover:text-primary"
+                  className="w-full font-semibold text-primary hover:bg-primary/10 hover:text-pokenight-bg"
                 >
                   Ver Detalhes do Torneio
                 </Button>
