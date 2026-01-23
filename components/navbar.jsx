@@ -47,7 +47,6 @@ const resourceLinks = [
   { name: 'Regras', href: '/regras', icon: BookOpen },
   { name: 'Videos', href: '/videos', icon: Video },
   { name: 'Wiki', href: '/wiki', icon: BookOpen },
-  { name: 'Forum', href: '/forum', icon: Users },
   { name: 'Suporte', href: '/suporte', icon: HelpCircle },
 ];
 
