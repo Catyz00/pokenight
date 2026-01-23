@@ -1,31 +1,18 @@
-import { Inter } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
+import { Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
+import './globals.css';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata = {
   title: 'PokeNight - Pokemon Online Game',
-  description: 'Jogue Pokemon online no PokeNight com ranking, eventos, torneios e uma comunidade ativa',
+  description:
+    'Jogue Pokemon online no PokeNight com ranking, eventos, torneios e uma comunidade ativa',
   generator: 'v0.app',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/polenightfllav.ico',
   },
-}
+};
 
 export default function RootLayout({ children }) {
   return (
@@ -35,5 +22,5 @@ export default function RootLayout({ children }) {
         <Analytics />
       </body>
     </html>
-  )
+  );
 }
