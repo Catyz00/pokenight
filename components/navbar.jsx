@@ -58,82 +58,76 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b-2 border-border bg-card/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 shrink-0">
             <Link href="/" className="flex items-center gap-2">
               <img
                 src="/logopokenight.png"
                 alt="PokeNight Logo"
-                className="h-17 w-30 mt-1"
+                className="h-18 w-auto object-contain mt-1"
               />
             </Link>
+          </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex lg:items-center lg:gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  <link.icon className="h-4 w-4" />
-                  {link.name}
-                </Link>
-              ))}
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex lg:items-center lg:gap-1 flex-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap"
+              >
+                <link.icon className="h-4 w-4" />
+                {link.name}
+              </Link>
+            ))}
 
-              {/* Community Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-                    <Users className="h-4 w-4" />
-                    Comunidade
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 border-2">
-                  {communityLinks.map((link) => (
-                    <DropdownMenuItem key={link.name} asChild>
-                      <Link
-                        href={link.href}
-                        className="flex items-center gap-2"
-                      >
-                        <link.icon className="h-4 w-4" />
-                        {link.name}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {/* Community Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap">
+                  <Users className="h-4 w-4" />
+                  Comunidade
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48 border-2">
+                {communityLinks.map((link) => (
+                  <DropdownMenuItem key={link.name} asChild>
+                    <Link href={link.href} className="flex items-center gap-2">
+                      <link.icon className="h-4 w-4" />
+                      {link.name}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-              {/* Resources Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-                    <BookOpen className="h-4 w-4" />
-                    Recursos
-                    <ChevronDown className="h-3 w-3" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 border-2">
-                  {resourceLinks.map((link) => (
-                    <DropdownMenuItem key={link.name} asChild>
-                      <Link
-                        href={link.href}
-                        className="flex items-center gap-2"
-                      >
-                        <link.icon className="h-4 w-4" />
-                        {link.name}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            {/* Resources Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap">
+                  <BookOpen className="h-4 w-4" />
+                  Recursos
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48 border-2">
+                {resourceLinks.map((link) => (
+                  <DropdownMenuItem key={link.name} asChild>
+                    <Link href={link.href} className="flex items-center gap-2">
+                      <link.icon className="h-4 w-4" />
+                      {link.name}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             {/* Search */}
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
