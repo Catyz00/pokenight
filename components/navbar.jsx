@@ -31,8 +31,7 @@ import {
 
 const navLinks = [
   { name: 'Home', href: '/', icon: Home },
-  { name: 'Como Jogar', href: '/como-jogar', icon: BookOpen },
-  { name: 'Baixar Jogo', href: '/download', icon: Download },
+  { name: 'Como Jogar', href: '/como-jogar', icon: Download },
 ];
 
 const communityLinks = [
@@ -187,6 +186,19 @@ export function Navbar() {
                 </svg>
               </a>
             </div>
+
+            {/* Live Badge */}
+            <a
+              href="/parceiros"
+              rel="noopener noreferrer"
+              className="hidden items-center gap-1.5 rounded-full bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-red-600/30 transition-all hover:bg-red-700 hover:shadow-xl hover:shadow-red-600/40 md:flex animate-pulse"
+            >
+              <span className="flex h-2 w-2">
+                <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
+              </span>
+              <span>4 AO VIVO</span>
+            </a>
 
             {/* CTA Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
