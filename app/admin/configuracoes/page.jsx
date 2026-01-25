@@ -22,7 +22,7 @@ export default function AdminConfiguracoes() {
     autoBackup: true,
     backupInterval: 24,
     primaryColor: "#22c55e",
-    footerText: "2026 PokeWorld. Todos os direitos reservados.",
+    footerText: "2026 PokeNight. Todos os direitos reservados.",
   })
 
   const handleSave = () => {

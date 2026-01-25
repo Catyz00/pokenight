@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import { Navbar } from '@/components/navbar';
+import { Footer } from '@/components/footer';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Users,
   ExternalLink,
@@ -19,7 +19,7 @@ import {
   Eye,
   Heart,
   Star,
-} from "lucide-react";
+} from 'lucide-react';
 
 function TwitchIcon({ className }) {
   return (
@@ -37,150 +37,87 @@ function YoutubeIcon({ className }) {
   );
 }
 
-// Dados de exemplo da Twitch
-const mockTwitchStreamers = [
-  {
-    id: "1",
-    username: "PokeTrainerMax",
-    displayName: "PokeTrainer Max",
-    title: "CACANDO SHINY RARO! | pokenight.com.br",
-    game: "Pokemon",
-    viewers: 1250,
-    thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=225&fit=crop",
-    profileImage: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=70&h=70&fit=crop",
-    isLive: true,
-    followers: 45000,
-  },
-  {
-    id: "2",
-    username: "AshMasterBR",
-    displayName: "Ash Master BR",
-    title: "TORNEIO SEMANAL AO VIVO | pokenight.com.br",
-    game: "Pokemon",
-    viewers: 890,
-    thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=225&fit=crop",
-    profileImage: "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=70&h=70&fit=crop",
-    isLive: true,
-    followers: 32000,
-  },
-  {
-    id: "3",
-    username: "MistyWaterPoke",
-    displayName: "Misty Water",
-    title: "Farmando EXP com a galera! pokenight.com.br",
-    game: "Pokemon",
-    viewers: 567,
-    thumbnail: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=400&h=225&fit=crop",
-    profileImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=70&h=70&fit=crop",
-    isLive: true,
-    followers: 28000,
-  },
-  {
-    id: "4",
-    username: "BrockGymLeader",
-    displayName: "Brock Gym Leader",
-    title: "Desafio dos 100 Pokemon | pokenight.com.br",
-    game: "Pokemon",
-    viewers: 432,
-    thumbnail: "https://images.unsplash.com/photo-1552820728-8b83bb6b2b0b?w=400&h=225&fit=crop",
-    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=70&h=70&fit=crop",
-    isLive: true,
-    followers: 19000,
-  },
-  {
-    id: "5",
-    username: "PikachuFan99",
-    displayName: "Pikachu Fan",
-    title: "Maratona Pokemon | pokenight.com.br",
-    game: "Pokemon",
-    viewers: 0,
-    thumbnail: "https://images.unsplash.com/photo-1493711662062-fa541f7f1f78?w=400&h=225&fit=crop",
-    profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=70&h=70&fit=crop",
-    isLive: false,
-    followers: 15000,
-  },
-  {
-    id: "6",
-    username: "EliteTrainerBR",
-    displayName: "Elite Trainer BR",
-    title: "Competitivo Pokemon | pokenight.com.br",
-    game: "Pokemon",
-    viewers: 0,
-    thumbnail: "https://images.unsplash.com/photo-1560419015785-5658abf4ff4e?w=400&h=225&fit=crop",
-    profileImage: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=70&h=70&fit=crop",
-    isLive: false,
-    followers: 22000,
-  },
-];
-
 // Dados de exemplo do YouTube (cadastrados manualmente)
 const mockYoutubers = [
   {
-    id: "1",
-    channelId: "UC123456",
-    channelName: "PokeNight Official",
-    description: "Canal oficial do PokeNight com tutoriais, novidades e gameplays",
+    id: '1',
+    channelId: 'UC123456',
+    channelName: 'PokeNight Official',
+    description:
+      'Canal oficial do PokeNight com tutoriais, novidades e gameplays',
     subscribers: 125000,
-    profileImage: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
-    bannerImage: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=200&fit=crop",
+    profileImage:
+      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop',
+    bannerImage:
+      'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&h=200&fit=crop',
     isVerified: true,
     isFeatured: true,
     latestVideo: {
-      title: "NOVO UPDATE! Tudo sobre a Geracao 9",
-      thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=320&h=180&fit=crop",
+      title: 'NOVO UPDATE! Tudo sobre a Geracao 9',
+      thumbnail:
+        'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=320&h=180&fit=crop',
       views: 45000,
-      date: "2024-01-15",
+      date: '2024-01-15',
     },
   },
   {
-    id: "2",
-    channelId: "UC789012",
-    channelName: "Pokemon Dicas BR",
-    description: "Dicas, truques e estrategias para Pokemon",
+    id: '2',
+    channelId: 'UC789012',
+    channelName: 'Pokemon Dicas BR',
+    description: 'Dicas, truques e estrategias para Pokemon',
     subscribers: 89000,
-    profileImage: "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=100&h=100&fit=crop",
-    bannerImage: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=200&fit=crop",
+    profileImage:
+      'https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=100&h=100&fit=crop',
+    bannerImage:
+      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=200&fit=crop',
     isVerified: true,
     isFeatured: false,
     latestVideo: {
-      title: "TOP 10 Pokemon mais fortes do meta",
-      thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=320&h=180&fit=crop",
+      title: 'TOP 10 Pokemon mais fortes do meta',
+      thumbnail:
+        'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=320&h=180&fit=crop',
       views: 32000,
-      date: "2024-01-14",
+      date: '2024-01-14',
     },
   },
   {
-    id: "3",
-    channelId: "UC345678",
-    channelName: "Shiny Hunter BR",
-    description: "Especialista em caca de Pokemon Shiny",
+    id: '3',
+    channelId: 'UC345678',
+    channelName: 'Shiny Hunter BR',
+    description: 'Especialista em caca de Pokemon Shiny',
     subscribers: 67000,
-    profileImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    bannerImage: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&h=200&fit=crop",
+    profileImage:
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+    bannerImage:
+      'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&h=200&fit=crop',
     isVerified: false,
     isFeatured: true,
     latestVideo: {
-      title: "SHINY CHARIZARD EM 5 MINUTOS!",
-      thumbnail: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=320&h=180&fit=crop",
+      title: 'SHINY CHARIZARD EM 5 MINUTOS!',
+      thumbnail:
+        'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=320&h=180&fit=crop',
       views: 78000,
-      date: "2024-01-13",
+      date: '2024-01-13',
     },
   },
   {
-    id: "4",
-    channelId: "UC901234",
-    channelName: "Competitivo Pokemon",
-    description: "Batalhas competitivas e analises de times",
+    id: '4',
+    channelId: 'UC901234',
+    channelName: 'Competitivo Pokemon',
+    description: 'Batalhas competitivas e analises de times',
     subscribers: 45000,
-    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    bannerImage: "https://images.unsplash.com/photo-1552820728-8b83bb6b2b0b?w=800&h=200&fit=crop",
+    profileImage:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+    bannerImage:
+      'https://images.unsplash.com/photo-1552820728-8b83bb6b2b0b?w=800&h=200&fit=crop',
     isVerified: false,
     isFeatured: false,
     latestVideo: {
-      title: "Como montar o time perfeito",
-      thumbnail: "https://images.unsplash.com/photo-1552820728-8b83bb6b2b0b?w=320&h=180&fit=crop",
+      title: 'Como montar o time perfeito',
+      thumbnail:
+        'https://images.unsplash.com/photo-1552820728-8b83bb6b2b0b?w=320&h=180&fit=crop',
       views: 21000,
-      date: "2024-01-12",
+      date: '2024-01-12',
     },
   },
 ];
@@ -191,46 +128,84 @@ function Loading() {
 
 export default function ParceirosPage() {
   const searchParams = useSearchParams();
-  const [searchTwitch, setSearchTwitch] = useState("");
-  const [searchYoutube, setSearchYoutube] = useState("");
+  const [searchTwitch, setSearchTwitch] = useState('');
+  const [searchYoutube, setSearchYoutube] = useState('');
+  const [liveStreamers, setLiveStreamers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredTwitch = mockTwitchStreamers.filter(
+  // Buscar streams ao vivo da API
+  useEffect(() => {
+    async function fetchLiveStreams() {
+      try {
+        const response = await fetch('/api/twitch/streams');
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          setLiveStreamers(data.data);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar streams:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchLiveStreams();
+
+    // Atualizar a cada 5 minutos
+    const interval = setInterval(fetchLiveStreams, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Usar apenas dados reais da API
+  const filteredTwitch = liveStreamers.filter(
     (s) =>
       s.displayName.toLowerCase().includes(searchTwitch.toLowerCase()) ||
-      s.title.toLowerCase().includes(searchTwitch.toLowerCase())
+      s.title.toLowerCase().includes(searchTwitch.toLowerCase()),
   );
 
   const filteredYoutube = mockYoutubers.filter(
     (y) =>
       y.channelName.toLowerCase().includes(searchYoutube.toLowerCase()) ||
-      y.description.toLowerCase().includes(searchYoutube.toLowerCase())
+      y.description.toLowerCase().includes(searchYoutube.toLowerCase()),
   );
 
-  const liveCount = mockTwitchStreamers.filter((s) => s.isLive).length;
+  const liveCount = liveStreamers.filter((s) => s.isLive).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <Navbar />
-
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="pt-24 pb-12 bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 text-white">
-        <div className="container mx-auto px-4">
+      <section className="pt-24 pb-12 bg-gradient-to-br from-background via-card to-secondary text-foreground relative overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute inset-0">
+          <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Nossos Parceiros
             </h1>
             <p className="text-lg text-white/90 mb-6">
-              Criadores de conteudo que apoiam a comunidade PokeNight. Streamers com{" "}
-              <span className="font-bold bg-white/20 px-2 py-1 rounded">pokenight.com.br</span> no titulo aparecem automaticamente!
+              Criadores de conteudo que apoiam a comunidade PokeNight. Streamers
+              com{' '}
+              <span className="font-bold bg-white/20 px-2 py-1 rounded">
+                pokenight.com.br
+              </span>{' '}
+              no titulo aparecem automaticamente!
             </p>
             <div className="flex items-center justify-center gap-6">
-              <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full">
-                <TwitchIcon className="w-5 h-5" />
-                <span className="font-semibold">{mockTwitchStreamers.length} Streamers</span>
+              <div className="flex items-center gap-2 bg-primary/20 border-2 border-primary/30 px-4 py-2 rounded-full">
+                <TwitchIcon className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">
+                  {liveStreamers.length} Streamers
+                </span>
               </div>
-              <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full">
-                <YoutubeIcon className="w-5 h-5" />
-                <span className="font-semibold">{mockYoutubers.length} Youtubers</span>
+              <div className="flex items-center gap-2 bg-primary/20 border-2 border-primary/30 px-4 py-2 rounded-full">
+                <YoutubeIcon className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">
+                  {mockYoutubers.length} Youtubers
+                </span>
               </div>
             </div>
           </div>
@@ -273,14 +248,18 @@ export default function ParceirosPage() {
               </div>
 
               {/* Info Box */}
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-8 max-w-2xl mx-auto">
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-4 mb-8 max-w-2xl mx-auto">
                 <div className="flex items-start gap-3">
-                  <TwitchIcon className="w-6 h-6 text-purple-600 mt-0.5" />
+                  <TwitchIcon className="w-6 h-6 text-primary mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-purple-900">Como aparecer aqui?</h3>
-                    <p className="text-sm text-purple-700">
-                      Basta adicionar <span className="font-bold">pokenight.com.br</span> no titulo da sua live na Twitch.
-                      Seu canal aparecera automaticamente enquanto estiver ao vivo!
+                    <h3 className="font-semibold text-foreground">
+                      Como aparecer aqui?
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Basta adicionar{' '}
+                      <span className="font-bold">pokenight.com.br</span> no
+                      titulo da sua live na Twitch. Seu canal aparecera
+                      automaticamente enquanto estiver ao vivo!
                     </p>
                   </div>
                 </div>
@@ -294,7 +273,9 @@ export default function ParceirosPage() {
                       <Circle className="w-2 h-2 fill-current mr-1" />
                       AO VIVO AGORA
                     </Badge>
-                    <span className="text-gray-600">{liveCount} streamers transmitindo</span>
+                    <span className="text-muted-foreground">
+                      {liveCount} streamers transmitindo
+                    </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredTwitch
@@ -309,7 +290,9 @@ export default function ParceirosPage() {
               {/* Offline Streamers */}
               {filteredTwitch.filter((s) => !s.isLive).length > 0 && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-6">Parceiros Offline</h3>
+                  <h3 className="text-xl font-semibold text-foreground mb-6">
+                    Parceiros Offline
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredTwitch
                       .filter((s) => !s.isLive)
@@ -337,14 +320,16 @@ export default function ParceirosPage() {
               </div>
 
               {/* Info Box */}
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8 max-w-2xl mx-auto">
+              <div className="bg-destructive/10 border-2 border-destructive/30 rounded-xl p-4 mb-8 max-w-2xl mx-auto">
                 <div className="flex items-start gap-3">
-                  <YoutubeIcon className="w-6 h-6 text-red-600 mt-0.5" />
+                  <YoutubeIcon className="w-6 h-6 text-destructive mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-red-900">Quer ser um parceiro?</h3>
-                    <p className="text-sm text-red-700">
-                      Entre em contato conosco pelo Discord ou envie um email para parcerias@pokenight.com.br
-                      com o link do seu canal!
+                    <h3 className="font-semibold text-foreground">
+                      Quer ser um parceiro?
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Entre em contato conosco pelo Discord ou envie um email
+                      para parcerias@pokenight.com.br com o link do seu canal!
                     </p>
                   </div>
                 </div>
@@ -354,14 +339,20 @@ export default function ParceirosPage() {
               {filteredYoutube.filter((y) => y.isFeatured).length > 0 && (
                 <div className="mb-10">
                   <div className="flex items-center gap-3 mb-6">
-                    <Star className="w-5 h-5 text-yellow-500" />
-                    <h3 className="text-xl font-semibold text-gray-900">Canais em Destaque</h3>
+                    <Star className="w-5 h-5 text-primary" />
+                    <h3 className="text-xl font-semibold text-foreground">
+                      Canais em Destaque
+                    </h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {filteredYoutube
                       .filter((y) => y.isFeatured)
                       .map((youtuber) => (
-                        <YoutubeCard key={youtuber.id} youtuber={youtuber} featured />
+                        <YoutubeCard
+                          key={youtuber.id}
+                          youtuber={youtuber}
+                          featured
+                        />
                       ))}
                   </div>
                 </div>
@@ -369,7 +360,9 @@ export default function ParceirosPage() {
 
               {/* All Channels */}
               <div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-6">Todos os Parceiros</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-6">
+                  Todos os Parceiros
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredYoutube.map((youtuber) => (
                     <YoutubeCard key={youtuber.id} youtuber={youtuber} />
@@ -380,8 +373,6 @@ export default function ParceirosPage() {
           </Tabs>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }
@@ -394,17 +385,19 @@ function TwitchCard({ streamer }) {
       rel="noopener noreferrer"
       className="group"
     >
-      <Card className={`overflow-hidden border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-        streamer.isLive
-          ? "border-purple-400 hover:border-purple-500 hover:shadow-purple-500/20"
-          : "border-transparent hover:border-gray-300"
-      }`}>
+      <Card
+        className={`overflow-hidden border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+          streamer.isLive
+            ? 'border-purple-400 hover:border-purple-500 hover:shadow-purple-500/20'
+            : 'border-transparent hover:border-gray-300'
+        }`}
+      >
         {/* Thumbnail */}
         <div className="relative aspect-video">
           <img
-            src={streamer.thumbnail || "/placeholder.svg"}
+            src={streamer.thumbnail || '/placeholder.svg'}
             alt={streamer.title}
-            className={`w-full h-full object-cover ${!streamer.isLive && "grayscale opacity-70"}`}
+            className={`w-full h-full object-cover ${!streamer.isLive && 'grayscale opacity-70'}`}
           />
           {streamer.isLive && (
             <>
@@ -415,7 +408,10 @@ function TwitchCard({ streamer }) {
                 </Badge>
               </div>
               <div className="absolute bottom-2 left-2">
-                <Badge variant="secondary" className="bg-black/70 text-white text-xs">
+                <Badge
+                  variant="secondary"
+                  className="bg-black/70 text-white text-xs"
+                >
                   <Users className="w-3 h-3 mr-1" />
                   {streamer.viewers.toLocaleString()}
                 </Badge>
@@ -430,16 +426,18 @@ function TwitchCard({ streamer }) {
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <img
-              src={streamer.profileImage || "/placeholder.svg"}
+              src={streamer.profileImage || '/placeholder.svg'}
               alt={streamer.displayName}
-              className={`w-10 h-10 rounded-full ring-2 ${streamer.isLive ? "ring-purple-400" : "ring-gray-300"}`}
+              className={`w-10 h-10 rounded-full ring-2 ${streamer.isLive ? 'ring-purple-400' : 'ring-gray-300'}`}
             />
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
                 {streamer.displayName}
               </h3>
               <p className="text-sm text-gray-500 truncate">
-                {streamer.isLive ? streamer.title : `${streamer.followers.toLocaleString()} seguidores`}
+                {streamer.isLive
+                  ? streamer.title
+                  : `${streamer.followers.toLocaleString()} seguidores`}
               </p>
             </div>
           </div>
@@ -457,30 +455,36 @@ function YoutubeCard({ youtuber, featured = false }) {
       rel="noopener noreferrer"
       className="group"
     >
-      <Card className={`overflow-hidden border-2 border-transparent hover:border-red-400 transition-all duration-300 hover:shadow-xl hover:shadow-red-500/20 hover:-translate-y-1 ${
-        featured ? "md:flex" : ""
-      }`}>
+      <Card
+        className={`overflow-hidden border-2 border-transparent hover:border-red-400 transition-all duration-300 hover:shadow-xl hover:shadow-red-500/20 hover:-translate-y-1 ${
+          featured ? 'md:flex' : ''
+        }`}
+      >
         {featured ? (
           <>
             {/* Featured Layout */}
             <div className="relative md:w-1/2 aspect-video md:aspect-auto">
               <img
-                src={youtuber.bannerImage || "/placeholder.svg"}
+                src={youtuber.bannerImage || '/placeholder.svg'}
                 alt={youtuber.channelName}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-4 left-4 flex items-center gap-3">
                 <img
-                  src={youtuber.profileImage || "/placeholder.svg"}
+                  src={youtuber.profileImage || '/placeholder.svg'}
                   alt={youtuber.channelName}
                   className="w-12 h-12 rounded-full ring-2 ring-white"
                 />
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-white">{youtuber.channelName}</h3>
+                    <h3 className="font-bold text-white">
+                      {youtuber.channelName}
+                    </h3>
                     {youtuber.isVerified && (
-                      <Badge className="bg-red-600 text-white text-xs">Verificado</Badge>
+                      <Badge className="bg-red-600 text-white text-xs">
+                        Verificado
+                      </Badge>
                     )}
                   </div>
                   <p className="text-sm text-white/80">
@@ -491,13 +495,17 @@ function YoutubeCard({ youtuber, featured = false }) {
             </div>
             <CardContent className="md:w-1/2 p-4 flex flex-col justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-4">{youtuber.description}</p>
+                <p className="text-sm text-gray-600 mb-4">
+                  {youtuber.description}
+                </p>
                 {youtuber.latestVideo && (
                   <div className="bg-gray-50 rounded-lg p-3">
                     <p className="text-xs text-gray-500 mb-2">Ultimo video</p>
                     <div className="flex gap-3">
                       <img
-                        src={youtuber.latestVideo.thumbnail || "/placeholder.svg"}
+                        src={
+                          youtuber.latestVideo.thumbnail || '/placeholder.svg'
+                        }
                         alt={youtuber.latestVideo.title}
                         className="w-24 h-14 object-cover rounded"
                       />
@@ -514,7 +522,10 @@ function YoutubeCard({ youtuber, featured = false }) {
                   </div>
                 )}
               </div>
-              <Button variant="outline" className="mt-4 w-full border-red-300 text-red-600 hover:bg-red-50 bg-transparent">
+              <Button
+                variant="outline"
+                className="mt-4 w-full border-red-300 text-red-600 hover:bg-red-50 bg-transparent"
+              >
                 <Play className="w-4 h-4 mr-2" />
                 Ver Canal
               </Button>
@@ -536,7 +547,7 @@ function YoutubeCard({ youtuber, featured = false }) {
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
                 <img
-                  src={youtuber.profileImage || "/placeholder.svg"}
+                  src={youtuber.profileImage || '/placeholder.svg'}
                   alt={youtuber.channelName}
                   className="w-10 h-10 rounded-full ring-2 ring-red-400"
                 />
@@ -546,7 +557,11 @@ function YoutubeCard({ youtuber, featured = false }) {
                       {youtuber.channelName}
                     </h3>
                     {youtuber.isVerified && (
-                      <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24" fill="currentColor">
+                      <svg
+                        className="w-4 h-4 text-red-600"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                       </svg>
                     )}
