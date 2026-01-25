@@ -133,7 +133,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline hover:decoration-pokemon-blue underline-offset-2"
                   >
                     <link.icon className="h-4 w-4" />
                     {link.name}
@@ -153,7 +153,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline hover:decoration-pokemon-blue underline-offset-2"
                   >
                     <link.icon className="h-4 w-4" />
                     {link.name}
@@ -173,7 +173,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline hover:decoration-pokemon-blue underline-offset-2"
                   >
                     <link.icon className="h-4 w-4" />
                     {link.name}
@@ -188,18 +188,24 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t-2 border-border pt-8 sm:flex-row">
           <p className="flex items-center gap-1 text-sm text-muted-foreground">
             2026 PokeWorld. Feito com{' '}
-            <Heart className="h-4 w-4 text-pokemon-red" /> para treinadores.
+            <Heart className="h-4 w-4 text-pokemon-red" /> por
+            <Link
+              className="ml-1 font-medium text-primary hover:underline hover:decoration-pokemon-blue underline-offset-2"
+              href="https://catarinaribeirodev.vercel.app/"
+            >
+              Catarina Dalsan
+            </Link>
           </p>
           <div className="flex gap-6">
             <Link
               href="/termos"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline hover:decoration-pokemon-blue underline-offset-2"
             >
               Termos de Uso
             </Link>
             <Link
               href="/privacidade"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline hover:decoration-pokemon-blue underline-offset-2"
             >
               Privacidade
             </Link>
