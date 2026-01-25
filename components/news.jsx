@@ -115,8 +115,8 @@ export function News() {
       <div className="absolute -right-32 top-0 h-64 w-64 rounded-full bg-pokemon-yellow/10 blur-3xl" />
       <div className="absolute -left-32 bottom-0 h-64 w-64 rounded-full bg-pokemon-blue/10 blur-3xl" />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 flex items-center justify-between">
+      <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 flex flex-col items-center text-center">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-pokemon-yellow/30 bg-pokemon-yellow/10 px-4 py-1.5">
               <Newspaper className="h-5 w-5 text-pokemon-orange" />
@@ -131,15 +131,6 @@ export function News() {
               Fique por dentro de tudo que acontece no jogo
             </p>
           </div>
-          <Link href="/noticias" className="hidden sm:block">
-            <Button
-              variant="outline"
-              className="gap-2 border-2 bg-transparent font-semibold hover:bg-secondary hover:text-pokenight-text"
-            >
-              Ver Todas
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
         </div>
 
         {/* Featured News */}
@@ -149,7 +140,7 @@ export function News() {
             return (
               <Card
                 key={news.id}
-                className="group overflow-hidden border-2 border-border bg-card shadow-lg transition-all hover:border-primary/50 hover:shadow-xl"
+                className="group w-full overflow-hidden border-2 border-border bg-card shadow-lg transition-all hover:border-primary/50 hover:shadow-xl"
               >
                 <CardHeader className="pb-3">
                   <div className="mb-3 flex items-center gap-3">
@@ -170,16 +161,9 @@ export function News() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="line-clamp-2 text-muted-foreground">
+                  <p className="text-muted-foreground">
                     {news.excerpt}
                   </p>
-                  <Link
-                    href={`/noticias/${news.id}`}
-                    className="mt-4 inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-                  >
-                    Ler mais
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
                 </CardContent>
               </Card>
             );
@@ -187,13 +171,13 @@ export function News() {
         </div>
 
         {/* Regular News Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
           {regularNews.slice(0, 4).map((news) => {
             const CategoryIcon = getCategoryIcon(news.category);
             return (
               <Card
                 key={news.id}
-                className="group border-2 border-border bg-card shadow-md transition-all hover:border-primary/50 hover:shadow-lg"
+                className="group w-full border-2 border-border bg-card shadow-md transition-all hover:border-primary/50 hover:shadow-lg"
               >
                 <CardContent className="p-4">
                   <div className="mb-3">
@@ -207,20 +191,14 @@ export function News() {
                   <h3 className="mb-2 line-clamp-2 font-semibold text-foreground transition-colors group-hover:text-primary">
                     {news.title}
                   </h3>
-                  <p className="mb-3 line-clamp-2 text-sm text-muted-foreground">
+                  <p className="mb-3 text-sm text-muted-foreground">
                     {news.excerpt}
                   </p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-start">
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
                       {new Date(news.date).toLocaleDateString('pt-BR')}
                     </span>
-                    <Link
-                      href={`/noticias/${news.id}`}
-                      className="text-xs font-semibold text-primary hover:underline"
-                    >
-                      Ler mais
-                    </Link>
                   </div>
                 </CardContent>
               </Card>
