@@ -45,12 +45,8 @@ export function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-pokemon-blue shadow-lg shadow-primary/30">
-                <Gamepad2 className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold text-foreground">
-                Poke<span className="text-primary">World</span>
-              </span>
+              {/* Coloque o arquivo de imagem em public/pokenight-logo.png */}
+              <img src="/logopokenight.png" alt="PokeNight" className="h-30 w-auto" />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
               A melhor experiencia Pokemon online. Junte-se a milhares de
@@ -186,8 +182,10 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t-2 border-border pt-8 sm:flex-row">
-          <p className="flex items-center gap-1 text-sm text-muted-foreground">
-            2026 PokeWorld. Feito com{' '}
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="text-sm">2026 PokeNight</span>
+            
+            <span>Feito com</span>
             <Heart className="h-4 w-4 text-pokemon-red" /> por
             <Link
               className="ml-1 font-medium text-primary hover:underline hover:decoration-pokemon-blue underline-offset-2"
