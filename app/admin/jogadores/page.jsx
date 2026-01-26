@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Search, MoreHorizontal, Eye, Ban, Shield, Mail, Users } from "lucide-react"
-import { useSearchParams, Suspense } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Loading from "./loading"
 
 // Dados de exemplo - na versao real viram do PHP/MariaDB
@@ -88,7 +88,7 @@ const initialPlayers = [
   },
 ]
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status) => {
   switch (status) {
     case "Online":
       return "bg-emerald-500/20 text-emerald-400"
@@ -112,7 +112,7 @@ export default function AdminJogadores() {
       item.email.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const toggleBan = (id: number) => {
+  const toggleBan = (id) => {
     setPlayers(
       players.map((player) =>
         player.id === id

@@ -68,7 +68,7 @@ const initialNews = [
   },
 ]
 
-const getCategoryColor = (category: string) => {
+const getCategoryColor = (category) => {
   switch (category) {
     case "Evento":
       return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
@@ -83,7 +83,7 @@ const getCategoryColor = (category: string) => {
   }
 }
 
-const getStatusColor = (status: string) => {
+const getStatusColor = (status) => {
   switch (status) {
     case "Publicado":
       return "bg-emerald-500/20 text-emerald-400"
@@ -103,7 +103,7 @@ export default function AdminNoticias() {
     item.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id) => {
     setNews(news.filter((item) => item.id !== id))
   }
 
