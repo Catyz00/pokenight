@@ -17,6 +17,12 @@ export const metadata = {
 export default function ComoJogarPage() {
   return (
     <main className="relative mx-auto max-w-4xl px-6 py-20 sm:px-8">
+  <div className="fixed inset-0 pointer-events-none -z-10" aria-hidden="true">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-pokenight-yellow/5 to-pokenight-red/10" />
+        <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-pokenight-yellow/20 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pokenight-red/10 blur-3xl" />
+      </div>
       {/* Hero minimalista */}
       <section className="mb-20 text-center">
         <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-5xl">
@@ -34,47 +40,47 @@ export default function ComoJogarPage() {
 
       {/* Conteúdo principal */}
       <article className="space-y-16">
-        {/* Seção 1 */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-3">
+          {/* Seção 1 */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                 <User className="h-5 w-5 text-primary" aria-hidden="true" />
               </div>
-            <h2 className="text-2xl font-semibold text-foreground">Cadastro</h2>
-          </div>
-          <p className="pl-13 text-muted-foreground">
-            Crie sua conta em poucos minutos. Configure seus dados e personagem.
-            Recomendamos usar um email válido para recuperação de conta.
-          </p>
-        </section>
-
-        {/* Seção 2 */}
-        <section className="space-y-4">
-            <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <Download className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl font-semibold text-foreground">Cadastro</h2>
             </div>
-            <h2 className="text-2xl font-semibold text-foreground">Download</h2>
-          </div>
-          <p className="pl-13 text-muted-foreground">
-            Baixe o launcher oficial. Ele verificará atualizações e instalará o jogo
-            automaticamente. Simples e rápido.
-          </p>
-        </section>
+            <p className="pl-13 text-muted-foreground">
+              Crie sua conta em poucos minutos. Configure seus dados e personagem.
+              Recomendamos usar um email válido para recuperação de conta.
+            </p>
+          </section>
 
-        {/* Seção 3 */}
-        <section className="space-y-4">
+          {/* Seção 2 */}
+          <section className="space-y-4">
             <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <Play className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Download className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold text-foreground">Download</h2>
             </div>
+            <p className="pl-13 text-muted-foreground">
+              Baixe o launcher oficial. Ele verificará atualizações e instalará o jogo
+              automaticamente. Simples e rápido.
+            </p>
+          </section>
+
+          {/* Seção 3 */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Play className="h-5 w-5 text-primary" />
+              </div>
               <h2 className="text-2xl font-semibold text-foreground">Tutorial</h2>
-          </div>
-          <p className="pl-13 text-muted-foreground">
-            Siga o tutorial inicial no jogo. Você começará em uma cidade estilo Pallet e
-            aprenderá os comandos básicos. Jogar com amigos torna tudo mais divertido.
-          </p>
-        </section>
+            </div>
+            <p className="pl-13 text-muted-foreground">
+              Siga o tutorial inicial no jogo. Você começará em uma cidade estilo Pallet e
+              aprenderá os comandos básicos. Jogar com amigos torna tudo mais divertido.
+            </p>
+          </section>
 
         {/* Recursos */}
         <section className="space-y-6 border-t pt-16">
@@ -83,7 +89,7 @@ export default function ComoJogarPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Link 
               href="/wiki"
-              className="group flex items-center justify-between rounded-lg border border-border bg-card p-5 transition-colors hover:bg-accent"
+              className="group flex items-center justify-between rounded-lg border border-border bg-card p-5 transition-colors transition-shadow transform hover:bg-accent hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5"
             >
               <div className="flex items-center gap-3">
                 <BookOpen className="h-5 w-5 text-primary group-hover:text-[var(--color-primary-foreground)]" />
@@ -94,12 +100,11 @@ export default function ComoJogarPage() {
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-primary-foreground)]" />
             </Link>
-
             <a 
               href="https://www.youtube.com/embed/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center justify-between rounded-lg border border-border bg-card p-5 transition-colors hover:bg-accent"
+              className="group flex items-center justify-between rounded-lg border border-border bg-card p-5 transition-colors transition-shadow transform hover:bg-accent hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5"
             >
               <div className="flex items-center gap-3">
                 <Youtube className="h-5 w-5 text-red-500" />
