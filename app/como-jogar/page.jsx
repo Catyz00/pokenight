@@ -18,7 +18,7 @@ export default function ComoJogarPage() {
     <main className="relative mx-auto max-w-4xl px-6 py-20 sm:px-8">
       {/* Hero minimalista */}
       <section className="mb-20 text-center">
-        <h1 className="mb-4 text-5xl font-bold tracking-tight sm:text-6xl">
+        <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-5xl">
           <span className="text-foreground">Como&nbsp;</span>
           <span className="text-[var(--color-pokenight-yellow)]">Jogar</span>
         </h1>
