@@ -6,18 +6,23 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { AlertCircle, CheckCircle } from 'lucide-react'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { AlertCircle, CheckCircle, Eye, EyeOff, User, Star } from 'lucide-react'
 
 export default function RegisterPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
-    username: '',
+    login: '',
     email: '',
     password: '',
     confirmPassword: '',
+    nome: '',
+    genero: '',
   })
 
   const handleChange = (e) => {
@@ -36,12 +41,23 @@ export default function RegisterPage() {
 
     try {
       // Validação
-      if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+      if (
+        !formData.login ||
+        !formData.email ||
+        !formData.password ||
+        !formData.confirmPassword ||
+        !formData.nome ||
+        !formData.genero
+      ) {
         throw new Error('Por favor, preencha todos os campos')
       }
 
-      if (formData.username.length < 3) {
-        throw new Error('Username deve ter no mínimo 3 caracteres')
+      if (formData.login.length < 3) {
+        throw new Error('Login deve ter no mínimo 3 caracteres')
+      }
+
+      if (formData.nome.length < 2) {
+        throw new Error('Nome deve ter no mínimo 2 caracteres')
       }
 
       if (!formData.email.includes('@')) {
@@ -58,8 +74,10 @@ export default function RegisterPage() {
 
       // Aqui você faria a chamada para a API
       console.log('Register attempt:', {
-        username: formData.username,
+        login: formData.login,
         email: formData.email,
+        nome: formData.nome,
+        genero: formData.genero,
       })
 
       // Simular sucesso após 1 segundo
@@ -67,10 +85,12 @@ export default function RegisterPage() {
 
       setSuccess(true)
       setFormData({
-        username: '',
+        login: '',
         email: '',
         password: '',
         confirmPassword: '',
+        nome: '',
+        genero: '',
       })
 
       // Redirecionar após 2 segundos
@@ -106,64 +126,135 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <div className="space-y-2">
-            <label htmlFor="username" className="text-sm font-medium">
-              Username
-            </label>
-            <Input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="seu_username"
-              value={formData.username}
-              onChange={handleChange}
-              disabled={loading || success}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <User className="w-5 h-5 text-muted-foreground" />
+                Sua Conta
+              </h3>
+
+              <div className="space-y-2">
+                <label htmlFor="login" className="text-sm font-medium">
+                  Login
+                </label>
+                <Input
+                  id="login"
+                  name="login"
+                  type="text"
+                  placeholder="seu_login"
+                  value={formData.login}
+                  onChange={handleChange}
+                  disabled={loading || success}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={loading || success}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Star className="w-5 h-5 text-muted-foreground" />
+                Seu Personagem
+              </h3>
+
+              <div className="space-y-2">
+                <label htmlFor="nome" className="text-sm font-medium">
+                  Nome
+                </label>
+                <Input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  placeholder="Nome do personagem"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  disabled={loading || success}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="genero" className="text-sm font-medium">
+                  Gênero
+                </label>
+                <Select
+                  value={formData.genero}
+                  onValueChange={(value) => setFormData((p) => ({ ...p, genero: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o gênero" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="masculino">Masculino</SelectItem>
+                    <SelectItem value="feminino">Feminino</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
-            </label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="seu@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={loading || success}
-            />
-          </div>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                Senha
+              </label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={loading || success}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded"
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
 
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Senha
-            </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={loading || success}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="confirmPassword" className="text-sm font-medium">
-              Confirmar Senha
-            </label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              disabled={loading || success}
-            />
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="text-sm font-medium">
+                Confirmar Senha
+              </label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  disabled={loading || success}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((s) => !s)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded"
+                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={loading || success}>

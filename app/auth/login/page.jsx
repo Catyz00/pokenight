@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -36,7 +37,9 @@ export default function LoginPage() {
         throw new Error('Por favor, preencha todos os campos')
       }
 
-      if (!formData.email.includes('@')) {
+      // Se o usuário digitou um email (contém @), valide o formato.
+      // Caso contrário, aceitamos um login sem @.
+      if (formData.email.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
         throw new Error('Email inválido')
       }
 
@@ -72,13 +75,13 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
-              Email
+              Login ou Email
             </label>
             <Input
               id="email"
               name="email"
-              type="email"
-              placeholder="seu@email.com"
+              type="text"
+              placeholder="seu-usuario ou seu@email.com"
               value={formData.email}
               onChange={handleChange}
               disabled={loading}
@@ -89,15 +92,25 @@ export default function LoginPage() {
             <label htmlFor="password" className="text-sm font-medium">
               Senha
             </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={loading}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded"
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
