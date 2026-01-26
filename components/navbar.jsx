@@ -84,7 +84,7 @@ export function Navbar() {
             {/* Community Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap">
+                <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap hover:cursor-pointer">
                   <Users className="h-4 w-4" />
                   Comunidade
                   <ChevronDown className="h-3 w-3" />
@@ -93,7 +93,7 @@ export function Navbar() {
               <DropdownMenuContent align="start" className="w-48 border-2">
                 {communityLinks.map((link) => (
                   <DropdownMenuItem key={link.name} asChild>
-                    <Link href={link.href} className="flex items-center gap-2">
+                    <Link href={link.href} className="flex items-center gap-2 hover:cursor-pointer">
                       <link.icon className="h-4 w-4" />
                       {link.name}
                     </Link>
@@ -105,7 +105,7 @@ export function Navbar() {
             {/* Resources Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap">
+                <button className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground whitespace-nowrap hover:cursor-pointer">
                   <BookOpen className="h-4 w-4" />
                   Recursos
                   <ChevronDown className="h-3 w-3" />
@@ -114,8 +114,8 @@ export function Navbar() {
               <DropdownMenuContent align="start" className="w-48 border-2">
                 {resourceLinks.map((link) => (
                   <DropdownMenuItem key={link.name} asChild>
-                    <Link href={link.href} className="flex items-center gap-2">
-                      <link.icon className="h-4 w-4" />
+                    <Link href={link.href} className="flex items-center gap-2 hover:cursor-pointer">
+                      <link.icon className="h-4 w-4 " />
                       {link.name}
                     </Link>
                   </DropdownMenuItem>
@@ -197,7 +197,7 @@ export function Navbar() {
                 <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-white opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
               </span>
-              <span>4 AO VIVO</span>
+              <span>AO VIVO</span>
             </a>
 
             {/* CTA Buttons */}

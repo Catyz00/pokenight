@@ -173,9 +173,13 @@ export default function Rankings() {
             <span className="font-semibold text-primary">Hall da Fama</span>
           </div>
           <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-            Rankings Globais
+            <span>Rankings </span> <span className='text-primary'>Globais</span>
           </h2>
-          <p className="mt-3 text-muted-foreground">
+          <div
+          className="mx-auto mt-2 h-1 w-24 rounded bg-[var(--color-pokenight-yellow)]"
+          aria-hidden="true"
+        />
+          <p className="mt-5 text-muted-foreground">
             Acompanhe os melhores jogadores em cada categoria
           </p>
         </div>
