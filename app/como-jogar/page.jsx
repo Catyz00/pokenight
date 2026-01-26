@@ -3,6 +3,7 @@ import {
   Download,
   BookOpen,
   Play,
+  User,
   Youtube,
   Mail,
   ArrowRight,
@@ -36,10 +37,10 @@ export default function ComoJogarPage() {
         {/* Seção 1 */}
         <section className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <span className="text-lg font-bold text-primary">1</span>
-            </div>
-            <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Cadastro</h2>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <User className="h-5 w-5 text-primary" aria-hidden="true" />
+              </div>
+            <h2 className="text-2xl font-semibold text-foreground">Cadastro</h2>
           </div>
           <p className="pl-13 text-muted-foreground">
             Crie sua conta em poucos minutos. Configure seus dados e personagem.
@@ -53,7 +54,7 @@ export default function ComoJogarPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
               <Download className="h-5 w-5 text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Download</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Download</h2>
           </div>
           <p className="pl-13 text-muted-foreground">
             Baixe o launcher oficial. Ele verificará atualizações e instalará o jogo
@@ -67,7 +68,7 @@ export default function ComoJogarPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
               <Play className="h-5 w-5 text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Tutorial</h2>
+              <h2 className="text-2xl font-semibold text-foreground">Tutorial</h2>
           </div>
           <p className="pl-13 text-muted-foreground">
             Siga o tutorial inicial no jogo. Você começará em uma cidade estilo Pallet e
@@ -85,13 +86,13 @@ export default function ComoJogarPage() {
               className="group flex items-center justify-between rounded-lg border border-border bg-card p-5 transition-colors hover:bg-accent"
             >
               <div className="flex items-center gap-3">
-                <BookOpen className="h-5 w-5 text-primary" />
+                <BookOpen className="h-5 w-5 text-primary group-hover:text-[var(--color-primary-foreground)]" />
                 <div>
-                  <div className="font-semibold">Wiki</div>
-                  <div className="text-sm hover:text-black">Guias completos</div>
+                  <div className="font-semibold transition-colors group-hover:text-[var(--color-primary-foreground)]">Wiki</div>
+                  <div className="text-sm text-muted-foreground transition-colors group-hover:text-[var(--color-primary-foreground)]">Guias completos</div>
                 </div>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-primary-foreground)]" />
             </Link>
 
             <a 
@@ -103,11 +104,11 @@ export default function ComoJogarPage() {
               <div className="flex items-center gap-3">
                 <Youtube className="h-5 w-5 text-red-500" />
                 <div>
-                  <div className="font-semibold">Vídeo Tutorial</div>
-                  <div className="text-sm text-muted-foreground">Frokie Irado</div>
+                  <div className="font-semibold transition-colors group-hover:text-[var(--color-primary-foreground)]">Vídeo Tutorial</div>
+                  <div className="text-sm text-muted-foreground transition-colors group-hover:text-[var(--color-primary-foreground)]">Frokie Irado</div>
                 </div>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-primary-foreground)]" />
             </a>
           </div>
         </section>
