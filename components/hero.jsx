@@ -72,16 +72,16 @@ export function Hero() {
     <section className="relative overflow-hidden">
       {/* Colorful Background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-pokemon-yellow/5 to-pokemon-redxxxxxxxxxxxxx/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-pokenight-yellow/5 to-pokenight-red/10" />
         <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-pokemon-yellow/20 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pokemon-red/10 blur-3xl" />
+        <div className="absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-pokenight-yellow/20 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pokenight-red/10 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="text-center">
           {/* Badge */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-pokemon-yellow/50 bg-pokemon-yellow/20 px-4 py-1.5 text-sm font-semibold text-pokemon-orange">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-pokenight-yellow/50 bg-pokenight-yellow/20 px-4 py-1.5 text-sm font-semibold text-pokenight-yellow">
             <Sparkles className="h-4 w-4 animate-pulse" />
             Novo Evento Disponivel
             <Zap className="h-4 w-4" />
