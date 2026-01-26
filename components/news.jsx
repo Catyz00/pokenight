@@ -118,16 +118,20 @@ export function News() {
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col items-center text-center">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-pokemon-yellow/30 bg-pokemon-yellow/10 px-4 py-1.5">
-              <Newspaper className="h-5 w-5 text-pokemon-orange" />
-              <span className="font-semibold text-pokemon-orange">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-pokenight-yellow/30 bg-pokenight-yellow/10 px-4 py-1.5">
+              <Newspaper className="h-5 w-5 text-pokenight-yellow" />
+              <span className="font-semibold text-pokenight-yellow">
                 Ultimas Noticias
               </span>
             </div>
             <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-              Novidades e Noticias
+              <span className='text-foreground'>Novidades e&nbsp;</span><span className="text-pokenight-yellow">Notícias</span>
             </h2>
-            <p className="mt-3 text-muted-foreground">
+            <div
+          className="mx-auto mt-2 h-1 w-24 rounded bg-[var(--color-pokenight-yellow)]"
+          aria-hidden="true"
+        />
+            <p className="mt-5 text-muted-foreground">
               Fique por dentro de tudo que acontece no jogo
             </p>
           </div>
