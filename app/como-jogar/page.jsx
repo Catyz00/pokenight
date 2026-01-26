@@ -18,10 +18,15 @@ export default function ComoJogarPage() {
     <main className="relative mx-auto max-w-4xl px-6 py-20 sm:px-8">
       {/* Hero minimalista */}
       <section className="mb-20 text-center">
-        <h1 className="mb-4 text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] sm:text-6xl">
-          Como Jogar
+        <h1 className="mb-4 text-5xl font-bold tracking-tight sm:text-6xl">
+          <span className="text-foreground">Como&nbsp;</span>
+          <span className="text-[var(--color-pokenight-yellow)]">Jogar</span>
         </h1>
-        <p className="mx-auto max-w-xl text-lg text-muted-foreground">
+        <div
+          className="mx-auto mt-2 h-1 w-24 rounded bg-[var(--color-pokenight-yellow)]"
+          aria-hidden="true"
+        />
+        <p className="mx-auto max-w-xl text-lg text-muted-foreground mt-5">
           Um guia simples para começar sua jornada no PokeNight
         </p>
       </section>
