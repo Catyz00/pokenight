@@ -59,9 +59,11 @@ export default function LoginPage() {
 
   return (
     <Card className="w-full max-w-md">
-      <CardHeader className="space-y-2 text-center">
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>Acesse sua conta Pokenight</CardDescription>
+      <CardHeader className="flex flex-col items-center">
+        <CardTitle className="text-2xl text-center">Login</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground text-center">
+          Acesse sua conta Pokenight
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -89,9 +91,14 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Senha
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="text-sm font-medium">
+                Senha
+              </label>
+              <Link href="/auth/recuperar-senha" className="text-sm text-primary hover:underline font-medium">
+                Esqueceu sua senha?
+              </Link>
+            </div>
             <div className="relative">
               <Input
                 id="password"
