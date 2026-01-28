@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
+import SocialSidebar from '@/components/social-sidebar';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
       <body className={`${inter.className} font-sans antialiased`}>
         <div className="flex min-h-screen flex-col">
           <Navbar />
+          <SocialSidebar />
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
