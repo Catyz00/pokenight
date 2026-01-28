@@ -27,6 +27,14 @@ export async function POST(request) {
       )
     }
 
+    // Validar apenas letras e espaços
+    if (!/^[a-zA-Z\s]+$/.test(characterName)) {
+      return NextResponse.json(
+        { error: 'Nome deve conter apenas letras (sem números ou caracteres especiais)' },
+        { status: 400 }
+      )
+    }
+
     if (!['masculino', 'feminino'].includes(gender)) {
       return NextResponse.json(
         { error: 'Gênero inválido' },

@@ -129,6 +129,17 @@ export default function PerfilPage() {
       return
     }
 
+    // Validar apenas letras e espaços
+    if (!/^[a-zA-Z\s]+$/.test(newCharacter.name)) {
+      setFormError('O nome deve conter apenas letras')
+      toast({
+        variant: "destructive",
+        title: "✗ Erro ao criar personagem",
+        description: "O nome deve conter apenas letras (sem números ou caracteres especiais)",
+      })
+      return
+    }
+
     try {
       // Chamar API para criar personagem no banco
       const response = await fetch('/api/characters/create', {

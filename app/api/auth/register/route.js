@@ -63,7 +63,7 @@ export async function POST(request) {
 
     if (!/^[a-zA-Z\s]+$/.test(nome)) {
       return NextResponse.json(
-        { error: 'Nome do personagem deve conter apenas letras' },
+        { error: 'Nome do personagem deve conter apenas letras (sem números ou caracteres especiais)' },
         { status: 400 }
       )
     }
