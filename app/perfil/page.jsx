@@ -347,30 +347,25 @@ export default function PerfilPage() {
                 {characters.map((char) => (
                   <div
                     key={char.name}
-                    className="flex items-center justify-between rounded-lg border p-4"
+                    className="flex items-center gap-4 rounded-lg border p-4"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                        <Gamepad2 className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{char.name}</h3>
-                          <Badge
-                            variant={char.status === 'online' ? 'default' : 'secondary'}
-                            className="text-xs"
-                          >
-                            {char.status === 'online' ? 'Online' : 'Offline'}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Level {char.level} • {char.vocation}
-                        </p>
-                      </div>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Gamepad2 className="h-6 w-6 text-primary" />
                     </div>
-                    <Button variant="outline" size="sm">
-                      Ver Detalhes
-                    </Button>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">{char.name}</h3>
+                        <Badge
+                          variant={char.status === 'online' ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {char.status === 'online' ? 'Online' : 'Offline'}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Level {char.level} • {char.vocation}
+                      </p>
+                    </div>
                   </div>
                 ))}
                 
