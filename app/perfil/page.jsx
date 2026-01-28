@@ -205,9 +205,6 @@ export default function PerfilPage() {
 
               {/* Botões de Ação */}
               <div className="flex gap-2">
-                <Button variant="outline" size="icon">
-                  <Settings className="h-4 w-4" />
-                </Button>
                 <Button 
                   variant="outline" 
                   size="icon" 
@@ -484,30 +481,16 @@ export default function PerfilPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {[
-                    { name: 'Primeiro Level 100', date: '2026-01-20', xp: 500 },
-                    { name: 'Mestre das Dungeons', date: '2026-01-18', xp: 1000 },
-                    { name: 'Campeão PvP', date: '2026-01-15', xp: 1500 },
-                  ].map((achievement, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                          <Trophy className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{achievement.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(achievement.date).toLocaleDateString('pt-BR')}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary">+{achievement.xp} XP</Badge>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-center py-8 text-center">
+                  <div className="space-y-2">
+                    <Trophy className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                    <p className="text-muted-foreground">
+                      Nenhuma conquista ainda
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Continue jogando para desbloquear conquistas!
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
