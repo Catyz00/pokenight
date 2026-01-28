@@ -57,7 +57,7 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b-2 border-border bg-card/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-16 items-center gap-2">
           {/* Logo */}
           <div className="flex items-center gap-4 shrink-0">
             <Link href="/" className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:items-center lg:gap-1 flex-1">
+          <div className="hidden lg:flex lg:items-center lg:gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -123,12 +123,9 @@ export function Navbar() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
 
-          {/* Right Side */}
-          <div className="flex items-center gap-3 shrink-0">
             {/* Search */}
-            <div className="relative hidden sm:block">
+            <div className="relative ml-4">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
@@ -138,7 +135,10 @@ export function Navbar() {
                 className="w-48 border-2 pl-9 lg:w-64"
               />
             </div>
+          </div>
 
+          {/* Right Side */}
+          <div className="flex items-center gap-3 shrink-0 ml-auto">
             {/* CTA Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
               {/* User Profile Icon */}
