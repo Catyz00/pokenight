@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import mysql from 'mysql2/promise';
 
 export async function POST(request) {
   try {
@@ -79,18 +80,54 @@ export async function POST(request) {
     console.log('❌ Has error patterns?', hasError);
     console.log('✅ Contains "account management"?', cleanText.includes('account management'));
     
-    // Se tem erro E tem account management, priorizar account management (sucesso)
+    // Se não tem erro E tem account management, priorizar account management (sucesso)
     if (cleanText.includes('account management') && !hasError) {
       console.log('✅ Login bem-sucedido! Página de Account Management carregada.');
       
+      // Buscar email do usuário no banco de dados MySQL
+      let userEmail = '';
+      try {
+        const connection = await mysql.createConnection({
+          host: 'localhost',
+          user: 'root',
+          password: '',
+          database: 'global',
+        });
+        
+        console.log('✅ Conectado ao MySQL - database: global');
+        
+        const [rows] = await connection.execute(
+          'SELECT email FROM accounts WHERE name = ?',
+          [username]
+        );
+        
+        console.log('📧 Query result:', rows);
+        
+        await connection.end();
+        
+        if (rows && rows.length > 0 && rows[0].email) {
+          userEmail = rows[0].email;
+          console.log('✅ Email encontrado:', userEmail);
+        } else {
+          console.log('⚠️ Email não encontrado, usando padrão');
+          userEmail = username + '@pokenight.com';
+        }
+      } catch (e) {
+        console.log('❌ Erro ao buscar email:', e.message);
+        console.log('Stack:', e.stack);
+        userEmail = username + '@pokenight.com';
+      }
+      
       const cookies = response.headers.get('set-cookie');
       console.log('Cookies:', cookies);
+      console.log('Email retornado:', userEmail);
       
       return NextResponse.json(
         { 
           success: true,
           message: 'Login realizado com sucesso!',
-          username: username
+          username: username,
+          email: userEmail
         },
         { 
           status: 200,
@@ -124,15 +161,51 @@ export async function POST(request) {
     if (cleanText.includes('account management')) {
       console.log('Login bem-sucedido! Página de Account Management carregada.');
       
+      // Buscar email do usuário no banco de dados MySQL
+      let userEmail = '';
+      try {
+        const connection = await mysql.createConnection({
+          host: 'localhost',
+          user: 'root',
+          password: '',
+          database: 'global',
+        });
+        
+        console.log('✅ Conectado ao MySQL - database: global');
+        
+        const [rows] = await connection.execute(
+          'SELECT email FROM accounts WHERE name = ?',
+          [username]
+        );
+        
+        console.log('📧 Query result:', rows);
+        
+        await connection.end();
+        
+        if (rows && rows.length > 0 && rows[0].email) {
+          userEmail = rows[0].email;
+          console.log('✅ Email encontrado:', userEmail);
+        } else {
+          console.log('⚠️ Email não encontrado, usando padrão');
+          userEmail = username + '@pokenight.com';
+        }
+      } catch (e) {
+        console.log('❌ Erro ao buscar email:', e.message);
+        console.log('Stack:', e.stack);
+        userEmail = username + '@pokenight.com';
+      }
+      
       // Tentar extrair cookies de sessão
       const cookies = response.headers.get('set-cookie');
       console.log('Cookies:', cookies);
+      console.log('Email retornado:', userEmail);
       
       return NextResponse.json(
         { 
           success: true,
           message: 'Login realizado com sucesso!',
-          username: username
+          username: username,
+          email: userEmail
         },
         { 
           status: 200,

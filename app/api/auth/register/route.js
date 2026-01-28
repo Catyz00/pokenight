@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
+import mysql from 'mysql2/promise'
+import crypto from 'crypto'
 
 export async function POST(request) {
+  let connection = null;
+  
   try {
     const { login, email, password, nome, genero } = await request.json()
 
@@ -72,110 +76,83 @@ export async function POST(request) {
       )
     }
 
-    // URL do backend PHP (MyAAC)
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost'
-    const fullUrl = `${backendUrl}/index.php?subtopic=accountmanagement&action=createaccount`
-    
-    console.log('Backend URL:', fullUrl)
-    
-    // Preparar dados do formulário
-    const formData = new URLSearchParams({
-      account_name: login,
-      email: email,
-      password: password,
-      password2: password, // confirmação de senha
-      name: nome,
-      sex: genero === 'masculino' ? '1' : '0', // 1 = masculino, 0 = feminino
-      character_name: nome,
-      submit: 'Submit',
-    })
-    
-    console.log('Form data:', formData.toString())
-    
-    // Fazer requisição para o backend PHP
-    const response = await fetch(fullUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData.toString(),
+    // Conectar ao banco de dados
+    connection = await mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: '',
+      database: 'global',
     })
 
-    console.log('Response status:', response.status)
+    console.log('✅ Conectado ao MySQL - database: global')
 
-    if (!response.ok) {
-      console.error('Response not OK:', response.status, response.statusText)
-      throw new Error('Erro ao comunicar com o servidor')
-    }
+    // Verificar se conta já existe
+    const [accountCheck] = await connection.execute(
+      'SELECT id FROM accounts WHERE name = ?',
+      [login]
+    )
 
-    const text = await response.text()
-    console.log('Response text (primeiros 1500 chars):', text.substring(0, 1500))
-    
-    // Extrair mensagem do body (remover HTML)
-    const bodyMatch = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
-    let bodyContent = bodyMatch ? bodyMatch[1] : text
-    
-    // Remover scripts e styles
-    bodyContent = bodyContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    bodyContent = bodyContent.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    
-    // Remover tags HTML mas manter o texto
-    bodyContent = bodyContent.replace(/<[^>]+>/g, ' ')
-    bodyContent = bodyContent.replace(/\s+/g, ' ').trim()
-    
-    console.log('Body content (limpo):', bodyContent.substring(0, 500))
-    
-    // Verificar se houve erro na resposta
-    if (text.includes('error') || text.includes('Error') || 
-        bodyContent.toLowerCase().includes('already exist') ||
-        bodyContent.toLowerCase().includes('invalid') ||
-        bodyContent.toLowerCase().includes('please enter') ||
-        bodyContent.toLowerCase().includes('must be')) {
-      
-      let errorMessage = 'Erro ao criar conta. Verifique os dados.'
-      
-      // Procurar por mensagens específicas de erro
-      if (bodyContent.includes('already exist') || bodyContent.includes('já existe')) {
-        if (bodyContent.toLowerCase().includes('account')) {
-          errorMessage = 'Este nome de conta já está em uso.'
-        } else if (bodyContent.toLowerCase().includes('character') || bodyContent.toLowerCase().includes('name')) {
-          errorMessage = 'Este nome de personagem já está em uso.'
-        } else if (bodyContent.toLowerCase().includes('email')) {
-          errorMessage = 'Este email já está cadastrado.'
-        }
-      } else if (bodyContent.includes('Invalid') || bodyContent.includes('inválido')) {
-        errorMessage = 'Dados inválidos. Verifique os campos.'
-      } else if (bodyContent.includes('too short') || bodyContent.includes('muito curto')) {
-        errorMessage = 'Nome ou senha muito curtos.'
-      } else if (bodyContent.includes('too long') || bodyContent.includes('muito longo')) {
-        errorMessage = 'Nome ou senha muito longos.'
-      }
-      
-      console.error('Erro encontrado na resposta:', errorMessage)
-      console.error('Body content:', bodyContent.substring(0, 500))
-      
+    if (accountCheck.length > 0) {
+      await connection.end()
       return NextResponse.json(
-        { error: errorMessage },
+        { error: 'Este nome de conta já está em uso.' },
         { status: 400 }
       )
     }
-    
-    // Verificar se a conta foi criada com sucesso
-    if (bodyContent.includes('created successfully') || 
-        bodyContent.includes('Account Created') ||
-        bodyContent.includes('successfully created') ||
-        bodyContent.includes('criada com sucesso')) {
-      console.log('=== CONTA CRIADA COM SUCESSO ===')
-      return NextResponse.json({
-        success: true,
-        message: 'Conta criada com sucesso! Você já pode fazer login.',
-        accountName: login
-      })
+
+    // Verificar se email já existe
+    const [emailCheck] = await connection.execute(
+      'SELECT id FROM accounts WHERE email = ?',
+      [email]
+    )
+
+    if (emailCheck.length > 0) {
+      await connection.end()
+      return NextResponse.json(
+        { error: 'Este email já está cadastrado.' },
+        { status: 400 }
+      )
     }
 
-    console.log('=== SUCESSO (resposta genérica) ===')
-    
-    // Se chegou aqui sem erro, assumir sucesso
+    // Verificar se nome do personagem já existe
+    const [playerCheck] = await connection.execute(
+      'SELECT id FROM players WHERE name = ?',
+      [nome]
+    )
+
+    if (playerCheck.length > 0) {
+      await connection.end()
+      return NextResponse.json(
+        { error: 'Este nome de personagem já está em uso.' },
+        { status: 400 }
+      )
+    }
+
+    // Criptografar senha com SHA1 (padrão MyAAC/Tibia)
+    const passwordHash = crypto.createHash('sha1').update(password).digest('hex')
+
+    // Inserir conta no banco de dados
+    const [accountResult] = await connection.execute(
+      'INSERT INTO accounts (name, password, email, creation) VALUES (?, ?, ?, UNIX_TIMESTAMP())',
+      [login, passwordHash, email]
+    )
+
+    const accountId = accountResult.insertId
+    console.log('✅ Conta criada com ID:', accountId)
+
+    // Inserir personagem no banco de dados
+    const sex = genero === 'masculino' ? 1 : 0
+    const [playerResult] = await connection.execute(
+      `INSERT INTO players (name, account_id, sex, vocation, level, health, healthmax, mana, manamax, cap, town_id, posx, posy, posz, conditions, looktype, lookhead, lookbody, looklegs, lookfeet, lookaddons) 
+       VALUES (?, ?, ?, 0, 1, 150, 150, 0, 0, 400, 1, 160, 54, 7, '', ?, 0, 0, 0, 0, 0)`,
+      [nome, accountId, sex, sex === 1 ? 128 : 136] // looktype padrão
+    )
+
+    console.log('✅ Personagem criado com ID:', playerResult.insertId)
+
+    await connection.end()
+
+    console.log('=== CONTA E PERSONAGEM CRIADOS COM SUCESSO ===')
     return NextResponse.json({
       success: true,
       message: 'Conta criada com sucesso! Você já pode fazer login.',
@@ -186,8 +163,18 @@ export async function POST(request) {
     console.error('=== ERRO NO REGISTRO ===')
     console.error('Erro no registro:', error)
     console.error('Stack:', error.stack)
+    
+    // Fechar conexão se estiver aberta
+    if (connection) {
+      try {
+        await connection.end()
+      } catch (e) {
+        console.error('Erro ao fechar conexão:', e)
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Erro ao processar solicitação. Tente novamente mais tarde.' },
+      { error: error.message || 'Erro ao processar solicitação. Tente novamente mais tarde.' },
       { status: 500 }
     )
   }
