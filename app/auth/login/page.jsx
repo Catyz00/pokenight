@@ -58,7 +58,24 @@ export default function LoginPage() {
       // Login bem-sucedido
       console.log('Login successful:', data)
       
-      router.push('/admin')
+      // Salvar dados do usuário no localStorage
+      const userData = {
+        username: data.username || formData.username,
+        email: data.email || '',
+        createdAt: data.createdAt || new Date().toISOString().split('T')[0],
+        level: data.level || 1,
+        vocation: data.vocation || 'Novato',
+        guild: data.guild || 'Sem Guild',
+        rank: data.rank || 'Membro',
+      }
+      
+      localStorage.setItem('user', JSON.stringify(userData))
+      if (data.token) {
+        localStorage.setItem('token', data.token)
+      }
+      
+      // Redirecionar para perfil
+      router.push('/perfil')
     } catch (err) {
       setError(err.message)
     } finally {

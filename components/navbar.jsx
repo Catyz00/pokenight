@@ -27,6 +27,7 @@ import {
   Shield,
   Swords,
   Gamepad2,
+  User,
 } from 'lucide-react';
 
 const navLinks = [
@@ -202,6 +203,18 @@ export function Navbar() {
 
             {/* CTA Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
+              {/* User Profile Icon */}
+              <Link href="/perfil">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-full border-2 border-primary/20 hover:border-primary/50 transition-all"
+                  title="Meu Perfil"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
+              </Link>
+              
               <Link href="/auth/login">
                 <Button variant="ghost" size="sm" className="font-medium">
                   Entrar
