@@ -105,7 +105,7 @@ export default function PerfilPage() {
     router.push('/auth/login')
   }
 
-  const handleCreateCharacter = () => {
+  const handleCreateCharacter = async () => {
     setFormError('')
     
     // Validações
@@ -129,32 +129,49 @@ export default function PerfilPage() {
       return
     }
 
-    // Criar novo personagem
-    const newChar = {
-      name: newCharacter.name,
-      level: 1,
-      vocation: 'Novato',
-      world: 'Pokenight',
-      status: 'offline',
-      gender: newCharacter.gender,
-    }
+    try {
+      // Chamar API para criar personagem no banco
+      const response = await fetch('/api/characters/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: user.username,
+          characterName: newCharacter.name,
+          gender: newCharacter.gender,
+        }),
+      })
 
-    // Adicionar à lista de personagens
-    setCharacters([...characters, newChar])
-    
-    // Fechar dialog e limpar form
-    setIsDialogOpen(false)
-    setNewCharacter({ name: '', gender: '' })
-    
-    // Mostrar toast de sucesso
-    toast({
-      variant: "success",
-      title: "✓ Personagem criado!",
-      description: `${newChar.name} foi criado com sucesso.`,
-    })
-    
-    // Aqui você chamaria a API para criar o personagem no backend
-    console.log('Criar personagem:', newChar)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao criar personagem')
+      }
+
+      // Adicionar à lista de personagens
+      setCharacters([...characters, data.character])
+      
+      // Fechar dialog e limpar form
+      setIsDialogOpen(false)
+      setNewCharacter({ name: '', gender: '' })
+      
+      // Mostrar toast de sucesso
+      toast({
+        variant: "success",
+        title: "✓ Personagem criado!",
+        description: `${data.character.name} foi criado com sucesso.`,
+      })
+      
+      console.log('✅ Personagem criado:', data.character)
+    } catch (error) {
+      console.error('Erro ao criar personagem:', error)
+      toast({
+        variant: "destructive",
+        title: "✗ Erro ao criar personagem",
+        description: error.message,
+      })
+    }
   }
 
   // Mostrar loading enquanto carrega dados
@@ -290,8 +307,8 @@ export default function PerfilPage() {
                               <SelectValue placeholder="Selecione o sexo" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="male">Masculino</SelectItem>
-                              <SelectItem value="female">Feminino</SelectItem>
+                              <SelectItem value="masculino">Masculino</SelectItem>
+                              <SelectItem value="feminino">Feminino</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -397,8 +414,8 @@ export default function PerfilPage() {
                                 <SelectValue placeholder="Selecione o sexo" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="male">Masculino</SelectItem>
-                                <SelectItem value="female">Feminino</SelectItem>
+                                <SelectItem value="masculino">Masculino</SelectItem>
+                                <SelectItem value="feminino">Feminino</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
