@@ -539,17 +539,13 @@ export default function PerfilPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start hover:text-primary hover:border-primary hover:cursor-pointer">
                   <Mail className="mr-2 h-4 w-4" />
                   Alterar Email
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start hover:text-primary hover:border-primary hover:cursor-pointer">
                   <Shield className="mr-2 h-4 w-4" />
                   Alterar Senha
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Preferências
                 </Button>
                 <Button
                   variant="destructive"
