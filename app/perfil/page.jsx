@@ -55,35 +55,45 @@ export default function PerfilPage() {
   const [characters, setCharacters] = useState([]) // Movido para estado
 
   useEffect(() => {
-    // Verificar se há usuário logado
-    const loggedUser = localStorage.getItem('user')
-    
-    if (!loggedUser) {
-      // Se não houver usuário logado, redirecionar para login
-      router.push('/auth/login')
-      return
-    }
-
-    try {
-      const userData = JSON.parse(loggedUser)
-      setUser(userData)
+    const loadUserData = async () => {
+      // Verificar se há usuário logado
+      const loggedUser = localStorage.getItem('user')
       
-      // Inicializar personagens (futuramente buscar da API)
-      setCharacters([
-        {
-          name: userData.username,
-          level: userData.level || 1,
-          vocation: userData.vocation || 'Novato',
-          world: 'Pokenight',
-          status: 'offline',
-        },
-      ])
-    } catch (error) {
-      console.error('Erro ao carregar dados do usuário:', error)
-      router.push('/auth/login')
-    } finally {
-      setLoading(false)
+      if (!loggedUser) {
+        // Se não houver usuário logado, redirecionar para login
+        router.push('/auth/login')
+        return
+      }
+
+      try {
+        const userData = JSON.parse(loggedUser)
+        setUser(userData)
+        
+        // Buscar personagens reais do banco de dados
+        try {
+          const response = await fetch(`/api/characters?username=${encodeURIComponent(userData.username)}`)
+          const data = await response.json()
+          
+          if (data.success && data.characters) {
+            setCharacters(data.characters)
+            console.log('✅ Personagens carregados:', data.characters)
+          } else {
+            // Se não conseguir buscar, usar array vazio
+            setCharacters([])
+          }
+        } catch (error) {
+          console.error('Erro ao buscar personagens:', error)
+          setCharacters([])
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error)
+        router.push('/auth/login')
+      } finally {
+        setLoading(false)
+      }
     }
+    
+    loadUserData()
   }, [router])
 
   const handleLogout = () => {
