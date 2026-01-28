@@ -4,9 +4,28 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/hooks/use-toast'
+import { Toaster } from '@/components/ui/toaster'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   User,
   Mail,
@@ -18,13 +37,22 @@ import {
   Shield,
   Crown,
   Swords,
+  Plus,
 } from 'lucide-react'
 
 export default function PerfilPage() {
   const router = useRouter()
+  const { toast } = useToast()
   
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [newCharacter, setNewCharacter] = useState({
+    name: '',
+    gender: '',
+  })
+  const [formError, setFormError] = useState('')
+  const [characters, setCharacters] = useState([]) // Movido para estado
 
   useEffect(() => {
     // Verificar se há usuário logado
@@ -39,6 +67,17 @@ export default function PerfilPage() {
     try {
       const userData = JSON.parse(loggedUser)
       setUser(userData)
+      
+      // Inicializar personagens (futuramente buscar da API)
+      setCharacters([
+        {
+          name: userData.username,
+          level: userData.level || 1,
+          vocation: userData.vocation || 'Novato',
+          world: 'Pokenight',
+          status: 'offline',
+        },
+      ])
     } catch (error) {
       console.error('Erro ao carregar dados do usuário:', error)
       router.push('/auth/login')
@@ -54,6 +93,58 @@ export default function PerfilPage() {
     
     // Redirecionar para login
     router.push('/auth/login')
+  }
+
+  const handleCreateCharacter = () => {
+    setFormError('')
+    
+    // Validações
+    if (!newCharacter.name || !newCharacter.gender) {
+      setFormError('Por favor, preencha todos os campos')
+      toast({
+        variant: "destructive",
+        title: "✗ Erro ao criar personagem",
+        description: "Por favor, preencha todos os campos",
+      })
+      return
+    }
+
+    if (newCharacter.name.length < 2 || newCharacter.name.length > 29) {
+      setFormError('O nome deve ter entre 2 e 29 caracteres')
+      toast({
+        variant: "destructive",
+        title: "✗ Erro ao criar personagem",
+        description: "O nome deve ter entre 2 e 29 caracteres",
+      })
+      return
+    }
+
+    // Criar novo personagem
+    const newChar = {
+      name: newCharacter.name,
+      level: 1,
+      vocation: 'Novato',
+      world: 'Pokenight',
+      status: 'offline',
+      gender: newCharacter.gender,
+    }
+
+    // Adicionar à lista de personagens
+    setCharacters([...characters, newChar])
+    
+    // Fechar dialog e limpar form
+    setIsDialogOpen(false)
+    setNewCharacter({ name: '', gender: '' })
+    
+    // Mostrar toast de sucesso
+    toast({
+      variant: "success",
+      title: "✓ Personagem criado!",
+      description: `${newChar.name} foi criado com sucesso.`,
+    })
+    
+    // Aqui você chamaria a API para criar o personagem no backend
+    console.log('Criar personagem:', newChar)
   }
 
   // Mostrar loading enquanto carrega dados
@@ -72,17 +163,6 @@ export default function PerfilPage() {
   if (!user) {
     return null
   }
-
-  // Personagens de exemplo (futuramente buscar da API)
-  const characters = [
-    {
-      name: user.username,
-      level: user.level || 1,
-      vocation: user.vocation || 'Novato',
-      world: 'Pokenight',
-      status: 'offline',
-    },
-  ]
 
   return (
     <div className="min-h-screen bg-background pt-20">
@@ -153,11 +233,80 @@ export default function PerfilPage() {
           {/* Aba de Personagens */}
           <TabsContent value="characters" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Meus Personagens</CardTitle>
-                <CardDescription>
-                  Gerencie seus personagens no Pokenight
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Meus Personagens</CardTitle>
+                  <CardDescription>
+                    Gerencie seus personagens no Pokenight ({characters.length}/4)
+                  </CardDescription>
+                </div>
+                {characters.length < 4 && (
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Criar Personagem
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Criar Novo Personagem</DialogTitle>
+                        <DialogDescription>
+                          Preencha os dados do seu novo personagem
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        {formError && (
+                          <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3">
+                            <p className="text-sm text-destructive">{formError}</p>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="char-name">Nome do Personagem</Label>
+                          <Input
+                            id="char-name"
+                            placeholder="Digite o nome (2-29 caracteres)"
+                            value={newCharacter.name}
+                            onChange={(e) => setNewCharacter({ ...newCharacter, name: e.target.value })}
+                            maxLength={29}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="char-gender">Sexo</Label>
+                          <Select
+                            value={newCharacter.gender}
+                            onValueChange={(value) => setNewCharacter({ ...newCharacter, gender: value })}
+                          >
+                            <SelectTrigger id="char-gender">
+                              <SelectValue placeholder="Selecione o sexo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="male">Masculino</SelectItem>
+                              <SelectItem value="female">Feminino</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setIsDialogOpen(false)
+                            setNewCharacter({ name: '', gender: '' })
+                            setFormError('')
+                          }}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button onClick={handleCreateCharacter}>
+                          Criar Personagem
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 {characters.map((char) => (
@@ -189,6 +338,91 @@ export default function PerfilPage() {
                     </Button>
                   </div>
                 ))}
+                
+                {characters.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                      <Gamepad2 className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                    <h3 className="mb-2 text-lg font-semibold">Nenhum personagem</h3>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      Você ainda não criou nenhum personagem
+                    </p>
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="gap-2">
+                          <Plus className="h-4 w-4" />
+                          Criar Primeiro Personagem
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Criar Novo Personagem</DialogTitle>
+                          <DialogDescription>
+                            Preencha os dados do seu novo personagem
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          {formError && (
+                            <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3">
+                              <p className="text-sm text-destructive">{formError}</p>
+                            </div>
+                          )}
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="char-name-empty">Nome do Personagem</Label>
+                            <Input
+                              id="char-name-empty"
+                              placeholder="Digite o nome (2-29 caracteres)"
+                              value={newCharacter.name}
+                              onChange={(e) => setNewCharacter({ ...newCharacter, name: e.target.value })}
+                              maxLength={29}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="char-gender-empty">Sexo</Label>
+                            <Select
+                              value={newCharacter.gender}
+                              onValueChange={(value) => setNewCharacter({ ...newCharacter, gender: value })}
+                            >
+                              <SelectTrigger id="char-gender-empty">
+                                <SelectValue placeholder="Selecione o sexo" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="male">Masculino</SelectItem>
+                                <SelectItem value="female">Feminino</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-3">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setIsDialogOpen(false)
+                              setNewCharacter({ name: '', gender: '' })
+                              setFormError('')
+                            }}
+                          >
+                            Cancelar
+                          </Button>
+                          <Button onClick={handleCreateCharacter}>
+                            Criar Personagem
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
+                
+                {characters.length === 4 && (
+                  <div className="rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      Você atingiu o limite de 4 personagens por conta
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -314,6 +548,7 @@ export default function PerfilPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <Toaster />
     </div>
   )
 }
