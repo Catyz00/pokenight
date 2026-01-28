@@ -6,14 +6,15 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   })
 
@@ -31,20 +32,31 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Simulação de autenticação
-      if (!formData.email || !formData.password) {
+      // Validações básicas
+      if (!formData.username || !formData.password) {
         throw new Error('Por favor, preencha todos os campos')
       }
 
-      if (!formData.email.includes('@')) {
-        throw new Error('Email inválido')
+      // Chamar API de login
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao fazer login')
       }
 
-      // Aqui você faria a chamada para a API
-      console.log('Login attempt:', formData)
-      
-      // Simular sucesso após 1 segundo
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Login bem-sucedido
+      console.log('Login successful:', data)
       
       router.push('/admin')
     } catch (err) {
@@ -56,9 +68,11 @@ export default function LoginPage() {
 
   return (
     <Card className="w-full max-w-md">
-      <CardHeader className="space-y-2 text-center">
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>Acesse sua conta Pokenight</CardDescription>
+      <CardHeader className="flex flex-col items-center">
+        <CardTitle className="text-2xl text-center">Login</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground text-center">
+          Acesse sua conta Pokenight
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -71,33 +85,48 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
+            <label htmlFor="username" className="text-sm font-medium">
+              Username
             </label>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="seu@email.com"
-              value={formData.email}
+              id="username"
+              name="username"
+              type="text"
+              placeholder="Seu username"
+              value={formData.username}
               onChange={handleChange}
               disabled={loading}
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Senha
-            </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={loading}
-            />
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="text-sm font-medium">
+                Senha
+              </label>
+              <Link href="/auth/recuperar-senha" className="text-sm text-primary hover:underline font-medium">
+                Esqueceu sua senha?
+              </Link>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded"
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>

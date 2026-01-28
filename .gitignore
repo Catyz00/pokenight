@@ -19,6 +19,9 @@ yarn-error.log*
 # env files
 .env*
 
+# PHP config (não comitar senhas/keys)
+config.local.php
+
 # vercel
 .vercel
 

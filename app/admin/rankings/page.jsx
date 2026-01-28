@@ -321,6 +321,5 @@ export default function AdminRankings() {
   )
 }
 
-function Loading() {
-  return null
-}
+// Removed duplicate local `Loading` function because the file already imports `Loading` from "./loading".
+// Keep the imported `Loading` component.
