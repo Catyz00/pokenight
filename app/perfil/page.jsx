@@ -47,11 +47,18 @@ export default function PerfilPage() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [newCharacter, setNewCharacter] = useState({
     name: '',
     gender: '',
   })
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
   const [formError, setFormError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   const [characters, setCharacters] = useState([]) // Movido para estado
 
   useEffect(() => {
@@ -180,6 +187,65 @@ export default function PerfilPage() {
       toast({
         variant: "destructive",
         title: "✗ Erro ao criar personagem",
+        description: error.message,
+      })
+    }
+  }
+
+  const handleChangePassword = async () => {
+    setPasswordError('')
+
+    // Validações
+    if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setPasswordError('Preencha todos os campos')
+      return
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('A nova senha deve ter no mínimo 6 caracteres')
+      return
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('As senhas não coincidem')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/auth/alterar-senha', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: user.username,
+          oldPassword: passwordData.oldPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao alterar senha')
+      }
+
+      // Fechar dialog e limpar form
+      setIsPasswordDialogOpen(false)
+      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' })
+      
+      // Mostrar toast de sucesso
+      toast({
+        variant: "success",
+        title: "✓ Senha alterada!",
+        description: "Sua senha foi alterada com sucesso.",
+      })
+    } catch (error) {
+      console.error('Erro ao alterar senha:', error)
+      setPasswordError(error.message)
+      toast({
+        variant: "destructive",
+        title: "✗ Erro ao alterar senha",
         description: error.message,
       })
     }
@@ -543,7 +609,11 @@ export default function PerfilPage() {
                   <Mail className="mr-2 h-4 w-4" />
                   Alterar Email
                 </Button>
-                <Button variant="outline" className="w-full justify-start hover:text-primary hover:border-primary hover:cursor-pointer">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start hover:text-primary hover:border-primary hover:cursor-pointer"
+                  onClick={() => setIsPasswordDialogOpen(true)}
+                >
                   <Shield className="mr-2 h-4 w-4" />
                   Alterar Senha
                 </Button>
@@ -560,6 +630,92 @@ export default function PerfilPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modal de Alteração de Senha */}
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Alterar Senha</DialogTitle>
+            <DialogDescription>
+              Digite sua senha atual e escolha uma nova senha segura.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {passwordError && (
+              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                {passwordError}
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="oldPassword">Senha Atual</Label>
+              <Input
+                id="oldPassword"
+                type="password"
+                placeholder="Digite sua senha atual"
+                value={passwordData.oldPassword}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, oldPassword: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nova Senha</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                placeholder="Digite a nova senha (mínimo 6 caracteres)"
+                value={passwordData.newPassword}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, newPassword: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirme a Nova Senha</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Digite a nova senha novamente"
+                value={passwordData.confirmPassword}
+                onChange={(e) =>
+                  setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="text-sm text-muted-foreground">
+              Não lembra sua senha?{' '}
+              <a
+                href="/auth/recuperar-senha"
+                className="text-primary hover:underline cursor-pointer"
+              >
+                Clique aqui para recuperar
+              </a>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  setIsPasswordDialogOpen(false)
+                  setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' })
+                  setPasswordError('')
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button className="flex-1" onClick={handleChangePassword}>
+                Alterar Senha
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Toaster />
     </div>
   )
