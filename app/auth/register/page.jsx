@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -40,15 +40,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      // Validação
-      if (
-        !formData.login ||
-        !formData.email ||
-        !formData.password ||
-        !formData.confirmPassword ||
-        !formData.nome ||
-        !formData.genero
-      ) {
+      if (!formData.login || !formData.email || !formData.password || !formData.confirmPassword || !formData.nome || !formData.genero) {
         throw new Error('Por favor, preencha todos os campos')
       }
 
@@ -72,16 +64,25 @@ export default function RegisterPage() {
         throw new Error('As senhas não correspondem')
       }
 
-      // Aqui você faria a chamada para a API
-      console.log('Register attempt:', {
-        login: formData.login,
-        email: formData.email,
-        nome: formData.nome,
-        genero: formData.genero,
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          login: formData.login,
+          email: formData.email,
+          password: formData.password,
+          nome: formData.nome,
+          genero: formData.genero,
+        }),
       })
 
-      // Simular sucesso após 1 segundo
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao criar conta')
+      }
 
       setSuccess(true)
       setFormData({
@@ -93,9 +94,9 @@ export default function RegisterPage() {
         genero: '',
       })
 
-      // Redirecionar após 2 segundos
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      router.push('/auth/login')
+      setTimeout(() => {
+        router.push('/auth/login')
+      }, 2000)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -109,7 +110,6 @@ export default function RegisterPage() {
         <CardTitle className="text-2xl">Registre-se</CardTitle>
         <CardDescription>Crie sua conta Pokenight</CardDescription>
       </CardHeader>
-
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -118,84 +118,40 @@ export default function RegisterPage() {
               <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
-
           {success && (
             <div className="flex gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
               <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-emerald-600">Conta criada com sucesso! Redirecionando...</p>
             </div>
           )}
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <User className="w-5 h-5 text-muted-foreground" />
                 Sua Conta
               </h3>
-
               <div className="space-y-2">
-                <label htmlFor="login" className="text-sm font-medium">
-                  Login
-                </label>
-                <Input
-                  id="login"
-                  name="login"
-                  type="text"
-                  placeholder="seu_login"
-                  value={formData.login}
-                  onChange={handleChange}
-                  disabled={loading || success}
-                />
+                <label htmlFor="login" className="text-sm font-medium">Login</label>
+                <Input id="login" name="login" type="text" placeholder="seu_login" value={formData.login} onChange={handleChange} disabled={loading || success} />
               </div>
-
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={loading || success}
-                />
+                <label htmlFor="email" className="text-sm font-medium">Email</label>
+                <Input id="email" name="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={handleChange} disabled={loading || success} />
               </div>
             </div>
-
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Star className="w-5 h-5 text-muted-foreground" />
                 Seu Personagem
               </h3>
-
               <div className="space-y-2">
-                <label htmlFor="nome" className="text-sm font-medium">
-                  Nome
-                </label>
-                <Input
-                  id="nome"
-                  name="nome"
-                  type="text"
-                  placeholder="Nome do personagem"
-                  value={formData.nome}
-                  onChange={handleChange}
-                  disabled={loading || success}
-                />
+                <label htmlFor="nome" className="text-sm font-medium">Nome</label>
+                <Input id="nome" name="nome" type="text" placeholder="Nome do personagem" value={formData.nome} onChange={handleChange} disabled={loading || success} />
               </div>
-
               <div className="space-y-2">
-                <label htmlFor="genero" className="text-sm font-medium">
-                  Gênero
-                </label>
-                <Select
-                  value={formData.genero}
-                  onValueChange={(value) => setFormData((p) => ({ ...p, genero: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o gênero" />
-                  </SelectTrigger>
+                <label htmlFor="genero" className="text-sm font-medium">Gênero</label>
+                <Select value={formData.genero} onValueChange={(value) => setFormData((p) => ({ ...p, genero: value }))} disabled={loading || success}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o gênero" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="masculino">Masculino</SelectItem>
                     <SelectItem value="feminino">Feminino</SelectItem>
@@ -204,64 +160,30 @@ export default function RegisterPage() {
               </div>
             </div>
           </div>
-
           <div className="space-y-4 mt-4">
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Senha
-              </label>
+              <label htmlFor="password" className="text-sm font-medium">Senha</label>
               <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  disabled={loading || success}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded"
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                >
+                <Input id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="" value={formData.password} onChange={handleChange} disabled={loading || success} />
+                <button type="button" onClick={() => setShowPassword((s) => !s)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded" disabled={loading || success}>
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
-
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-medium">
-                Confirmar Senha
-              </label>
+              <label htmlFor="confirmPassword" className="text-sm font-medium">Confirmar Senha</label>
               <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  disabled={loading || success}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded"
-                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                >
+                <Input id="confirmPassword" name="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} placeholder="" value={formData.confirmPassword} onChange={handleChange} disabled={loading || success} />
+                <button type="button" onClick={() => setShowConfirmPassword((s) => !s)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded" disabled={loading || success}>
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
           </div>
-
           <Button type="submit" className="w-full" disabled={loading || success}>
             {loading ? 'Criando conta...' : 'Registrar'}
           </Button>
         </form>
-
         <div className="mt-4 text-center text-sm text-muted-foreground">
           Já tem uma conta?{' '}
           <Link href="/auth/login" className="text-primary hover:underline font-medium">

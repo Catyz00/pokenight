@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   })
 
@@ -32,22 +32,31 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Simulação de autenticação
-      if (!formData.email || !formData.password) {
+      // Validações básicas
+      if (!formData.username || !formData.password) {
         throw new Error('Por favor, preencha todos os campos')
       }
 
-      // Se o usuário digitou um email (contém @), valide o formato.
-      // Caso contrário, aceitamos um login sem @.
-      if (formData.email.includes('@') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        throw new Error('Email inválido')
+      // Chamar API de login
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao fazer login')
       }
 
-      // Aqui você faria a chamada para a API
-      console.log('Login attempt:', formData)
-      
-      // Simular sucesso após 1 segundo
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Login bem-sucedido
+      console.log('Login successful:', data)
       
       router.push('/admin')
     } catch (err) {
@@ -76,15 +85,15 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
-              Login ou Email
+            <label htmlFor="username" className="text-sm font-medium">
+              Username
             </label>
             <Input
-              id="email"
-              name="email"
+              id="username"
+              name="username"
               type="text"
-              placeholder="seu-usuario ou seu@email.com"
-              value={formData.email}
+              placeholder="Seu username"
+              value={formData.username}
               onChange={handleChange}
               disabled={loading}
             />
