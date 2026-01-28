@@ -70,7 +70,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex lg:items-center lg:gap-1">
+          <div className="hidden lg:flex lg:items-center lg:gap-1 ml-8">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -135,23 +135,24 @@ export function Navbar() {
                 className="w-48 border-2 pl-9 lg:w-64"
               />
             </div>
+
+            {/* User Profile Icon */}
+            <Link href="/perfil" className="ml-4">
+              <Button
+                variant="ghost"
+                className="h-9 gap-2 rounded-full border-2 border-primary/20 hover:border-primary/50 transition-all px-3"
+                title="Meu Perfil"
+              >
+                <User className="h-4 w-4" />
+                <span className="text-sm font-medium">Perfil</span>
+              </Button>
+            </Link>
           </div>
 
           {/* Right Side */}
           <div className="flex items-center gap-3 shrink-0 ml-auto">
             {/* CTA Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
-              {/* User Profile Icon */}
-              <Link href="/perfil">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-full border-2 border-primary/20 hover:border-primary/50 transition-all"
-                  title="Meu Perfil"
-                >
-                  <User className="h-4 w-4" />
-                </Button>
-              </Link>
               
               <Link href="/auth/login">
                 <Button variant="ghost" size="sm" className="font-medium">
