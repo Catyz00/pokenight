@@ -1,7 +1,6 @@
 // Componente de conquistas recentes baseado nas storages do personagem
 import React from 'react'
-import { CheckCircle, XCircle } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { Check, X } from 'lucide-react'
 
 // Lista fixa das conquistas/quests
 const QUESTS = [
@@ -20,35 +19,63 @@ const QUESTS = [
 ]
 
 export default function RecentAchievements({ storages }) {
+  const total = QUESTS.length
+  const completed = QUESTS.filter((q) => storages?.[q.storage] === 1).length
+  const percent = Math.round((completed / total) * 100)
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {QUESTS.map((quest) => {
-        const completed = storages?.[quest.storage] === 1
-        return (
+    <div className="w-full">
+      {/* Barra de progresso */}
+      <div className="mb-6 w-full">
+        <div className="flex justify-between items-center mb-1 px-1">
+          <span className="text-sm font-medium text-muted-foreground">
+            Progresso das Quests
+          </span>
+        </div>
+        <div className="relative w-full h-6 bg-muted rounded-full overflow-hidden">
           <div
-            key={quest.storage}
-            className={
-              'flex items-center gap-3 rounded-lg border px-4 py-3 bg-background shadow-sm ' +
-              (completed
-                ? 'border-green-400/60 bg-green-50/60'
-                : 'border-muted/40 bg-muted/30')
-            }
+            className="absolute left-0 top-0 h-6 bg-green-500 transition-all duration-500"
+            style={{ width: `${percent}%` }}
+          ></div>
+          <span
+            className="absolute w-full text-center text-xs font-bold text-white z-10 top-1 left-0 select-none"
+            style={{ textShadow: '0 1px 2px #0008' }}
           >
-            <div className={completed ? 'text-green-600' : 'text-gray-400'}>
-              {completed ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-            </div>
-            <div className="flex-1">
-              <div className={completed ? 'font-semibold text-green-700' : 'font-semibold text-gray-500'}>
+            {percent}%
+          </span>
+        </div>
+      </div>
+      {/* Grid 3 colunas para as quests, ocupando toda a largura */}
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {QUESTS.map((quest) => {
+          const isCompleted = storages?.[quest.storage] === 1
+          return (
+            <div
+              key={quest.storage}
+              className="flex items-center gap-3 p-3 rounded-lg bg-background border border-muted shadow-sm"
+            >
+              <span
+                className={
+                  'flex items-center justify-center rounded-full w-7 h-7 border-2 text-lg ' +
+                  (isCompleted
+                    ? 'border-green-500 bg-green-100 text-green-600'
+                    : 'border-red-500 bg-red-100 text-red-600')
+                }
+              >
+                {isCompleted ? <Check size={18} /> : <X size={18} />}
+              </span>
+              <span
+                className={
+                  'font-semibold break-words ' +
+                  (isCompleted ? 'text-green-700' : 'text-red-600')
+                }
+              >
                 {quest.name}
-              </div>
-              <div className="text-xs text-muted-foreground mt-0.5">Storage: {quest.storage}</div>
+              </span>
             </div>
-            <Badge variant={completed ? 'default' : 'secondary'} className={completed ? 'bg-green-600/90 text-white' : 'bg-gray-300 text-gray-600'}>
-              {completed ? 'Completa' : 'Não completa'}
-            </Badge>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </div>
   )
 }

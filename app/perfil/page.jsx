@@ -33,19 +33,16 @@ import {
   Calendar,
   Trophy,
   Gamepad2,
-  Settings,
   LogOut,
   Shield,
   Crown,
-  Swords,
   Plus,
 } from 'lucide-react'
-
 
 export default function PerfilPage() {
   const router = useRouter()
   const { toast } = useToast()
-  
+
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -61,8 +58,7 @@ export default function PerfilPage() {
   })
   const [formError, setFormError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  const [characters, setCharacters] = useState([]) // Movido para estado
-  // Estado para personagem selecionado nas conquistas
+  const [characters, setCharacters] = useState([])
   const [selectedCharName, setSelectedCharName] = useState('')
 
   useEffect(() => {
@@ -75,11 +71,9 @@ export default function PerfilPage() {
 
   useEffect(() => {
     const loadUserData = async () => {
-      // Verificar se há usuário logado
       const loggedUser = localStorage.getItem('user')
-      
+
       if (!loggedUser) {
-        // Se não houver usuário logado, redirecionar para login
         router.push('/auth/login')
         return
       }
@@ -87,17 +81,15 @@ export default function PerfilPage() {
       try {
         const userData = JSON.parse(loggedUser)
         setUser(userData)
-        
-        // Buscar personagens reais do banco de dados
+
         try {
           const response = await fetch(`/api/characters?username=${encodeURIComponent(userData.username)}`)
           const data = await response.json()
-          
+
           if (data.success && data.characters) {
             setCharacters(data.characters)
             console.log('✅ Personagens carregados:', data.characters)
           } else {
-            // Se não conseguir buscar, usar array vazio
             setCharacters([])
           }
         } catch (error) {
@@ -111,29 +103,25 @@ export default function PerfilPage() {
         setLoading(false)
       }
     }
-    
+
     loadUserData()
   }, [router])
 
   const handleLogout = () => {
-    // Limpar dados de sessão/localStorage se houver
     localStorage.removeItem('user')
     localStorage.removeItem('token')
-    
-    // Redirecionar para login
     router.push('/auth/login')
   }
 
   const handleCreateCharacter = async () => {
     setFormError('')
-    
-    // Validações
+
     if (!newCharacter.name || !newCharacter.gender) {
       setFormError('Por favor, preencha todos os campos')
       toast({
-        variant: "destructive",
-        title: "✗ Erro ao criar personagem",
-        description: "Por favor, preencha todos os campos",
+        variant: 'destructive',
+        title: '✗ Erro ao criar personagem',
+        description: 'Por favor, preencha todos os campos',
       })
       return
     }
@@ -141,31 +129,27 @@ export default function PerfilPage() {
     if (newCharacter.name.length < 2 || newCharacter.name.length > 29) {
       setFormError('O nome deve ter entre 2 e 29 caracteres')
       toast({
-        variant: "destructive",
-        title: "✗ Erro ao criar personagem",
-        description: "O nome deve ter entre 2 e 29 caracteres",
+        variant: 'destructive',
+        title: '✗ Erro ao criar personagem',
+        description: 'O nome deve ter entre 2 e 29 caracteres',
       })
       return
     }
 
-    // Validar apenas letras e espaços
     if (!/^[a-zA-Z\s]+$/.test(newCharacter.name)) {
       setFormError('O nome deve conter apenas letras')
       toast({
-        variant: "destructive",
-        title: "✗ Erro ao criar personagem",
-        description: "O nome deve conter apenas letras (sem números ou caracteres especiais)",
+        variant: 'destructive',
+        title: '✗ Erro ao criar personagem',
+        description: 'O nome deve conter apenas letras (sem números ou caracteres especiais)',
       })
       return
     }
 
     try {
-      // Chamar API para criar personagem no banco
       const response = await fetch('/api/characters/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: user.username,
           characterName: newCharacter.name,
@@ -179,26 +163,23 @@ export default function PerfilPage() {
         throw new Error(data.error || 'Erro ao criar personagem')
       }
 
-      // Adicionar à lista de personagens
       setCharacters([...characters, data.character])
-      
-      // Fechar dialog e limpar form
+
       setIsDialogOpen(false)
       setNewCharacter({ name: '', gender: '' })
-      
-      // Mostrar toast de sucesso
+
       toast({
-        variant: "success",
-        title: "✓ Personagem criado!",
+        variant: 'success',
+        title: '✓ Personagem criado!',
         description: `${data.character.name} foi criado com sucesso.`,
       })
-      
+
       console.log('✅ Personagem criado:', data.character)
     } catch (error) {
       console.error('Erro ao criar personagem:', error)
       toast({
-        variant: "destructive",
-        title: "✗ Erro ao criar personagem",
+        variant: 'destructive',
+        title: '✗ Erro ao criar personagem',
         description: error.message,
       })
     }
@@ -207,7 +188,6 @@ export default function PerfilPage() {
   const handleChangePassword = async () => {
     setPasswordError('')
 
-    // Validações
     if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
       setPasswordError('Preencha todos os campos')
       return
@@ -226,9 +206,7 @@ export default function PerfilPage() {
     try {
       const response = await fetch('/api/auth/alterar-senha', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: user.username,
           oldPassword: passwordData.oldPassword,
@@ -242,28 +220,25 @@ export default function PerfilPage() {
         throw new Error(data.error || 'Erro ao alterar senha')
       }
 
-      // Fechar dialog e limpar form
       setIsPasswordDialogOpen(false)
       setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' })
-      
-      // Mostrar toast de sucesso
+
       toast({
-        variant: "success",
-        title: "✓ Senha alterada!",
-        description: "Sua senha foi alterada com sucesso.",
+        variant: 'success',
+        title: '✓ Senha alterada!',
+        description: 'Sua senha foi alterada com sucesso.',
       })
     } catch (error) {
       console.error('Erro ao alterar senha:', error)
       setPasswordError(error.message)
       toast({
-        variant: "destructive",
-        title: "✗ Erro ao alterar senha",
+        variant: 'destructive',
+        title: '✗ Erro ao alterar senha',
         description: error.message,
       })
     }
   }
 
-  // Mostrar loading enquanto carrega dados
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -275,19 +250,15 @@ export default function PerfilPage() {
     )
   }
 
-  // Se não houver usuário após loading, não renderizar nada (já redirecionou)
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-background pt-20">
+      {/* ✅ Mantém a mesma margem/padrão do site */}
       <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header do Perfil */}
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-              {/* Avatar */}
               <div className="relative">
                 <Avatar className="h-24 w-24 border-4 border-primary">
                   <div className="flex h-full w-full items-center justify-center bg-primary/10">
@@ -300,7 +271,6 @@ export default function PerfilPage() {
                 </Badge>
               </div>
 
-              {/* Informações do Usuário */}
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex items-center justify-center gap-2 sm:justify-start">
                   <h1 className="text-3xl font-bold">{user.username}</h1>
@@ -319,11 +289,10 @@ export default function PerfilPage() {
                 </p>
               </div>
 
-              {/* Botões de Ação */}
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
+                <Button
+                  variant="outline"
+                  size="icon"
                   className="text-destructive hover:bg-destructive hover:text-destructive-foreground"
                   onClick={handleLogout}
                   title="Sair da conta"
@@ -335,7 +304,6 @@ export default function PerfilPage() {
           </CardContent>
         </Card>
 
-        {/* Tabs de Conteúdo */}
         <Tabs defaultValue="characters" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="characters">Personagens</TabsTrigger>
@@ -353,6 +321,7 @@ export default function PerfilPage() {
                     Gerencie seus personagens no Pokenight ({characters.length}/4)
                   </CardDescription>
                 </div>
+
                 {characters.length < 4 && (
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
@@ -368,13 +337,14 @@ export default function PerfilPage() {
                           Preencha os dados do seu novo personagem
                         </DialogDescription>
                       </DialogHeader>
+
                       <div className="space-y-4 py-4">
                         {formError && (
                           <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3">
                             <p className="text-sm text-destructive">{formError}</p>
                           </div>
                         )}
-                        
+
                         <div className="space-y-2">
                           <Label htmlFor="char-name">Nome do Personagem</Label>
                           <Input
@@ -385,7 +355,7 @@ export default function PerfilPage() {
                             maxLength={29}
                           />
                         </div>
-                        
+
                         <div className="space-y-2">
                           <Label htmlFor="char-gender">Sexo</Label>
                           <Select
@@ -402,6 +372,7 @@ export default function PerfilPage() {
                           </Select>
                         </div>
                       </div>
+
                       <div className="flex justify-end gap-3">
                         <Button
                           variant="outline"
@@ -421,12 +392,10 @@ export default function PerfilPage() {
                   </Dialog>
                 )}
               </CardHeader>
+
               <CardContent className="space-y-4">
                 {characters.map((char) => (
-                  <div
-                    key={char.name}
-                    className="flex items-center gap-4 rounded-lg border p-4"
-                  >
+                  <div key={char.name} className="flex items-center gap-4 rounded-lg border p-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                       <Gamepad2 className="h-6 w-6 text-primary" />
                     </div>
@@ -446,7 +415,7 @@ export default function PerfilPage() {
                     </div>
                   </div>
                 ))}
-                
+
                 {characters.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
@@ -456,6 +425,7 @@ export default function PerfilPage() {
                     <p className="mb-4 text-sm text-muted-foreground">
                       Você ainda não criou nenhum personagem
                     </p>
+
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                       <DialogTrigger asChild>
                         <Button className="gap-2">
@@ -463,6 +433,7 @@ export default function PerfilPage() {
                           Criar Primeiro Personagem
                         </Button>
                       </DialogTrigger>
+
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
                           <DialogTitle>Criar Novo Personagem</DialogTitle>
@@ -470,13 +441,14 @@ export default function PerfilPage() {
                             Preencha os dados do seu novo personagem
                           </DialogDescription>
                         </DialogHeader>
+
                         <div className="space-y-4 py-4">
                           {formError && (
                             <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3">
                               <p className="text-sm text-destructive">{formError}</p>
                             </div>
                           )}
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="char-name-empty">Nome do Personagem</Label>
                             <Input
@@ -487,7 +459,7 @@ export default function PerfilPage() {
                               maxLength={29}
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="char-gender-empty">Sexo</Label>
                             <Select
@@ -504,6 +476,7 @@ export default function PerfilPage() {
                             </Select>
                           </div>
                         </div>
+
                         <div className="flex justify-end gap-3">
                           <Button
                             variant="outline"
@@ -523,7 +496,7 @@ export default function PerfilPage() {
                     </Dialog>
                   </div>
                 )}
-                
+
                 {characters.length === 4 && (
                   <div className="rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 text-center">
                     <p className="text-sm text-muted-foreground">
@@ -540,46 +513,34 @@ export default function PerfilPage() {
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Level Máximo
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Level Máximo</CardTitle>
                   <Trophy className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{user.level}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {user.vocation}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{user.vocation}</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Guild
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Guild</CardTitle>
                   <Shield className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{user.guild}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {user.rank}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{user.rank}</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Personagens
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Personagens</CardTitle>
                   <Gamepad2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{characters.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Total de chars
-                  </p>
+                  <p className="text-xs text-muted-foreground">Total de chars</p>
                 </CardContent>
               </Card>
             </div>
@@ -590,10 +551,7 @@ export default function PerfilPage() {
                   <CardTitle className="flex items-center gap-3">
                     Conquistas Recentes
                     {characters.length > 0 && (
-                      <Select
-                        value={selectedCharName}
-                        onValueChange={setSelectedCharName}
-                      >
+                      <Select value={selectedCharName} onValueChange={setSelectedCharName}>
                         <SelectTrigger className="w-40 h-8 text-sm">
                           <SelectValue placeholder="Escolher personagem" />
                         </SelectTrigger>
@@ -607,17 +565,20 @@ export default function PerfilPage() {
                       </Select>
                     )}
                   </CardTitle>
-                  <CardDescription>
-                    Suas últimas conquistas no Pokenight
-                  </CardDescription>
+                  <CardDescription>Suas últimas conquistas no Pokenight</CardDescription>
                 </div>
               </CardHeader>
+
               <CardContent>
                 {characters.length > 0 && selectedCharName ? (
                   <div className="py-4">
                     <Trophy className="mx-auto h-8 w-8 text-primary mb-2" />
-                    <p className="text-center text-muted-foreground mb-4">Conquistas do personagem <b>{selectedCharName}</b>:</p>
-                    <div className="max-w-md mx-auto">
+                    <p className="text-center text-muted-foreground mb-4">
+                      Conquistas do personagem <b>{selectedCharName}</b>:
+                    </p>
+
+                    {/* ✅ mantém "sem estreitar" as conquistas */}
+                    <div className="w-full">
                       <RecentAchievementsWrapper characterName={selectedCharName} />
                     </div>
                   </div>
@@ -645,12 +606,15 @@ export default function PerfilPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start hover:text-primary hover:border-primary hover:cursor-pointer">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start hover:text-primary hover:border-primary hover:cursor-pointer"
+                >
                   <Mail className="mr-2 h-4 w-4" />
                   Alterar Email
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start hover:text-primary hover:border-primary hover:cursor-pointer"
                   onClick={() => setIsPasswordDialogOpen(true)}
                 >
@@ -680,13 +644,14 @@ export default function PerfilPage() {
               Digite sua senha atual e escolha uma nova senha segura.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 py-4">
             {passwordError && (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
                 {passwordError}
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="oldPassword">Senha Atual</Label>
               <Input
@@ -694,9 +659,7 @@ export default function PerfilPage() {
                 type="password"
                 placeholder="Digite sua senha atual"
                 value={passwordData.oldPassword}
-                onChange={(e) =>
-                  setPasswordData({ ...passwordData, oldPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
               />
             </div>
 
@@ -707,9 +670,7 @@ export default function PerfilPage() {
                 type="password"
                 placeholder="Digite a nova senha (mínimo 6 caracteres)"
                 value={passwordData.newPassword}
-                onChange={(e) =>
-                  setPasswordData({ ...passwordData, newPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
               />
             </div>
 
@@ -720,18 +681,13 @@ export default function PerfilPage() {
                 type="password"
                 placeholder="Digite a nova senha novamente"
                 value={passwordData.confirmPassword}
-                onChange={(e) =>
-                  setPasswordData({ ...passwordData, confirmPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
               />
             </div>
 
             <div className="text-sm text-muted-foreground">
               Não lembra sua senha?{' '}
-              <a
-                href="/auth/recuperar-senha"
-                className="text-primary hover:underline cursor-pointer"
-              >
+              <a href="/auth/recuperar-senha" className="text-primary hover:underline cursor-pointer">
                 Clique aqui para recuperar
               </a>
             </div>

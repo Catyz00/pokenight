@@ -25,28 +25,6 @@ export default function SocialSidebar() {
         </div>
       </a>
 
-      {/* YouTube */}
-      <a
-        href="https://youtube.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group relative flex h-12 w-12 items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm border-2 border-border transition-all hover:w-auto hover:pl-3 hover:pr-4 hover:border-red-600 hover:bg-red-600 hover:scale-110"
-        aria-label="YouTube"
-      >
-        <div className="flex items-center gap-2">
-          <svg
-            className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-white"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-          </svg>
-          <span className="hidden whitespace-nowrap text-sm font-semibold text-white group-hover:inline">
-            YouTube
-          </span>
-        </div>
-      </a>
-
       {/* Instagram */}
       <a
         href="https://www.instagram.com/pokenightofc/"
