@@ -1,4 +1,7 @@
 'use client'
+
+import ComprarPontos from "@/components/profile/comprar-pontos/shop.jsx";
+
 import RecentAchievementsWrapper from './RecentAchievementsWrapper'
 
 import { useState, useEffect } from 'react'
@@ -308,6 +311,7 @@ export default function PerfilPage() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="characters">Personagens</TabsTrigger>
             <TabsTrigger value="stats">Estatísticas</TabsTrigger>
+            <TabsTrigger value="shop">Shop</TabsTrigger>
             <TabsTrigger value="settings">Configurações</TabsTrigger>
           </TabsList>
 
@@ -509,6 +513,26 @@ export default function PerfilPage() {
           </TabsContent>
 
           {/* Aba de Estatísticas */}
+          <TabsContent value="stats" className="space-y-4">
+            {/* ...existing code for Estatísticas... */}
+          </TabsContent>
+
+          <TabsContent value="shop" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Comprar NightCoins</CardTitle>
+                <CardDescription>
+                  Adquira NightCoins para usar em compras dentro do Pokenight.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {/* Componente de compra de pontos */}
+                <ComprarPontos />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/*Aba de Shop*/}
           <TabsContent value="stats" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-3">
               <Card>
