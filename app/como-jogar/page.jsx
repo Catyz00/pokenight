@@ -101,7 +101,7 @@ export default function ComoJogarPage() {
               <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-primary-foreground)]" />
             </Link>
             <a 
-              href="https://www.youtube.com/embed/"
+              href="https://www.youtube.com/watch?v=Z6FFYfOcEk0"
               target="_blank"
               rel="noopener noreferrer"
               className="group flex items-center justify-between rounded-lg border border-border bg-card p-5 transition-colors transition-shadow transform hover:bg-accent hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5"
@@ -110,7 +110,8 @@ export default function ComoJogarPage() {
                 <Youtube className="h-5 w-5 text-red-500" />
                 <div>
                   <div className="font-semibold transition-colors group-hover:text-[var(--color-primary-foreground)]">Vídeo Tutorial</div>
-                  <div className="text-sm text-muted-foreground transition-colors group-hover:text-[var(--color-primary-foreground)]">Frokie Irado</div>
+                  <div className="text-sm text-muted-foreground transition-colors group-hover:text-[var(--color-primary-foreground)]">
+Canal Guiis</div>
                 </div>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-[var(--color-primary-foreground)]" />
@@ -126,7 +127,7 @@ export default function ComoJogarPage() {
             href="mailto:contato@pokenight.com" 
             className="text-primary hover:underline"
           >
-            contato@pokenight.com
+           pokenightguiis7@gmail.com
           </a>
         </section>
       </article>
