@@ -56,7 +56,7 @@ export function Footer() {
             {/* Social Links */}
             <div className="mt-6 flex gap-2">
               <a
-                href="https://discord.gg/"
+                href="https://discord.gg/B7SHQaHnFh"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-xl border-2 border-border bg-muted/50 p-2.5 text-muted-foreground transition-all hover:border-pokemon-blue hover:bg-pokemon-blue/10 hover:text-pokemon-blue"
@@ -86,7 +86,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="https://instagram.com/"
+                href="https://www.instagram.com/pokenightofc/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-xl border-2 border-border bg-muted/50 p-2.5 text-muted-foreground transition-all hover:border-pokemon-purple hover:bg-pokemon-purple/10 hover:text-pokemon-purple"

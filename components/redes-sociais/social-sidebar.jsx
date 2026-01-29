@@ -5,7 +5,7 @@ export default function SocialSidebar() {
     <div className="fixed left-4 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-3 lg:flex">
       {/* Discord */}
       <a
-        href="https://discord.gg/"
+        href="https://discord.gg/B7SHQaHnFh"
         target="_blank"
         rel="noopener noreferrer"
         className="group relative flex h-12 w-12 items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm border-2 border-border transition-all hover:w-auto hover:pl-3 hover:pr-4 hover:border-[#733ca9] hover:bg-[#733ca9] hover:scale-110"
@@ -49,7 +49,7 @@ export default function SocialSidebar() {
 
       {/* Instagram */}
       <a
-        href="https://instagram.com/"
+        href="https://www.instagram.com/pokenightofc/"
         target="_blank"
         rel="noopener noreferrer"
         className="group relative flex h-12 w-12 items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm border-2 border-border transition-all hover:w-auto hover:pl-3 hover:pr-4 hover:border-pink-600 hover:bg-gradient-to-br hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 hover:scale-110"

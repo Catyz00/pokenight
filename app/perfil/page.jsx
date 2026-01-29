@@ -1,4 +1,5 @@
 'use client'
+import RecentAchievementsWrapper from './RecentAchievementsWrapper'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -40,6 +41,7 @@ import {
   Plus,
 } from 'lucide-react'
 
+
 export default function PerfilPage() {
   const router = useRouter()
   const { toast } = useToast()
@@ -60,6 +62,16 @@ export default function PerfilPage() {
   const [formError, setFormError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [characters, setCharacters] = useState([]) // Movido para estado
+  // Estado para personagem selecionado nas conquistas
+  const [selectedCharName, setSelectedCharName] = useState('')
+
+  useEffect(() => {
+    if (characters.length > 0) {
+      setSelectedCharName(characters[0].name)
+    } else {
+      setSelectedCharName('')
+    }
+  }, [characters])
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -573,24 +585,52 @@ export default function PerfilPage() {
             </div>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Conquistas Recentes</CardTitle>
-                <CardDescription>
-                  Suas últimas conquistas no Pokenight
-                </CardDescription>
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-3">
+                    Conquistas Recentes
+                    {characters.length > 0 && (
+                      <Select
+                        value={selectedCharName}
+                        onValueChange={setSelectedCharName}
+                      >
+                        <SelectTrigger className="w-40 h-8 text-sm">
+                          <SelectValue placeholder="Escolher personagem" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {characters.map((char) => (
+                            <SelectItem key={char.name} value={char.name}>
+                              {char.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    Suas últimas conquistas no Pokenight
+                  </CardDescription>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-center py-8 text-center">
-                  <div className="space-y-2">
-                    <Trophy className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">
-                      Nenhuma conquista ainda
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Continue jogando para desbloquear conquistas!
-                    </p>
+                {characters.length > 0 && selectedCharName ? (
+                  <div className="py-4">
+                    <Trophy className="mx-auto h-8 w-8 text-primary mb-2" />
+                    <p className="text-center text-muted-foreground mb-4">Conquistas do personagem <b>{selectedCharName}</b>:</p>
+                    <div className="max-w-md mx-auto">
+                      <RecentAchievementsWrapper characterName={selectedCharName} />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center justify-center py-8 text-center">
+                    <div className="space-y-2">
+                      <Trophy className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                      <p className="text-muted-foreground">
+                        Nenhum personagem para exibir conquistas.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -21,7 +21,7 @@ export async function GET(request) {
       host: 'localhost',
       user: 'root',
       password: '',
-      database: 'global',
+      database: 'poke',
     })
 
     console.log('✅ Buscando personagens do usuário:', username)
@@ -50,24 +50,23 @@ export async function GET(request) {
 
     await connection.end()
 
-    // Mapear vocações
+    // Mapear vocações do PokeTibia
     const vocationMap = {
-      0: 'Novato',
-      1: 'Sorcerer',
-      2: 'Druid',
-      3: 'Paladin',
-      4: 'Knight',
-      5: 'Master Sorcerer',
-      6: 'Elder Druid',
-      7: 'Royal Paladin',
-      8: 'Elite Knight',
+      0: 'Vocation excluida 01',
+      1: 'Treinador',
+      2: 'TV',
+      3: 'PC',
+      4: 'Treinador de Elite',
+      7: 'Duel System2',
+      8: 'Duel System',
+      9: 'Pokedex System',
     }
 
     // Formatar personagens
     const characters = players.map(player => ({
       name: player.name,
       level: player.level,
-      vocation: vocationMap[player.vocation] || 'Novato',
+      vocation: vocationMap[player.vocation] || 'Treinador',
       world: 'Pokenight',
       status: 'offline',
       gender: player.sex === 1 ? 'masculino' : 'feminino'

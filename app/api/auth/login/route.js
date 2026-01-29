@@ -7,7 +7,7 @@ const dbConfig = {
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'global'
+  database: 'poke'
 };
 
 export async function POST(request) {
@@ -33,7 +33,7 @@ export async function POST(request) {
 
     // Conectar ao banco de dados
     connection = await mysql.createConnection(dbConfig);
-    console.log('✅ Conectado ao MySQL - database: global');
+    console.log('✅ Conectado ao MySQL - database: poke');
 
     // Buscar conta no banco de dados com senha (case-insensitive)
     const [accounts] = await connection.execute(
