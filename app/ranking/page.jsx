@@ -112,12 +112,12 @@ const rankingsData = {
 };
 
 const tabs = [
-  { id: 'level', label: 'Top Level', icon: Trophy },
-  { id: 'tournament', label: 'Torneio', icon: Trophy },
-  { id: 'catch', label: 'Capturas', icon: Target },
-  { id: 'pokedex', label: 'Pokedex', icon: BookOpen },
-  { id: 'bestiary', label: 'Bestiario', icon: Skull },
-  { id: 'tower', label: 'Torre', icon: Castle },
+  { id: 'level', label: 'Top Level', icon: Trophy, scoreLabel: 'level' },
+  { id: 'tournament', label: 'Torneio', icon: Trophy, scoreLabel: 'torneios' },
+  { id: 'catch', label: 'Capturas', icon: Target, scoreLabel: 'capturas' },
+  { id: 'pokedex', label: 'Pokedex', icon: BookOpen, scoreLabel: 'pokedex' },
+  { id: 'bestiary', label: 'Bestiário', icon: Skull, scoreLabel: 'bestiary' },
+  { id: 'tower', label: 'Torre', icon: Castle, scoreLabel: 'pontos' },
 ];
 
 const getRankBadgeColor = (color) => {
@@ -252,7 +252,7 @@ export default function Rankings() {
                                 {player.score.toLocaleString()}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                pontos
+                                {tab.scoreLabel}
                               </p>
                             </div>
                           </div>
