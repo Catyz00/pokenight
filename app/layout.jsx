@@ -1,8 +1,8 @@
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
-import SocialSidebar from '@/components/social-sidebar';
+import { Navbar } from '@/components/navbar/navbar';
+import { Footer } from '@/components/navbar/footer';
+import SocialSidebar from '@/components/redes-sociais/social-sidebar';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
