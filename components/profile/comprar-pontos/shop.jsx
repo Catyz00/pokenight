@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +12,15 @@ const paymentMethods = [
     { id: "boleto", label: "Boleto" },
 ];
 
+
 export default function ComprarPontos() {
     const [amount, setAmount] = React.useState("");
     const [method, setMethod] = React.useState(paymentMethods[0].id);
     const [loading, setLoading] = React.useState(false);
     const [message, setMessage] = React.useState(null);
+    const [cpf, setCpf] = React.useState("");
+    const [nome, setNome] = React.useState("");
+    const [pixData, setPixData] = React.useState(null);
 
     const parsedAmount = Math.max(0, Math.floor(Number(amount) || 0));
     const nightcoins = parsedAmount;
@@ -27,23 +32,64 @@ export default function ComprarPontos() {
         setMessage(null);
     }
 
+    function handleCpfChange(e) {
+        // Aceita apenas números
+        setCpf(e.target.value.replace(/\D/g, ""));
+    }
+
     async function handleSubmit(e) {
         e.preventDefault();
         setMessage(null);
+        setPixData(null);
         if (parsedAmount <= 0) {
             setMessage({ type: "error", text: "Informe um valor maior que 0." });
             return;
         }
+        if (!cpf || cpf.length !== 11) {
+            setMessage({ type: "error", text: "Informe um CPF válido (11 dígitos)." });
+            return;
+        }
+        if (!nome || nome.length < 3) {
+            setMessage({ type: "error", text: "Informe o nome completo do pagador." });
+            return;
+        }
         setLoading(true);
         try {
-            await new Promise((res) => setTimeout(res, 1200));
-            setMessage({
-                type: "success",
-                text: `Pedido gerado: R$ ${parsedAmount} → ${nightcoins} NightCoin(s). Método: ${method}.`,
+            // Gera referência e dados do pedido
+            const referencia = Math.floor(Math.random() * 90000 + 10000).toString();
+            const body = {
+                valor: Number(parsedAmount).toFixed(2),
+                calendario: { expiracao: 3600 },
+                isDeposit: false,
+                referencia,
+                solicitacaoPagador: `Pokenight - Pedido ${referencia}`,
+                devedor: { cpf, nome },
+                infoAdicionais: [
+                    { nome: "Order", valor: referencia },
+                    { nome: "NightCoins", valor: `${nightcoins}` },
+                ],
+                webhookUrl: "https://www.sualoja.com.br/webhook"
+            };
+
+            // Chama o endpoint PHP backend (sem Api-Key no header)
+            const res = await fetch("http://localhost/api/pix.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
             });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.message || "Erro ao gerar cobrança PIX.");
+            }
+            const data = await res.json();
+            setPixData(data);
+            setMessage({ type: "success", text: "Cobrança PIX gerada! Pague usando o QR Code ou copia e cola." });
             setAmount("");
         } catch (err) {
-            setMessage({ type: "error", text: "Erro ao processar pagamento. Tente novamente." });
+            setMessage({ type: "error", text: err.message || "Erro ao processar pagamento. Tente novamente." });
         } finally {
             setLoading(false);
         }
@@ -84,6 +130,29 @@ export default function ComprarPontos() {
                         ))}
                     </div>
 
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="cpf">CPF do pagador</Label>
+                        <Input
+                            id="cpf"
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="Somente números"
+                            value={cpf}
+                            onChange={handleCpfChange}
+                            maxLength={11}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="nome">Nome completo do pagador</Label>
+                        <Input
+                            id="nome"
+                            type="text"
+                            placeholder="Nome completo"
+                            value={nome}
+                            onChange={e => setNome(e.target.value)}
+                        />
+                    </div>
+
                     <fieldset className="border border-muted rounded-md p-3 mt-1">
                         <legend className="text-xs px-1">Método de pagamento</legend>
                         <div className="flex gap-4 flex-wrap mt-1">
@@ -96,8 +165,12 @@ export default function ComprarPontos() {
                                         checked={method === p.id}
                                         onChange={() => setMethod(p.id)}
                                         className="accent-primary"
+                                        disabled={p.id !== "pix"}
                                     />
                                     {p.label}
+                                    {p.id !== "pix" && (
+                                        <span className="text-xs text-muted-foreground">(em breve)</span>
+                                    )}
                                 </label>
                             ))}
                         </div>
@@ -109,7 +182,7 @@ export default function ComprarPontos() {
                     </div>
 
                     <Button type="submit" className="mt-2" disabled={loading}>
-                        {loading ? "Processando..." : "Finalizar compra"}
+                        {loading ? "Gerando cobrança..." : "Pagar com PIX"}
                     </Button>
 
                     {message && (
@@ -122,6 +195,31 @@ export default function ComprarPontos() {
                             }`}
                         >
                             {message.text}
+                        </div>
+                    )}
+
+                    {pixData && (
+                        <div className="flex flex-col items-center gap-3 mt-4">
+                            <div className="text-center">
+                                <div className="font-semibold mb-1">Escaneie o QR Code abaixo:</div>
+                                <img
+                                    src={`data:image/png;base64,${pixData.qrcodeBase64}`}
+                                    alt="QR Code PIX"
+                                    className="mx-auto border rounded-md"
+                                    width={220}
+                                    height={220}
+                                />
+                                <div className="mt-2">
+                                    <Label htmlFor="pix-copia">Copia e Cola:</Label>
+                                    <Input
+                                        id="pix-copia"
+                                        value={pixData.pixCopiaECola}
+                                        readOnly
+                                        className="mt-1 text-xs"
+                                        onFocus={e => e.target.select()}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     )}
                 </form>
