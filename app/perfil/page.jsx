@@ -308,12 +308,13 @@ export default function PerfilPage() {
         </Card>
 
         <Tabs defaultValue="characters" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="characters">Personagens</TabsTrigger>
-            <TabsTrigger value="stats">Estatísticas</TabsTrigger>
-            <TabsTrigger value="shop">Shop</TabsTrigger>
-            <TabsTrigger value="settings">Configurações</TabsTrigger>
-          </TabsList>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-1">
+  <TabsTrigger value="characters" className="whitespace-nowrap">Personagens</TabsTrigger>
+  <TabsTrigger value="stats" className="whitespace-nowrap">Estatísticas</TabsTrigger>
+  <TabsTrigger value="shop" className="whitespace-nowrap">Shop</TabsTrigger>
+  <TabsTrigger value="settings" className="whitespace-nowrap">Configurações</TabsTrigger>
+</TabsList>
+
 
           {/* Aba de Personagens */}
           <TabsContent value="characters" className="space-y-4">
@@ -513,7 +514,8 @@ export default function PerfilPage() {
           </TabsContent>
 
           {/* Aba de Estatísticas */}
-          <TabsContent value="stats" className="space-y-4">
+          
+<TabsContent value="shop" className="space-y-4">
             {/* ...existing code for Estatísticas... */}
           </TabsContent>
 
