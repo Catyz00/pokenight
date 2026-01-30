@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "../..
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const paymentMethods = [{ id: "pix", label: "PIX" }];
 
@@ -13,7 +14,6 @@ const PIX_CREATE_URL = `${API_BASE}/pix.php`;
 const PIX_CHECK_URL = `${API_BASE}/check-pix.php`;
 
 function normalizeStatus(data) {
-  // tenta achar status em vários formatos comuns
   const raw =
     data?.status ??
     data?.cobranca?.status ??
@@ -21,12 +21,10 @@ function normalizeStatus(data) {
     data?.pix?.status ??
     data?.data?.status ??
     "";
-
   return String(raw).trim().toLowerCase();
 }
 
 function isPaidStatus(status) {
-  // cobre variações comuns
   return (
     status.includes("aprov") ||
     status.includes("approved") ||
@@ -52,6 +50,8 @@ function isExpiredOrCanceled(status) {
 }
 
 export default function ComprarPontos() {
+  const { toast } = useToast();
+
   const [amount, setAmount] = React.useState("");
   const [method, setMethod] = React.useState(paymentMethods[0].id);
   const [loading, setLoading] = React.useState(false);
@@ -64,8 +64,11 @@ export default function ComprarPontos() {
   const [checking, setChecking] = React.useState(false);
   const [paid, setPaid] = React.useState(false);
 
-  const [pixStatus, setPixStatus] = React.useState(""); // status atual (debug)
+  const [pixStatus, setPixStatus] = React.useState("");
   const [lastCheck, setLastCheck] = React.useState(null);
+
+  const paidRef = React.useRef(false);
+  const toastOnceRef = React.useRef(false);
 
   const parsedAmount = Math.max(0, Math.floor(Number(amount) || 0));
   const nightcoins = parsedAmount;
@@ -81,6 +84,17 @@ export default function ComprarPontos() {
     setCpf(e.target.value.replace(/\D/g, ""));
   }
 
+  const fireSuccessToast = React.useCallback(() => {
+    if (toastOnceRef.current) return;
+    toastOnceRef.current = true;
+
+    toast({
+      variant: "success",
+      title: "Pagamento confirmado!",
+      description: "✅ Seus NightCoins serão creditados em instantes.",
+    });
+  }, [toast]);
+
   const checkPixStatus = async (txid, { silent = false } = {}) => {
     if (!txid) return;
 
@@ -93,7 +107,6 @@ export default function ComprarPontos() {
       const res = await fetch(`${PIX_CHECK_URL}?txid=${encodeURIComponent(txid)}`);
       const data = await res.json().catch(() => ({}));
 
-      // se vier erro (ex: 401/403 por API KEY errada), mostra na tela
       if (!res.ok) {
         const errText = data?.error || data?.message || `Erro HTTP ${res.status}`;
         setPixStatus(`erro: ${errText}`);
@@ -106,15 +119,16 @@ export default function ComprarPontos() {
       setLastCheck(new Date().toLocaleTimeString("pt-BR"));
 
       if (isPaidStatus(status)) {
-        setPaid(true);
-        setMessage({ type: "success", text: "✅ Pagamento confirmado! Seus NightCoins serão creditados em instantes." });
+        if (!paidRef.current) {
+          paidRef.current = true;
+          setPaid(true);
+          setMessage(null); // ✅ tira o alerta inline de sucesso
+          fireSuccessToast(); // ✅ toast shadcn
+        }
       } else if (isExpiredOrCanceled(status)) {
         setMessage({ type: "error", text: "❌ Cobrança expirada/cancelada. Gere um novo PIX." });
       } else {
-        // pendente
-        if (!silent) {
-          setMessage({ type: "info", text: "⏳ Ainda aguardando confirmação do pagamento..." });
-        }
+        if (!silent) setMessage({ type: "info", text: "⏳ Ainda aguardando confirmação do pagamento..." });
       }
     } catch (err) {
       setPixStatus("erro: exception");
@@ -124,28 +138,28 @@ export default function ComprarPontos() {
     }
   };
 
-  // ✅ Auto-check a cada 5s após gerar pixData (até confirmar)
+  // Auto-check a cada 5s após gerar pix (para quando confirmar)
   React.useEffect(() => {
     if (!pixData?.txid) return;
 
+    paidRef.current = false;
+    toastOnceRef.current = false;
     setPaid(false);
     setPixStatus("");
     setLastCheck(null);
 
-    // checa na hora
     checkPixStatus(pixData.txid, { silent: true });
 
     const startedAt = Date.now();
     const interval = setInterval(() => {
-      // para se já confirmou
-      if (paid) return;
-
-      // para após 10 min (evita loop infinito)
+      if (paidRef.current) {
+        clearInterval(interval);
+        return;
+      }
       if (Date.now() - startedAt > 10 * 60 * 1000) {
         clearInterval(interval);
         return;
       }
-
       checkPixStatus(pixData.txid, { silent: true });
     }, 5000);
 
@@ -159,6 +173,9 @@ export default function ComprarPontos() {
     setMessage(null);
     setPixData(null);
     setPaid(false);
+    paidRef.current = false;
+    toastOnceRef.current = false;
+
     setPixStatus("");
     setLastCheck(null);
 
@@ -206,8 +223,6 @@ export default function ComprarPontos() {
         throw new Error(data?.error || data?.message || "Erro ao gerar cobrança PIX.");
       }
 
-      // ⚠️ Ajuste aqui se os nomes retornados pela Polopag forem diferentes
-      // Vamos aceitar várias chaves possíveis:
       const normalized = {
         txid: data?.txid || data?.cobranca?.txid || data?.id || data?.transactionId,
         qrcodeBase64: data?.qrcodeBase64 || data?.qrCodeBase64 || data?.qrcode || data?.qr_code_base64,
@@ -221,12 +236,7 @@ export default function ComprarPontos() {
       }
 
       setPixData(normalized);
-
-      setMessage({
-        type: "info",
-        text: "PIX gerado. ⏳ Após pagar, a confirmação vai aparecer automaticamente aqui.",
-      });
-
+      setMessage({ type: "info", text: "PIX gerado. Após pagar, a confirmação aparece automaticamente." });
       setAmount("");
     } catch (err) {
       setMessage({ type: "error", text: err?.message || "Erro ao processar pagamento. Tente novamente." });
@@ -238,128 +248,165 @@ export default function ComprarPontos() {
   const messageClass =
     message?.type === "error"
       ? "bg-destructive/10 text-destructive border border-destructive/30"
-      : message?.type === "success"
-        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-        : "bg-muted/50 text-muted-foreground border border-muted";
+      : "bg-muted/50 text-muted-foreground border border-muted";
+
+  const hasQr = !!pixData?.txid && !paid;
+  const disableForm = loading || hasQr;
 
   return (
-    <Card className="max-w-lg mx-auto mt-6">
+    // ✅ Sem max-w e sem mx-auto (some a “margem”/espaço gigante lateral)
+    <Card className="w-full max-w-none mt-6">
       <CardHeader>
         <CardTitle>Comprar NightCoins</CardTitle>
         <CardDescription>1 R$ = 1 NightCoin</CardDescription>
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="valor-reais">Valor em Reais (R$)</Label>
-            <Input
-              id="valor-reais"
-              type="text"
-              inputMode="numeric"
-              placeholder="Ex: 50"
-              value={amount}
-              onChange={handleAmountChange}
-            />
-          </div>
+        {/* ✅ Quando tem QR: 2 colunas (inputs esquerda / QR direita) */}
+        <div className={hasQr ? "grid gap-6 md:grid-cols-2" : ""}>
+          {/* LEFT */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="valor-reais">Valor em Reais (R$)</Label>
+              <Input
+                id="valor-reais"
+                type="text"
+                inputMode="numeric"
+                placeholder="Ex: 50"
+                value={amount}
+                onChange={handleAmountChange}
+                disabled={disableForm}
+              />
+            </div>
 
-          <div className="flex gap-2 flex-wrap">
-            {[5, 10, 20, 50, 100].map((v) => (
-              <Button type="button" key={v} variant="outline" size="sm" onClick={() => setAmount(String(v))}>
-                R$ {v}
-              </Button>
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="cpf">CPF do pagador</Label>
-            <Input
-              id="cpf"
-              type="text"
-              inputMode="numeric"
-              placeholder="Somente números"
-              value={cpf}
-              onChange={handleCpfChange}
-              maxLength={11}
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="nome">Nome completo do pagador</Label>
-            <Input
-              id="nome"
-              type="text"
-              placeholder="Nome completo"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-            />
-          </div>
-
-          <fieldset className="border border-muted rounded-md p-3 mt-1">
-            <legend className="text-xs px-1">Método de pagamento</legend>
-            <div className="flex gap-4 flex-wrap mt-1">
-              {paymentMethods.map((p) => (
-                <label key={p.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value={p.id}
-                    checked={method === p.id}
-                    onChange={() => setMethod(p.id)}
-                    className="accent-primary"
-                  />
-                  {p.label}
-                </label>
+            <div className="flex gap-2 flex-wrap">
+              {[5, 10, 20, 50, 100].map((v) => (
+                <Button
+                  type="button"
+                  key={v}
+                  variant="outline"
+                  size="sm"
+                  disabled={disableForm}
+                  onClick={() => setAmount(String(v))}
+                >
+                  R$ {v}
+                </Button>
               ))}
             </div>
-          </fieldset>
 
-          <div className="bg-muted rounded-md border p-3 text-sm flex flex-col gap-1">
-            <div>
-              Você vai pagar: <span className="font-semibold">R$ {parsedAmount}</span>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="cpf">CPF do pagador</Label>
+              <Input
+                id="cpf"
+                type="text"
+                inputMode="numeric"
+                placeholder="Somente números"
+                value={cpf}
+                onChange={handleCpfChange}
+                maxLength={11}
+                disabled={disableForm}
+              />
             </div>
-            <div>
-              Receberá: <span className="font-semibold">{nightcoins} NightCoin(s)</span>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="nome">Nome completo do pagador</Label>
+              <Input
+                id="nome"
+                type="text"
+                placeholder="Nome completo"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                disabled={disableForm}
+              />
             </div>
-          </div>
 
-          <Button type="submit" className="mt-2" disabled={loading}>
-            {loading ? "Gerando cobrança..." : "Pagar com PIX"}
-          </Button>
+            <fieldset className="border border-muted rounded-md p-3 mt-1">
+              <legend className="text-xs px-1">Método de pagamento</legend>
+              <div className="flex gap-4 flex-wrap mt-1">
+                {paymentMethods.map((p) => (
+                  <label key={p.id} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="payment"
+                      value={p.id}
+                      checked={method === p.id}
+                      onChange={() => setMethod(p.id)}
+                      className="accent-primary"
+                      disabled={disableForm}
+                    />
+                    {p.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
 
-          {message && (
-            <div role="alert" className={`mt-2 rounded-md p-3 text-sm ${messageClass}`}>
-              {message.text}
+            <div className="bg-muted rounded-md border p-3 text-sm flex flex-col gap-1">
+              <div>
+                Você vai pagar: <span className="font-semibold">R$ {parsedAmount}</span>
+              </div>
+              <div>
+                Receberá: <span className="font-semibold">{nightcoins} NightCoin(s)</span>
+              </div>
             </div>
-          )}
 
-          {pixData && !paid && (
-            <div className="flex flex-col items-center gap-3 mt-4">
-              <div className="text-center w-full">
-                <div className="font-semibold mb-1">
-                  ⏳ Aguardando pagamento
-                </div>
+            <Button type="submit" className="mt-2" disabled={loading || hasQr}>
+              {loading ? "Gerando cobrança..." : "Pagar com PIX"}
+            </Button>
 
-                {/* Debug útil */}
+            {/* ✅ Info/Erro continuam inline; sucesso é toast */}
+            {message && message.type !== "success" && (
+              <div role="alert" className={`mt-2 rounded-md p-3 text-sm ${messageClass}`}>
+                {message.text}
+              </div>
+            )}
+
+            {/* opcional: botão pra gerar novo pix se quiser */}
+            {hasQr && (
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-1"
+                onClick={() => {
+                  setPixData(null);
+                  setMessage(null);
+                  setPixStatus("");
+                  setLastCheck(null);
+                  setPaid(false);
+                  paidRef.current = false;
+                  toastOnceRef.current = false;
+                }}
+              >
+                Gerar novo PIX
+              </Button>
+            )}
+          </form>
+
+          {/* RIGHT */}
+          {hasQr && (
+            <div className="rounded-lg border border-muted bg-muted/20 p-4">
+              <div className="text-center">
+                <div className="font-semibold mb-1">⏳ Aguardando pagamento</div>
+
                 <div className="text-xs text-muted-foreground mb-3">
-                  Status: <b>{pixStatus || "—"}</b> {lastCheck ? `• Última checagem: ${lastCheck}` : ""}
+                  Status: <b>{pixStatus || "—"}</b>{" "}
+                  {lastCheck ? `• Última checagem: ${lastCheck}` : ""}
                 </div>
 
                 {pixData.qrcodeBase64 && (
                   <>
-                    <div className="font-semibold mb-1">Escaneie o QR Code:</div>
+                    <div className="font-semibold mb-2">Escaneie o QR Code:</div>
                     <img
                       src={`data:image/png;base64,${pixData.qrcodeBase64}`}
                       alt="QR Code PIX"
-                      className="mx-auto border rounded-md"
-                      width={220}
-                      height={220}
+                      className="mx-auto border rounded-md bg-background"
+                      width={240}
+                      height={240}
                     />
                   </>
                 )}
 
                 {pixData.pixCopiaECola && (
-                  <div className="mt-3">
+                  <div className="mt-4 text-left">
                     <Label htmlFor="pix-copia">Copia e Cola:</Label>
                     <Input
                       id="pix-copia"
@@ -373,7 +420,7 @@ export default function ComprarPontos() {
 
                 <Button
                   type="button"
-                  className="mt-4"
+                  className="mt-4 w-full"
                   onClick={() => checkPixStatus(pixData.txid)}
                   disabled={checking}
                 >
@@ -382,7 +429,7 @@ export default function ComprarPontos() {
               </div>
             </div>
           )}
-        </form>
+        </div>
       </CardContent>
     </Card>
   );
