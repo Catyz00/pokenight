@@ -32,12 +32,10 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // Validações básicas
       if (!formData.username || !formData.password) {
         throw new Error('Por favor, preencha todos os campos')
       }
 
-      // Chamar API de login
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -55,11 +53,20 @@ export default function LoginPage() {
         throw new Error(data.error || 'Erro ao fazer login')
       }
 
-      // Login bem-sucedido
       console.log('Login successful:', data)
-      
-      // Salvar dados do usuário no localStorage
+
+      // ✅ Pega accountId (accounts.id) de qualquer nome que o backend possa estar usando
+      const accountId =
+        data?.accountId ??
+        data?.account_id ??
+        data?.id ??
+        data?.account?.id ??
+        data?.user?.id ??
+        null
+
+      // ✅ Salvar dados do usuário no localStorage (incluindo accountId)
       const userData = {
+        accountId: accountId ? Number(accountId) : null,
         username: data.username || formData.username,
         email: data.email || '',
         createdAt: data.createdAt || new Date().toISOString().split('T')[0],
@@ -68,13 +75,21 @@ export default function LoginPage() {
         guild: data.guild || 'Sem Guild',
         rank: data.rank || 'Membro',
       }
-      
+
       localStorage.setItem('user', JSON.stringify(userData))
+
+      // ✅ Chave que o ComprarPontos vai ler
+      if (accountId) {
+        localStorage.setItem('accountId', String(accountId))
+      } else {
+        // Se quiser, deixa um log pra debug (não quebra nada)
+        console.warn('Login OK, mas o backend não retornou accountId/id. Comprar NightCoins não vai funcionar sem isso.')
+      }
+
       if (data.token) {
         localStorage.setItem('token', data.token)
       }
-      
-      // Redirecionar para perfil
+
       router.push('/perfil')
     } catch (err) {
       setError(err.message)

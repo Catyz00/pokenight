@@ -74,6 +74,7 @@ export async function POST(request) {
       { 
         success: true,
         message: 'Login realizado com sucesso!',
+        accountId: account.id,  // ✅ Retorna o ID da conta (accounts.id)
         username: account.name,
         email: account.email || username + '@pokenight.com'
       },

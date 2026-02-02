@@ -12,6 +12,7 @@ const paymentMethods = [{ id: "pix", label: "PIX" }];
 const API_BASE = "http://localhost/api";
 const PIX_CREATE_URL = `${API_BASE}/pix.php`;
 const PIX_CHECK_URL = `${API_BASE}/check-pix.php`;
+const ADD_POINTS_URL = `${API_BASE}/add-premium-points.php`;
 
 function normalizeStatus(data) {
   const raw =
@@ -49,7 +50,65 @@ function isExpiredOrCanceled(status) {
   );
 }
 
+// ✅ tenta encontrar o accountId em vários lugares comuns
+function getAccountIdFromStorage() {
+  if (typeof window === "undefined") return null;
+
+  const directKeys = ["accountId", "account_id", "id", "userId"];
+  for (const k of directKeys) {
+    const v = localStorage.getItem(k);
+    if (v && v !== "undefined" && v !== "null") {
+      const n = parseInt(v, 10);
+      if (!Number.isNaN(n) && n > 0) return n;
+    }
+  }
+
+  // tenta achar dentro de JSON salvo no storage
+  const jsonKeys = ["profile", "user", "me", "session"];
+  for (const k of jsonKeys) {
+    const raw = localStorage.getItem(k);
+    if (!raw) continue;
+    try {
+      const obj = JSON.parse(raw);
+      const cand =
+        obj?.accountId ??
+        obj?.account_id ??
+        obj?.id ??
+        obj?.account?.id ??
+        obj?.user?.id ??
+        obj?.data?.id;
+      const n = parseInt(String(cand || ""), 10);
+      if (!Number.isNaN(n) && n > 0) return n;
+    } catch (_) {}
+  }
+
+  return null;
+}
+
 export default function ComprarPontos() {
+  const bonusTable = [
+    { value: 7, bonus: 3 },
+    { value: 10, bonus: 5 },
+    { value: 20, bonus: 10 },
+    { value: 30, bonus: 12 },
+    { value: 40, bonus: 15 },
+    { value: 50, bonus: 20 },
+    { value: 60, bonus: 22 },
+    { value: 70, bonus: 25 },
+    { value: 80, bonus: 30 },
+    { value: 90, bonus: 35 },
+    { value: 100, bonus: 40 },
+    { value: 500, bonus: 200 },
+    { value: 1000, bonus: 500 },
+    { value: 2000, bonus: 1000 },
+  ];
+
+  function getBonus(val) {
+    if (!val || isNaN(val)) return 0;
+    const found = bonusTable.find((b) => b.value === val);
+    return found ? found.bonus : 0;
+  }
+
   const { toast } = useToast();
 
   const [amount, setAmount] = React.useState("");
@@ -67,11 +126,23 @@ export default function ComprarPontos() {
   const [pixStatus, setPixStatus] = React.useState("");
   const [lastCheck, setLastCheck] = React.useState(null);
 
+  const [credited, setCredited] = React.useState(false);
+  const [creditError, setCreditError] = React.useState(null);
+
+  // ✅ pega accountId com fallback inteligente
+  const [accountId, setAccountId] = React.useState(null);
+
+  React.useEffect(() => {
+    const id = getAccountIdFromStorage();
+    setAccountId(id);
+  }, []);
+
   const paidRef = React.useRef(false);
+  const creditedRef = React.useRef(false);
   const toastOnceRef = React.useRef(false);
 
-  const parsedAmount = Math.max(0, Math.floor(Number(amount) || 0));
-  const nightcoins = parsedAmount;
+  const parsedAmount = Math.max(0, Math.floor(Number(String(amount).replace(",", ".")) || 0));
+  const nightcoins = parsedAmount + getBonus(parsedAmount);
 
   function handleAmountChange(e) {
     const raw = e.target.value;
@@ -94,6 +165,43 @@ export default function ComprarPontos() {
       description: "✅ Seus NightCoins serão creditados em instantes.",
     });
   }, [toast]);
+
+  const creditNightCoins = React.useCallback(
+    async ({ accId, points, txid }) => {
+      if (creditedRef.current) return { ok: true };
+      if (!accId || !points || points <= 0) return { ok: false, error: "Dados inválidos para crédito." };
+
+      try {
+        const res = await fetch(ADD_POINTS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accountId: accId, points, txid }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data?.success !== true) {
+          const err = data?.error || data?.message || `Falha ao creditar (HTTP ${res.status})`;
+          return { ok: false, error: err };
+        }
+
+        creditedRef.current = true;
+        setCredited(true);
+        setCreditError(null);
+
+        toast({
+          variant: "success",
+          title: "NightCoins creditados!",
+          description: `✅ +${points} NightCoin(s) adicionados na sua conta.`,
+        });
+
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, error: "Erro de rede ao creditar NightCoins (verifique CORS/servidor)." };
+      }
+    },
+    [toast]
+  );
 
   const checkPixStatus = async (txid, { silent = false } = {}) => {
     if (!txid) return;
@@ -122,8 +230,23 @@ export default function ComprarPontos() {
         if (!paidRef.current) {
           paidRef.current = true;
           setPaid(true);
-          setMessage(null); // ✅ tira o alerta inline de sucesso
-          fireSuccessToast(); // ✅ toast shadcn
+          setMessage(null);
+          fireSuccessToast();
+        }
+
+        // ✅ usa o pedido salvo (não depende do input atual)
+        const accId = pixData?.accountId;
+        const points = Number(pixData?.pontos || 0);
+
+        if (!creditedRef.current && accId && points > 0) {
+          const result = await creditNightCoins({ accId, points, txid });
+          if (!result.ok) {
+            setCreditError(result.error);
+            setMessage({
+              type: "error",
+              text: `Pagamento confirmado, mas falhou ao creditar: ${result.error}`,
+            });
+          }
         }
       } else if (isExpiredOrCanceled(status)) {
         setMessage({ type: "error", text: "❌ Cobrança expirada/cancelada. Gere um novo PIX." });
@@ -138,13 +261,17 @@ export default function ComprarPontos() {
     }
   };
 
-  // Auto-check a cada 5s após gerar pix (para quando confirmar)
   React.useEffect(() => {
     if (!pixData?.txid) return;
 
     paidRef.current = false;
+    creditedRef.current = false;
     toastOnceRef.current = false;
+
     setPaid(false);
+    setCredited(false);
+    setCreditError(null);
+
     setPixStatus("");
     setLastCheck(null);
 
@@ -152,7 +279,7 @@ export default function ComprarPontos() {
 
     const startedAt = Date.now();
     const interval = setInterval(() => {
-      if (paidRef.current) {
+      if (creditedRef.current) {
         clearInterval(interval);
         return;
       }
@@ -172,17 +299,18 @@ export default function ComprarPontos() {
 
     setMessage(null);
     setPixData(null);
+
     setPaid(false);
+    setCredited(false);
+
     paidRef.current = false;
+    creditedRef.current = false;
     toastOnceRef.current = false;
 
     setPixStatus("");
     setLastCheck(null);
+    setCreditError(null);
 
-    if (parsedAmount <= 0) {
-      setMessage({ type: "error", text: "Informe um valor maior que 0." });
-      return;
-    }
     if (!cpf || cpf.length !== 11) {
       setMessage({ type: "error", text: "Informe um CPF válido (11 dígitos)." });
       return;
@@ -191,11 +319,25 @@ export default function ComprarPontos() {
       setMessage({ type: "error", text: "Informe o nome completo do pagador." });
       return;
     }
+    if (!accountId || accountId <= 0) {
+      setMessage({
+        type: "error",
+        text:
+          "Não encontrei seu accountId no navegador. " +
+          "Você precisa salvar o id da conta no localStorage como 'accountId' no login (accounts.id).",
+      });
+      return;
+    }
+    if (parsedAmount <= 0) {
+      setMessage({ type: "error", text: "Informe um valor válido (ex: 7, 10, 20...)." });
+      return;
+    }
 
     setLoading(true);
 
     try {
       const referencia = Math.floor(Math.random() * 90000 + 10000).toString();
+      const pontosDoPedido = nightcoins;
 
       const body = {
         valor: Number(parsedAmount).toFixed(2),
@@ -206,7 +348,8 @@ export default function ComprarPontos() {
         devedor: { cpf, nome },
         infoAdicionais: [
           { nome: "Order", valor: referencia },
-          { nome: "NightCoins", valor: `${nightcoins}` },
+          { nome: "NightCoins", valor: `${pontosDoPedido}` },
+          { nome: "AccountId", valor: `${accountId}` },
         ],
         webhookUrl: "https://www.sualoja.com.br/webhook",
       };
@@ -228,6 +371,12 @@ export default function ComprarPontos() {
         qrcodeBase64: data?.qrcodeBase64 || data?.qrCodeBase64 || data?.qrcode || data?.qr_code_base64,
         pixCopiaECola: data?.pixCopiaECola || data?.copiaecola || data?.payload || data?.brcode,
         raw: data,
+
+        // ✅ salva dados do pedido pra creditar depois
+        pontos: pontosDoPedido,
+        valor: parsedAmount,
+        accountId,
+        referencia,
       };
 
       if (!normalized.txid) {
@@ -250,21 +399,36 @@ export default function ComprarPontos() {
       ? "bg-destructive/10 text-destructive border border-destructive/30"
       : "bg-muted/50 text-muted-foreground border border-muted";
 
-  const hasQr = !!pixData?.txid && !paid;
+  const hasQr = !!pixData?.txid && !credited;
   const disableForm = loading || hasQr;
 
   return (
-    // ✅ Sem max-w e sem mx-auto (some a “margem”/espaço gigante lateral)
     <Card className="w-full max-w-none mt-6">
       <CardHeader>
         <CardTitle>Comprar NightCoins</CardTitle>
-        <CardDescription>1 R$ = 1 NightCoin</CardDescription>
+        <CardDescription>
+          1 R$ = 1 NightCoin
+          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+            {[7, 10, 20, 30, 40, 50].map((v) => {
+              const b = getBonus(v);
+              return (
+                <div key={v} className="flex flex-col items-center bg-muted rounded-md p-2 text-xs">
+                  <span className="font-semibold text-base">R$ {v}</span>
+                  <span className="text-emerald-700 font-semibold">+{b} bônus</span>
+                </div>
+              );
+            })}
+          </div>
+        </CardDescription>
+
+        {/* ✅ Debug leve pra você ver se encontrou o accountId */}
+        <div className="mt-2 text-xs text-muted-foreground">
+          AccountId detectado: <span className="font-semibold">{accountId || "—"}</span>
+        </div>
       </CardHeader>
 
       <CardContent>
-        {/* ✅ Quando tem QR: 2 colunas (inputs esquerda / QR direita) */}
         <div className={hasQr ? "grid gap-6 md:grid-cols-2" : ""}>
-          {/* LEFT */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="valor-reais">Valor em Reais (R$)</Label>
@@ -277,21 +441,29 @@ export default function ComprarPontos() {
                 onChange={handleAmountChange}
                 disabled={disableForm}
               />
+              {(() => {
+                const val = Number(amount);
+                const b = getBonus(val);
+                if (val >= 1 && b > 0) {
+                  return (
+                    <div className="text-xs text-emerald-700 font-semibold mt-1">
+                      Você ganhará +{b} bônus
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             <div className="flex gap-2 flex-wrap">
-              {[5, 10, 20, 50, 100].map((v) => (
-                <Button
-                  type="button"
-                  key={v}
-                  variant="outline"
-                  size="sm"
-                  disabled={disableForm}
-                  onClick={() => setAmount(String(v))}
-                >
-                  R$ {v}
-                </Button>
-              ))}
+              {[7, 10, 20, 50, 100].map((v) => {
+                const b = getBonus(v);
+                return (
+                  <Button key={v} type="button" disabled={disableForm} onClick={() => setAmount(String(v))}>
+                    R$ {v} {b > 0 && <span className="text-xs text-emerald-700 font-semibold">+{b} bônus</span>}
+                  </Button>
+                );
+              })}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -353,14 +525,36 @@ export default function ComprarPontos() {
               {loading ? "Gerando cobrança..." : "Pagar com PIX"}
             </Button>
 
-            {/* ✅ Info/Erro continuam inline; sucesso é toast */}
             {message && message.type !== "success" && (
               <div role="alert" className={`mt-2 rounded-md p-3 text-sm ${messageClass}`}>
                 {message.text}
               </div>
             )}
 
-            {/* opcional: botão pra gerar novo pix se quiser */}
+            {pixData?.txid && (
+              <div className="text-xs text-muted-foreground mt-1">
+                Status: <span className="font-semibold">{pixStatus || "—"}</span>
+                {lastCheck ? (
+                  <>
+                    {" "}
+                    • última verificação: <span className="font-semibold">{lastCheck}</span>
+                  </>
+                ) : null}
+              </div>
+            )}
+
+            {paid && !credited && (
+              <div className="text-xs text-amber-700 font-semibold mt-1">
+                Pagamento confirmado. Tentando creditar NightCoins...
+              </div>
+            )}
+
+            {creditError && (
+              <div className="text-xs text-destructive font-semibold mt-1">
+                Falha ao creditar: {creditError}
+              </div>
+            )}
+
             {hasQr && (
               <Button
                 type="button"
@@ -371,8 +565,13 @@ export default function ComprarPontos() {
                   setMessage(null);
                   setPixStatus("");
                   setLastCheck(null);
+
                   setPaid(false);
+                  setCredited(false);
+                  setCreditError(null);
+
                   paidRef.current = false;
+                  creditedRef.current = false;
                   toastOnceRef.current = false;
                 }}
               >
@@ -381,52 +580,35 @@ export default function ComprarPontos() {
             )}
           </form>
 
-          {/* RIGHT */}
           {hasQr && (
-            <div className="rounded-lg border border-muted bg-muted/20 p-4">
-              <div className="text-center">
-                <div className="font-semibold mb-1">⏳ Aguardando pagamento</div>
-
-                <div className="text-xs text-muted-foreground mb-3">
-                  Status: <b>{pixStatus || "—"}</b>{" "}
-                  {lastCheck ? `• Última checagem: ${lastCheck}` : ""}
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src={`data:image/png;base64,${pixData.qrcodeBase64}`}
+                alt="QR Code PIX"
+                className="mx-auto border rounded-md bg-background"
+                width={240}
+                height={240}
+              />
+              {pixData.pixCopiaECola && (
+                <div className="mt-4 text-left w-full">
+                  <Label htmlFor="pix-copia">Copia e Cola:</Label>
+                  <Input
+                    id="pix-copia"
+                    value={pixData.pixCopiaECola}
+                    readOnly
+                    className="mt-1 text-xs"
+                    onFocus={(e) => e.target.select()}
+                  />
                 </div>
-
-                {pixData.qrcodeBase64 && (
-                  <>
-                    <div className="font-semibold mb-2">Escaneie o QR Code:</div>
-                    <img
-                      src={`data:image/png;base64,${pixData.qrcodeBase64}`}
-                      alt="QR Code PIX"
-                      className="mx-auto border rounded-md bg-background"
-                      width={240}
-                      height={240}
-                    />
-                  </>
-                )}
-
-                {pixData.pixCopiaECola && (
-                  <div className="mt-4 text-left">
-                    <Label htmlFor="pix-copia">Copia e Cola:</Label>
-                    <Input
-                      id="pix-copia"
-                      value={pixData.pixCopiaECola}
-                      readOnly
-                      className="mt-1 text-xs"
-                      onFocus={(e) => e.target.select()}
-                    />
-                  </div>
-                )}
-
-                <Button
-                  type="button"
-                  className="mt-4 w-full"
-                  onClick={() => checkPixStatus(pixData.txid)}
-                  disabled={checking}
-                >
-                  {checking ? "Verificando..." : "Verificar pagamento"}
-                </Button>
-              </div>
+              )}
+              <Button
+                type="button"
+                className="mt-4 w-full"
+                onClick={() => checkPixStatus(pixData.txid)}
+                disabled={checking}
+              >
+                {checking ? "Verificando..." : "Verificar pagamento"}
+              </Button>
             </div>
           )}
         </div>
