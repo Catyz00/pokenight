@@ -85,6 +85,26 @@ export default function PerfilPage() {
         const userData = JSON.parse(loggedUser)
         setUser(userData)
 
+        // Buscar dados atualizados da conta (incluindo NightCoins)
+        const accountId = userData.accountId || localStorage.getItem('accountId')
+        if (accountId) {
+          try {
+            const accountResponse = await fetch(`/api/account?accountId=${accountId}`)
+            const accountData = await accountResponse.json()
+            
+            if (accountData.success) {
+              // Atualiza o user com os dados do banco
+              setUser(prev => ({
+                ...prev,
+                nightcoins: accountData.nightcoins || 0,
+                premdays: accountData.premdays || 0
+              }))
+            }
+          } catch (error) {
+            console.error('Erro ao buscar dados da conta:', error)
+          }
+        }
+
         try {
           const response = await fetch(`/api/characters?username=${encodeURIComponent(userData.username)}`)
           const data = await response.json()
@@ -289,6 +309,10 @@ export default function PerfilPage() {
                 <p className="mt-1 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
                   <Calendar className="h-4 w-4" />
                   Membro desde {new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                </p>
+                <p className="mt-1 flex items-center justify-center gap-2 text-sm font-semibold text-primary sm:justify-start">
+                  <Crown className="h-4 w-4" />
+                  {user.nightcoins || 0} NightCoins
                 </p>
               </div>
 
