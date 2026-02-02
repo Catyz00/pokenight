@@ -328,8 +328,8 @@ export default function ComprarPontos() {
       });
       return;
     }
-    if (parsedAmount <= 0) {
-      setMessage({ type: "error", text: "Informe um valor válido (ex: 7, 10, 20...)." });
+    if (parsedAmount < 7) {
+      setMessage({ type: "error", text: "O valor mínimo é R$ 7." });
       return;
     }
 
