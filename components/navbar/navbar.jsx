@@ -180,10 +180,10 @@ export function Navbar() {
               {/* Resultados da busca */}
               {showResults && searchResults.length > 0 && (
                 <div className="absolute top-full mt-2 w-full bg-card border-2 border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
-                  {searchResults.map((account, index) => (
+                  {searchResults.map((result, index) => (
                     <Link
                       key={index}
-                      href={`/perfil/${account.name}`}
+                      href={`/personagem/${result.name}`}
                       className="flex items-center justify-between px-4 py-3 hover:bg-muted transition-colors border-b last:border-b-0"
                       onClick={() => {
                         setShowResults(false);
@@ -191,9 +191,14 @@ export function Navbar() {
                       }}
                     >
                       <div className="flex flex-col">
-                        <span className="font-semibold text-sm">{account.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm">{result.name}</span>
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
+                            Level {result.level}
+                          </span>
+                        </div>
                         <span className="text-xs text-muted-foreground">
-                          {account.characterCount} personagens • {account.nightcoins} NightCoins
+                          {result.subtitle}
                         </span>
                       </div>
                       <User className="h-4 w-4 text-muted-foreground" />
@@ -206,7 +211,7 @@ export function Navbar() {
               {showResults && searchQuery.length >= 2 && searchResults.length === 0 && (
                 <div className="absolute top-full mt-2 w-full bg-card border-2 border-border rounded-lg shadow-lg p-4 z-50">
                   <p className="text-sm text-muted-foreground text-center">
-                    Nenhum jogador encontrado
+                    Nenhum resultado encontrado
                   </p>
                 </div>
               )}

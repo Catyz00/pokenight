@@ -25,37 +25,35 @@ export async function GET(request) {
 
     connection = await mysql.createConnection(dbConfig);
 
-    // Buscar contas (accounts) que contenham o termo de busca
-    const [accounts] = await connection.execute(
+    // Buscar apenas personagens (players) que contenham o termo de busca
+    const [players] = await connection.execute(
       `SELECT 
-        a.id,
-        a.name,
-        a.email,
-        a.premium_points,
-        a.premdays,
-        COUNT(p.id) as character_count
-      FROM accounts a
-      LEFT JOIN players p ON p.account_id = a.id
-      WHERE a.name LIKE ?
-      GROUP BY a.id, a.name, a.email, a.premium_points, a.premdays
-      ORDER BY a.name ASC
+        p.id,
+        p.name,
+        p.level,
+        p.vocation
+      FROM players p
+      WHERE p.name LIKE ?
+      ORDER BY p.level DESC
       LIMIT 10`,
       [`%${query}%`]
     );
 
     await connection.end();
 
+    // Retornar apenas players
+    const results = players.map(player => ({
+      name: player.name,
+      level: player.level,
+      vocation: player.vocation,
+      type: 'player',
+      subtitle: `Level ${player.level}`
+    }));
+
     return NextResponse.json(
       { 
         success: true,
-        players: accounts.map(acc => ({
-          name: acc.name,
-          email: acc.email,
-          nightcoins: acc.premium_points || 0,
-          premdays: acc.premdays || 0,
-          characterCount: acc.character_count,
-          accountId: acc.id
-        }))
+        players: results
       },
       { status: 200 }
     );
