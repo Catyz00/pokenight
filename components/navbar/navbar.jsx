@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +53,47 @@ const resourceLinks = [
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
+
+  // Buscar jogadores quando o usuário digitar
+  useEffect(() => {
+    const searchPlayers = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/search-players?q=${encodeURIComponent(searchQuery)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setSearchResults(data.players || []);
+          setShowResults(true);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar jogadores:', error);
+        setSearchResults([]);
+      }
+    };
+
+    const timer = setTimeout(searchPlayers, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fechar resultados ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b-2 border-border bg-card/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -125,15 +166,50 @@ export function Navbar() {
             </DropdownMenu>
 
             {/* Search */}
-            <div className="relative ml-4">
+            <div className="relative ml-4" ref={searchRef}>
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Buscar jogador..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchResults.length > 0 && setShowResults(true)}
                 className="w-48 border-2 pl-9 lg:w-64"
               />
+              
+              {/* Resultados da busca */}
+              {showResults && searchResults.length > 0 && (
+                <div className="absolute top-full mt-2 w-full bg-card border-2 border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                  {searchResults.map((account, index) => (
+                    <Link
+                      key={index}
+                      href={`/perfil/${account.name}`}
+                      className="flex items-center justify-between px-4 py-3 hover:bg-muted transition-colors border-b last:border-b-0"
+                      onClick={() => {
+                        setShowResults(false);
+                        setSearchQuery('');
+                      }}
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">{account.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {account.characterCount} personagens • {account.nightcoins} NightCoins
+                        </span>
+                      </div>
+                      <User className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+              
+              {/* Mensagem quando não há resultados */}
+              {showResults && searchQuery.length >= 2 && searchResults.length === 0 && (
+                <div className="absolute top-full mt-2 w-full bg-card border-2 border-border rounded-lg shadow-lg p-4 z-50">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Nenhum jogador encontrado
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* User Profile Icon */}
