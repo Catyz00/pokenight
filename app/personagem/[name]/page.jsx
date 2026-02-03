@@ -15,6 +15,12 @@ import {
   MapPin,
   Sword,
   Shield,
+  Activity,
+  BookOpen,
+  Star,
+  CheckCircle2,
+  XCircle,
+  Skull,
 } from 'lucide-react'
 
 const vocationNames = {
@@ -47,6 +53,31 @@ const townNames = {
   3: 'Edron',
   4: 'Venore',
   5: 'Ab\'Dendriel',
+}
+
+const questNames = {
+  10000: 'Tutorial Quest',
+  10001: 'First Mission',
+  10002: 'Rookie Hunter',
+  10003: 'Forest Explorer',
+  10004: 'Cave Adventurer',
+  10005: 'Mountain Climber',
+  10006: 'Deep Sea Diver',
+  10007: 'Desert Wanderer',
+  10008: 'Ice Land Explorer',
+  10009: 'Volcano Survivor',
+  10010: 'Ancient Ruins',
+  10011: 'Hidden Temple',
+  10012: 'Lost City',
+  10013: 'Forbidden Zone',
+  10014: 'Sacred Ground',
+  10015: 'Dark Portal',
+  10016: 'Light Tower',
+  10017: 'Shadow Realm',
+  10018: 'Crystal Cave',
+  10019: 'Golden Palace',
+  10020: 'Silver Fortress',
+  // Adicione mais quests conforme necessário
 }
 
 export default function PlayerPage({ params }) {
@@ -123,12 +154,13 @@ export default function PlayerPage({ params }) {
     )
   }
 
-  const { player, house, quests } = playerData
+  const { player, house, quests, recentActivities, bestiary, pokedex } = playerData
 
   // Calcular progresso de quests
-  const totalQuests = 100
-  const completedQuests = quests.length
-  const questProgress = (completedQuests / totalQuests) * 100
+  const completedQuests = quests?.completed?.length || 0
+  const notCompletedQuests = quests?.notCompleted?.length || 0
+  const totalQuests = completedQuests + notCompletedQuests
+  const questProgress = totalQuests > 0 ? (completedQuests / totalQuests) * 100 : 0
 
   const VocationIcon = vocationIcons[player.vocation] || Shield
 
@@ -216,13 +248,17 @@ export default function PlayerPage({ params }) {
                 <Progress value={questProgress} className="h-2" />
               </div>
 
-              {quests.length > 0 && (
+              {/* Quests Completadas */}
+              {quests?.completed && quests.completed.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <h4 className="text-sm font-semibold">Quests Recentes:</h4>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {quests.slice(0, 10).map((quest, index) => (
-                      <div key={index} className="flex items-center gap-2 rounded border p-2 text-sm">
-                        <Scroll className="h-3 w-3 text-primary" />
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    Quests Completadas ({quests.completed.length})
+                  </h4>
+                  <div className="grid gap-2 sm:grid-cols-2 max-h-64 overflow-y-auto">
+                    {quests.completed.map((quest, index) => (
+                      <div key={index} className="flex items-center gap-2 rounded border border-green-500/20 bg-green-500/5 p-2 text-sm">
+                        <CheckCircle2 className="h-3 w-3 text-green-500" />
                         <span className="flex-1 truncate">{quest.questName}</span>
                         <Badge variant="secondary" className="text-xs">
                           {quest.progress}
@@ -233,12 +269,121 @@ export default function PlayerPage({ params }) {
                 </div>
               )}
 
-              {quests.length === 0 && (
+              {/* Quests Não Completadas */}
+              {quests?.notCompleted && quests.notCompleted.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <XCircle className="h-4 w-4 text-red-500" />
+                    Quests Não Completadas ({quests.notCompleted.length}+)
+                  </h4>
+                  <div className="grid gap-2 sm:grid-cols-2 max-h-64 overflow-y-auto">
+                    {quests.notCompleted.map((quest, index) => (
+                      <div key={index} className="flex items-center gap-2 rounded border border-red-500/20 bg-red-500/5 p-2 text-sm">
+                        <XCircle className="h-3 w-3 text-red-500" />
+                        <span className="flex-1 truncate text-red-600">{quest.questName}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {completedQuests === 0 && (!quests?.notCompleted || quests.notCompleted.length === 0) && (
                 <p className="text-center text-sm text-muted-foreground py-4">
-                  Nenhuma quest completada ainda
+                  Nenhuma quest disponível
                 </p>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Atividades Recentes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Atividades Recentes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recentActivities && recentActivities.length > 0 ? (
+              <div className="space-y-2">
+                {recentActivities.map((activity, index) => (
+                  <div key={index} className="flex items-center gap-3 rounded border p-3 text-sm">
+                    <Skull className="h-4 w-4 text-red-500" />
+                    <div className="flex-1">
+                      <p>{activity.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(activity.timestamp * 1000).toLocaleString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-sm text-muted-foreground py-4">
+                Nenhuma atividade recente
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Bestiary */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Bestiary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {bestiary && bestiary.length > 0 ? (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {bestiary.map((entry, index) => (
+                  <div key={index} className="flex items-center justify-between rounded border p-3 text-sm">
+                    <span className="font-medium">{entry.monster}</span>
+                    <Badge variant="outline">{entry.kills} kills</Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-sm text-muted-foreground py-4">
+                Nenhum monstro derrotado ainda
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Pokedex */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                Pokédex
+              </div>
+              <Badge variant="outline">
+                {pokedex?.length || 0} / 721 desbloqueados
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pokedex && pokedex.length > 0 ? (
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {pokedex.map((entry, index) => (
+                  <div key={index} className="flex items-center justify-between rounded border border-primary/20 bg-primary/5 p-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-primary" />
+                      <span className="font-medium">#{entry.pokemonId} {entry.pokemonName}</span>
+                    </div>
+                    <Badge variant="secondary">{entry.captures}x</Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-sm text-muted-foreground py-4">
+                Nenhum Pokémon capturado ainda
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
