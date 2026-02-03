@@ -141,12 +141,13 @@ export default function ComprarPontos() {
   const creditedRef = React.useRef(false);
   const toastOnceRef = React.useRef(false);
 
-  const parsedAmount = Math.max(0, Math.floor(Number(String(amount).replace(",", ".")) || 0));
+  const parsedAmount = Math.max(0, Math.floor(Number(String(amount).replace(/\D/g, "")) || 0));
   const nightcoins = parsedAmount + getBonus(parsedAmount);
 
   function handleAmountChange(e) {
     const raw = e.target.value;
-    const cleaned = raw.replace(/[^\d.,]/g, "").replace(",", ".");
+    // Remove tudo que não é dígito
+    const cleaned = raw.replace(/\D/g, "");
     setAmount(cleaned);
     setMessage(null);
   }
@@ -328,8 +329,8 @@ export default function ComprarPontos() {
       });
       return;
     }
-    if (parsedAmount < 7) {
-      setMessage({ type: "error", text: "O valor mínimo é R$ 7." });
+    if (parsedAmount < 1) {
+      setMessage({ type: "error", text: "O valor mínimo é R$ 1." });
       return;
     }
 
@@ -405,7 +406,6 @@ export default function ComprarPontos() {
   return (
     <Card className="w-full max-w-none mt-6">
       <CardHeader>
-        <CardTitle>Comprar NightCoins</CardTitle>
         <CardDescription>
           1 R$ = 1 NightCoin
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
@@ -420,18 +420,13 @@ export default function ComprarPontos() {
             })}
           </div>
         </CardDescription>
-
-        {/* ✅ Debug leve pra você ver se encontrou o accountId */}
-        <div className="mt-2 text-xs text-muted-foreground">
-          AccountId detectado: <span className="font-semibold">{accountId || "—"}</span>
-        </div>
       </CardHeader>
 
       <CardContent>
         <div className={hasQr ? "grid gap-6 md:grid-cols-2" : ""}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="valor-reais">Valor em Reais (R$)</Label>
+              <Label htmlFor="valor-reais">Valor em Reais (R$) - Apenas números inteiros</Label>
               <Input
                 id="valor-reais"
                 type="text"
@@ -441,6 +436,7 @@ export default function ComprarPontos() {
                 onChange={handleAmountChange}
                 disabled={disableForm}
               />
+              <span className="text-xs text-muted-foreground">Mínimo: R$ 1 • Apenas valores inteiros (sem centavos)</span>
               {(() => {
                 const val = Number(amount);
                 const b = getBonus(val);
