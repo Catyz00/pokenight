@@ -111,13 +111,14 @@ export default function ComprarPontos() {
 
   const { toast } = useToast();
 
-  const [amount, setAmount] = React.useState("");
+  const [amount, setAmount] = React.useState("10");
   const [method, setMethod] = React.useState(paymentMethods[0].id);
   const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = React.useState(null);
 
   const [cpf, setCpf] = React.useState("");
   const [nome, setNome] = React.useState("");
+  const [cupom, setCupom] = React.useState("");
 
   const [pixData, setPixData] = React.useState(null);
   const [checking, setChecking] = React.useState(false);
@@ -411,11 +412,24 @@ export default function ComprarPontos() {
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
             {[7, 10, 20, 30, 40, 50].map((v) => {
               const b = getBonus(v);
+              const isSelected = Number(amount) === v;
               return (
-                <div key={v} className="flex flex-col items-center bg-muted rounded-md p-2 text-xs">
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setAmount(String(v))}
+                  disabled={disableForm}
+                  className={`flex flex-col items-center rounded-md p-2 text-xs transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isSelected
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'bg-muted hover:bg-muted/80 hover:cursor-pointer'
+                  }`}
+                >
                   <span className="font-semibold text-base">R$ {v}</span>
-                  <span className="text-emerald-700 font-semibold">+{b} bônus</span>
-                </div>
+                  <span className={isSelected ? 'font-semibold' : 'text-emerald-700 font-semibold'}>
+                    +{b} bônus
+                  </span>
+                </button>
               );
             })}
           </div>
@@ -425,67 +439,75 @@ export default function ComprarPontos() {
       <CardContent>
         <div className={hasQr ? "grid gap-6 md:grid-cols-2" : ""}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="valor-reais">Valor em Reais (R$) - Apenas números inteiros</Label>
-              <Input
-                id="valor-reais"
-                type="text"
-                inputMode="numeric"
-                placeholder="Ex: 50"
-                value={amount}
-                onChange={handleAmountChange}
-                disabled={disableForm}
-              />
-              <span className="text-xs text-muted-foreground">Mínimo: R$ 1 • Apenas valores inteiros (sem centavos)</span>
-              {(() => {
-                const val = Number(amount);
-                const b = getBonus(val);
-                if (val >= 1 && b > 0) {
-                  return (
-                    <div className="text-xs text-emerald-700 font-semibold mt-1">
-                      Você ganhará +{b} bônus
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="valor-reais">Valor em Reais (R$) - Apenas números inteiros</Label>
+                <Input
+                  id="valor-reais"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Ex: 50"
+                  value={amount}
+                  onChange={handleAmountChange}
+                  disabled={disableForm}
+                />
+                <span className="text-xs text-muted-foreground">Mínimo: R$ 1</span>
+                {(() => {
+                  const val = Number(amount);
+                  const b = getBonus(val);
+                  if (val >= 1 && b > 0) {
+                    return (
+                      <div className="text-xs text-emerald-700 font-semibold mt-1">
+                        Você ganhará +{b} bônus
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
 
-            <div className="flex gap-2 flex-wrap">
-              {[7, 10, 20, 50, 100].map((v) => {
-                const b = getBonus(v);
-                return (
-                  <Button key={v} type="button" disabled={disableForm} onClick={() => setAmount(String(v))}>
-                    R$ {v} {b > 0 && <span className="text-xs text-emerald-700 font-semibold">+{b} bônus</span>}
-                  </Button>
-                );
-              })}
-            </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="cupom">Cupom de desconto (opcional)</Label>
+                <Input
+                  id="cupom"
+                  type="text"
+                  placeholder="Digite seu cupom"
+                  value={cupom}
+                  onChange={(e) => setCupom(e.target.value.toUpperCase())}
+                  disabled={disableForm}
+                />
+                {cupom && (
+                  <span className="text-xs text-muted-foreground">
+                    Cupom será validado ao processar pagamento
+                  </span>
+                )}
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="cpf">CPF do pagador</Label>
-              <Input
-                id="cpf"
-                type="text"
-                inputMode="numeric"
-                placeholder="Somente números"
-                value={cpf}
-                onChange={handleCpfChange}
-                maxLength={11}
-                disabled={disableForm}
-              />
-            </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="cpf">CPF do pagador</Label>
+                <Input
+                  id="cpf"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Somente números"
+                  value={cpf}
+                  onChange={handleCpfChange}
+                  maxLength={11}
+                  disabled={disableForm}
+                />
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="nome">Nome completo do pagador</Label>
-              <Input
-                id="nome"
-                type="text"
-                placeholder="Nome completo"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                disabled={disableForm}
-              />
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="nome">Nome completo do pagador</Label>
+                <Input
+                  id="nome"
+                  type="text"
+                  placeholder="Nome completo"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  disabled={disableForm}
+                />
+              </div>
             </div>
 
             <fieldset className="border border-muted rounded-md p-3 mt-1">

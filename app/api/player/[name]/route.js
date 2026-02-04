@@ -87,24 +87,38 @@ export async function GET(request, context) {
       // Lista de todas as quest keys disponíveis
       const allQuestKeys = [31441546, 2353463, 2353465, 2353462, 2353461, 243243, 2353464, 2353468, 2353467, 2353466, 4234563, 4234564];
       
-      // Identificar quests não completadas
-      const completedKeys = questsResult.map(q => q.quest_key);
-      const notCompletedKeys = allQuestKeys.filter(key => !completedKeys.includes(key));
+      // Criar um mapa das quests encontradas
+      const questMap = new Map(questsResult.map(q => [q.quest_key, q.value]));
       
       allQuests = {
-        completed: questsResult.map(q => ({
-          questKey: q.quest_key,
-          questName: questNames[q.quest_key] || `Quest #${q.quest_key}`,
-          progress: q.value,
-          status: 'completed'
-        })),
-        notCompleted: notCompletedKeys.map(key => ({
+        completed: [],
+        notCompleted: []
+      };
+      
+      // Processar todas as quests
+      allQuestKeys.forEach(key => {
+        const questData = {
           questKey: key,
           questName: questNames[key] || `Quest #${key}`,
-          progress: 0,
-          status: 'not_completed'
-        }))
-      };
+        };
+        
+        if (questMap.has(key)) {
+          // Quest existe no banco - está completada ou em progresso
+          const value = questMap.get(key);
+          allQuests.completed.push({
+            ...questData,
+            progress: value,
+            status: 'completed'
+          });
+        } else {
+          // Quest não existe no banco - não foi iniciada
+          allQuests.notCompleted.push({
+            ...questData,
+            progress: 0,
+            status: 'not_completed'
+          });
+        }
+      });
     } catch (error) {
       console.log('⚠️ Tabela player_storage não encontrada ou erro:', error.message);
     }
@@ -137,17 +151,16 @@ export async function GET(request, context) {
     try {
       const [kills] = await connection.execute(
         `SELECT 
-          race,
-          COUNT(*) as kill_count
-        FROM player_deaths
+          monster_name,
+          kills as kill_count
+        FROM player_bestiary
         WHERE player_id = ?
-        GROUP BY race
-        ORDER BY kill_count DESC
+        ORDER BY kills DESC
         LIMIT 20`,
         [player.id]
       );
       bestiary = kills.map(k => ({
-        monster: k.race,
+        monster: k.monster_name,
         kills: k.kill_count
       }));
     } catch (error) {
