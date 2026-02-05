@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageLoader } from '@/components/ui/page-loader';
 import {
   Trophy,
   Target,
@@ -163,6 +164,18 @@ const getPositionStyle = (index) => {
 
 export default function Rankings() {
   const [activeTab, setActiveTab] = useState('level');
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 700)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) {
+    return <PageLoader rows={6} />
+  }
 
   return (
     <section className="py-16">

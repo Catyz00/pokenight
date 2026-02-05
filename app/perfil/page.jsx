@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/hooks/use-toast'
 import { Toaster } from '@/components/ui/toaster'
+import { PageLoader } from '@/components/ui/page-loader'
 import {
   Dialog,
   DialogContent,
@@ -263,14 +264,7 @@ export default function PerfilPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="text-muted-foreground">Carregando perfil...</p>
-        </div>
-      </div>
-    )
+    return <PageLoader rows={6} />
   }
 
   if (!user) return null

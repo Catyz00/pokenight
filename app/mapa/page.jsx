@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { PageLoader } from '@/components/ui/page-loader'
 import { Map, ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 const maps = [
@@ -16,6 +17,14 @@ const maps = [
 
 export default function Page() {
     const [openIndex, setOpenIndex] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false)
+        }, 600)
+        return () => clearTimeout(timer)
+    }, [])
 
     useEffect(() => {
         function onKey(e) {
@@ -39,6 +48,10 @@ export default function Page() {
     }
     function prev() {
         setOpenIndex(i => Math.max(0, i - 1))
+    }
+
+    if (loading) {
+        return <PageLoader rows={4} />
     }
 
     return (

@@ -1,11 +1,27 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { PageLoader } from '@/components/ui/page-loader'
 
 export default function NotFound() {
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Simula carregamento da página 404
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) {
+    return <PageLoader rows={3} />
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-muted">
       <Card className="max-w-2xl w-full">

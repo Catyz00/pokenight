@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { PageLoader } from '@/components/ui/page-loader'
 import { Swords, Trophy, Flag, Target, Clock, Gift } from 'lucide-react'
 
 const events = [
@@ -59,6 +60,7 @@ const isEventHappening = (event) => {
 
 export default function Page() {
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [loading, setLoading] = useState(true)
 
     // Atualizar o horário a cada minuto
     useEffect(() => {
@@ -68,6 +70,18 @@ export default function Page() {
 
         return () => clearInterval(interval)
     }, [])
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false)
+        }, 650)
+        return () => clearTimeout(timer)
+    }, [])
+
+    if (loading) {
+        return <PageLoader rows={5} />
+    }
+
     return (
         <section className="py-16">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
