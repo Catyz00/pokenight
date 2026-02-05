@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +13,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const turnstileRef = useRef(null)
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -26,6 +28,39 @@ export default function LoginPage() {
     }))
   }
 
+  // Renderizar Cloudflare Turnstile
+  useEffect(() => {
+    const loadTurnstile = () => {
+      if (typeof window !== 'undefined' && window.turnstile && turnstileRef.current) {
+        const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'
+        
+        console.log('🔒 Carregando Turnstile com sitekey:', siteKey)
+        
+        try {
+          window.turnstile.render(turnstileRef.current, {
+            sitekey: siteKey,
+            callback: (token) => {
+              console.log('✅ Token Turnstile recebido')
+              setTurnstileToken(token)
+            },
+            'error-callback': () => {
+              console.error('❌ Erro no Turnstile')
+            },
+            theme: 'dark',
+            language: 'pt-BR',
+          })
+        } catch (error) {
+          console.error('❌ Erro ao renderizar Turnstile:', error)
+        }
+      } else if (typeof window !== 'undefined' && !window.turnstile) {
+        console.log('⏳ Aguardando script do Turnstile carregar...')
+        setTimeout(loadTurnstile, 100)
+      }
+    }
+    
+    loadTurnstile()
+  }, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -36,6 +71,10 @@ export default function LoginPage() {
         throw new Error('Por favor, preencha todos os campos')
       }
 
+      if (!turnstileToken) {
+        throw new Error('Por favor, complete a verificação de segurança')
+      }
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -44,6 +83,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,
+          turnstileToken,
         }),
       })
 
@@ -161,7 +201,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          {/* Cloudflare Turnstile */}
+          <div ref={turnstileRef} className="flex justify-center"></div>
+
+          <Button type="submit" className="w-full" disabled={loading || !turnstileToken}>
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
