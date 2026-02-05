@@ -130,6 +130,9 @@ export default function LoginPage() {
         localStorage.setItem('token', data.token)
       }
 
+      // Disparar evento para atualizar navbar
+      window.dispatchEvent(new Event('storage'))
+
       router.push('/perfil')
     } catch (err) {
       setError(err.message)

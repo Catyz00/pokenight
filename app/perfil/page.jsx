@@ -133,7 +133,12 @@ export default function PerfilPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('user')
+    localStorage.removeItem('accountId')
     localStorage.removeItem('token')
+    
+    // Disparar evento para atualizar navbar
+    window.dispatchEvent(new Event('storage'))
+    
     router.push('/auth/login')
   }
 

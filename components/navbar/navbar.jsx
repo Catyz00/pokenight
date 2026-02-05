@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -28,6 +29,7 @@ import {
   Swords,
   Gamepad2,
   User,
+  LogOut,
 } from 'lucide-react';
 
 const navLinks = [
@@ -51,11 +53,50 @@ const resourceLinks = [
 ];
 
 export function Navbar() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
   const searchRef = useRef(null);
+
+  // Verificar se o usuário está logado
+  useEffect(() => {
+    const checkAuth = () => {
+      const user = localStorage.getItem('user');
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          setIsLoggedIn(true);
+          setUsername(userData.username || '');
+        } catch (error) {
+          console.error('Erro ao parsear dados do usuário:', error);
+          setIsLoggedIn(false);
+        }
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuth();
+    
+    // Listener para mudanças no localStorage (quando fizer login/logout em outra aba)
+    window.addEventListener('storage', checkAuth);
+    
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
+
+  // Função de logout
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('accountId');
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setUsername('');
+    router.push('/');
+  };
 
   // Buscar jogadores quando o usuário digitar
   useEffect(() => {
@@ -235,11 +276,23 @@ export function Navbar() {
             {/* CTA Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
               
-              <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="font-medium">
-                  Entrar
+              {isLoggedIn ? (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="font-medium gap-2"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
                 </Button>
-              </Link>
+              ) : (
+                <Link href="/auth/login">
+                  <Button variant="ghost" size="sm" className="font-medium">
+                    Entrar
+                  </Button>
+                </Link>
+              )}
               <Link href="/download">
                 <Button
                   size="sm"
@@ -330,14 +383,25 @@ export function Navbar() {
               </div>
 
               <div className="flex gap-2 border-t-2 border-border pt-4">
-                <Link href="/auth/login" className="flex-1">
+                {isLoggedIn ? (
                   <Button
                     variant="outline"
-                    className="w-full border-2 bg-transparent font-medium"
+                    className="w-full border-2 bg-transparent font-medium gap-2"
+                    onClick={handleLogout}
                   >
-                    Entrar
+                    <LogOut className="h-4 w-4" />
+                    Sair
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/auth/login" className="flex-1">
+                    <Button
+                      variant="outline"
+                      className="w-full border-2 bg-transparent font-medium"
+                    >
+                      Entrar
+                    </Button>
+                  </Link>
+                )}
                 <Link href="/download" className="flex-1">
                   <Button className="w-full gap-2 font-semibold shadow-md shadow-primary/30">
                     <Download className="h-4 w-4" />
