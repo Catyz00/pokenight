@@ -6,33 +6,41 @@ import { Button } from '@/components/ui/button';
 import {
   Download,
   Play,
-  Users,
   Trophy,
-  Calendar,
   Sparkles,
   Zap,
+  Crown,
+  Award,
+  Star,
+  Flame,
+  Target,
 } from 'lucide-react';
 
-// Dados de exemplo - na versao real viram do PHP
-const stats = [
-  {
-    label: 'Jogadores Online',
-    value: '2,847',
-    icon: Users,
-    color: 'text-pokemon-blue',
-  },
-  {
-    label: 'Torneios Realizados',
-    value: '1,254',
-    icon: Trophy,
-    color: 'text-pokemon-yellow',
-  },
-  {
-    label: 'Eventos Ativos',
-    value: '12',
-    icon: Calendar,
-    color: 'text-pokemon-green',
-  },
+// Dados mockados de conquistas (somente 4)
+const MOCK_ACHIEVEMENTS = [
+  { id: 1, playerName: 'Ash', achievement: 'capturou seu primeiro Legendary!', time: '2 min', icon: 'crown', emoji: '👑' },
+  { id: 2, playerName: 'Misty', achievement: 'completou a Pokédex da Região Kanto', time: '5 min', icon: 'trophy', emoji: '🏆' },
+  { id: 3, playerName: 'Brock', achievement: 'derrotou o Elite Four', time: '8 min', icon: 'award', emoji: '⚔️' },
+  { id: 4, playerName: 'Gary', achievement: 'alcançou Level 100', time: '12 min', icon: 'star', emoji: '⭐' },
+];
+
+const ICON_MAP = {
+  crown: Crown,
+  trophy: Trophy,
+  award: Award,
+  star: Star,
+  flame: Flame,
+  zap: Zap,
+  target: Target,
+  sparkles: Sparkles,
+};
+
+const ACHIEVEMENT_COLORS = [
+  'from-yellow-500/20 to-orange-500/20 border-yellow-500/30',
+  'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
+  'from-purple-500/20 to-pink-500/20 border-purple-500/30',
+  'from-green-500/20 to-emerald-500/20 border-green-500/30',
+  'from-red-500/20 to-rose-500/20 border-red-500/30',
 ];
 
 export function Hero() {
@@ -42,6 +50,8 @@ export function Hero() {
     minutes: 0,
     seconds: 0,
   });
+  
+  const [achievements, setAchievements] = useState(MOCK_ACHIEVEMENTS);
 
   // Countdown para proximo torneio - data de exemplo
   useEffect(() => {
@@ -68,6 +78,32 @@ export function Hero() {
     return () => clearInterval(interval);
   }, []);
 
+  // Simula novas conquistas
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const icons = ['crown', 'trophy', 'award', 'star', 'flame', 'zap', 'target', 'sparkles'];
+      const emojis = ['🎮', '⚡', '🔥', '💎', '🌟', '🎯', '💪', '🎉', '🏅', '👑', '⚔️', '🛡️'];
+      const newAchievement = {
+        id: Date.now(),
+        playerName: ['Ash', 'Misty', 'Brock', 'Gary', 'Red', 'Blue'][Math.floor(Math.random() * 6)],
+        achievement: [
+          'capturou um Pokémon raro',
+          'venceu uma batalha épica',
+          'derrotou um Boss',
+          'encontrou um item especial',
+          'evoluiu um Pokémon',
+          'completou uma missão lendária',
+        ][Math.floor(Math.random() * 6)],
+        time: 'agora',
+        icon: icons[Math.floor(Math.random() * icons.length)],
+        emoji: emojis[Math.floor(Math.random() * emojis.length)],
+      };
+      setAchievements((prev) => [newAchievement, ...prev.slice(0, 3)]); // Máximo de 4 conquistas
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="relative overflow-hidden">
       {/* Colorful Background */}
@@ -78,7 +114,7 @@ export function Hero() {
         <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pokenight-red/10 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-8 sm:px-6 sm:pt-24 lg:px-8">
         <div className="text-center">
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-pokenight-yellow/50 bg-pokenight-yellow/20 px-4 py-1.5 text-sm font-semibold text-pokenight-yellow">
@@ -182,27 +218,99 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="group flex flex-col items-center gap-2 rounded-xl border-2 border-border bg-card p-6 shadow-md transition-all hover:border-primary/30 hover:shadow-lg"
-              >
-                <div className="rounded-full bg-muted p-3 transition-colors group-hover:bg-primary/10">
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                <p className="text-3xl font-bold text-foreground">
-                  {stat.value}
-                </p>
-                <p className="text-sm font-medium text-muted-foreground">
-                  {stat.label}
-                </p>
+          {/* Conquistas Recentes - Feed ao Vivo */}
+          <div className="mx-auto mt-8 max-w-2xl">
+            <div className="rounded-2xl border-2 border-transparent bg-transparent p-6">
+              
+              <div className="space-y-2">
+                {achievements.slice(0, 4).map((achievement, index) => {
+                  const IconComponent = ICON_MAP[achievement.icon] || Trophy;
+                  const colorClass = ACHIEVEMENT_COLORS[index % ACHIEVEMENT_COLORS.length];
+                  
+                  return (
+                    <div
+                      key={achievement.id}
+                      className={`flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r ${colorClass} hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm relative overflow-hidden group`}
+                      style={{
+                        animation: index === 0 ? 'slideIn 0.5s ease-out, glow 2s ease-in-out infinite' : 'none',
+                        opacity: index === 3 ? 0.3 : 1,
+                        transform: index === 3 ? 'scale(0.95)' : 'scale(1)',
+                        transition: 'all 0.5s ease-out',
+                      }}
+                    >
+                      {/* Efeito de brilho */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                      
+                      {/* Emoji grande */}
+                      <div className="text-2xl animate-bounce" style={{ animationDuration: '2s' }}>
+                        {achievement.emoji}
+                      </div>
+
+                      {/* Ícone da conquista */}
+                      <div className="rounded-full bg-background/80 p-2.5 flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <IconComponent className="w-5 h-5 text-[var(--color-pokenight-yellow)]" />
+                      </div>
+
+                      {/* Conteúdo */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm leading-snug font-medium">
+                        <span className="font-bold text-white drop-shadow-lg">
+                          {achievement.playerName}
+                        </span>
+                        {' '}
+                        <span className="text-white/90">
+                          {achievement.achievement}
+                        </span>
+                        {index === 0 && <span className="ml-2 text-xs">✨ NOVO!</span>}
+                      </p>
+                    </div>
+
+                    {/* Tempo */}
+                    <div className="text-xs font-semibold text-white/70 whitespace-nowrap bg-black/20 px-2 py-1 rounded-full">
+                      {achievement.time}
+                    </div>
+                  </div>
+                  );
+                })}
               </div>
-            ))}
+            </div>
           </div>
+
         </div>
       </div>
+      
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        @keyframes glow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(234, 179, 8, 0.6);
+          }
+        }
+        
+        @keyframes fadeOut {
+          from {
+            opacity: 1;
+            transform: scale(1);
+          }
+          to {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+        }
+      `}</style>
     </section>
   );
 }

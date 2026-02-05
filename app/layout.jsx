@@ -8,7 +8,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata = {
-  title: 'PokeNight - Pokemon Online Game',
+  title: 'PokeNight',
   description:
     'Jogue Pokemon online no PokeNight com ranking, eventos, torneios e uma comunidade ativa',
   generator: 'v0.app',
