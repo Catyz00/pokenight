@@ -1,6 +1,6 @@
 'use client'
 
-import ComprarPontos from "@/components/profile/comprar-pontos/shop.jsx";
+import ComprarPontos from "@/components/profile/comprar-pontos/ComprarPontos";
 
 import RecentAchievementsWrapper from './RecentAchievementsWrapper'
 
