@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
+import { createDbConnection } from '@/lib/db-config'
 
 // GET /api/characters/storages?character=NomeDoChar
 export async function GET(request) {
@@ -10,12 +11,9 @@ export async function GET(request) {
     if (!character) {
       return NextResponse.json({ error: 'Nome do personagem é obrigatório' }, { status: 400 })
     }
-    connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'poke',
-    })
+    
+    connection = await createDbConnection(mysql)
+    
     // Buscar id do personagem
     const [players] = await connection.execute(
       'SELECT id FROM players WHERE name = ?',

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
+import { createDbConnection } from '@/lib/db-config'
 
 export async function GET(request) {
   let connection = null
@@ -17,12 +18,7 @@ export async function GET(request) {
     }
 
     // Conectar ao banco
-    connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'poke',
-    })
+    connection = await createDbConnection(mysql)
 
     console.log('✅ Buscando personagens do usuário:', username)
 

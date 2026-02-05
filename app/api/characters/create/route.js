@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
+import { createDbConnection } from '@/lib/db-config'
 
 export async function POST(request) {
   let connection = null
@@ -43,12 +44,7 @@ export async function POST(request) {
     }
 
     // Conectar ao banco
-    connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'poke',
-    })
+    connection = await createDbConnection(mysql)
 
     console.log('✅ Conectado ao MySQL')
 
