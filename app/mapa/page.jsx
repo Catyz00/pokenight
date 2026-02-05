@@ -58,6 +58,15 @@ export default function Page() {
         <section className="py-16">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="mb-10 text-center">
+                    {/* Pokémon acima do badge */}
+                    <div className="flex justify-center mb-3">
+                        <img 
+                            src="/pokemon/pidgeot.png" 
+                            alt="Pidgeot" 
+                            className="w-24 h-24 object-contain opacity-90 hover:opacity-100 transition-opacity"
+                        />
+                    </div>
+
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-primary/30 bg-primary/10 px-4 py-1.5">
                         <Map className="h-5 w-5 text-primary" />
                         <span className="font-semibold text-primary">Explore o Mundo</span>

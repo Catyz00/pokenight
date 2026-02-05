@@ -25,6 +25,15 @@ export default function RegrasPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-10 text-center">
+        {/* Pokémon acima do título */}
+        <div className="flex justify-center mb-4">
+          <img 
+            src="/pokemon/pikachu.png" 
+            alt="Pikachu" 
+            className="w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-opacity animate-bounce"
+          />
+        </div>
+
         <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
           <span>Regras do </span> <span className='text-primary'>PokeNight</span>
         </h2>

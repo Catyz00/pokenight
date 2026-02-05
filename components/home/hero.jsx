@@ -116,6 +116,14 @@ export function Hero() {
 
       <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-8 sm:px-6 sm:pt-24 lg:px-8">
         <div className="text-center">
+          {/* Pokémon acima do badge */}
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/pokemon/gengar.png" 
+              alt="Gengar" 
+              className="w-28 h-28 object-contain opacity-90 hover:opacity-100 transition-opacity animate-bounce"
+            />
+          </div>
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-pokenight-yellow/50 bg-pokenight-yellow/20 px-4 py-1.5 text-sm font-semibold text-pokenight-yellow">
             <Sparkles className="h-4 w-4 animate-pulse" />

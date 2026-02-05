@@ -190,6 +190,14 @@ export default function CasasPage() {
     <section className="py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
+          {/* Pokémon acima do badge */}
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/pokemon/snorlax.png" 
+              alt="Snorlax" 
+              className="w-24 h-24 object-contain opacity-90 hover:opacity-100 transition-opacity hover:scale-110 transform duration-300"
+            />
+          </div>
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-primary/30 bg-primary/10 px-4 py-1.5">
             <Home className="h-5 w-5 text-primary" />
             <span className="font-semibold text-primary">Encontre seu Lar</span>

@@ -107,6 +107,14 @@ export default function RegisterPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-2 text-center">
+        {/* Pokémon acima do título */}
+        <div className="flex justify-center mb-2">
+          <img 
+            src="/pokemon/bulbasaur.png" 
+            alt="Bulbasaur" 
+            className="w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-opacity animate-bounce"
+          />
+        </div>
         <CardTitle className="text-2xl">Registre-se</CardTitle>
         <CardDescription>Crie sua conta Pokenight</CardDescription>
       </CardHeader>

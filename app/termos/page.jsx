@@ -8,6 +8,15 @@ export default function TermosPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-10 text-center">
+        {/* Pokémon acima do título */}
+        <div className="flex justify-center mb-4">
+          <img 
+            src="/pokemon/alakazam.png" 
+            alt="Alakazam" 
+            className="w-24 h-24 object-contain opacity-90 hover:opacity-100 transition-opacity hover:scale-110 transform duration-300"
+          />
+        </div>
+
         <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
           <span>Termos e </span> <span className='text-primary'>Condições</span>
         </h2>

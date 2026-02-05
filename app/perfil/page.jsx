@@ -41,6 +41,7 @@ import {
   Shield,
   Crown,
   Plus,
+  Star,
 } from 'lucide-react'
 
 export default function PerfilPage() {
@@ -64,6 +65,7 @@ export default function PerfilPage() {
   const [passwordError, setPasswordError] = useState('')
   const [characters, setCharacters] = useState([])
   const [selectedCharName, setSelectedCharName] = useState('')
+  const [favoritePokemon, setFavoritePokemon] = useState('pikachu')
 
   useEffect(() => {
     if (characters.length > 0) {
@@ -280,39 +282,78 @@ export default function PerfilPage() {
       <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-              <div className="relative">
-                <Avatar className="h-24 w-24 border-4 border-primary">
-                  <div className="flex h-full w-full items-center justify-center bg-primary/10">
-                    <User className="h-12 w-12 text-primary" />
-                  </div>
-                </Avatar>
-                <Badge className="absolute -bottom-2 left-1/2 -translate-x-1/2 gap-1">
-                  <Crown className="h-3 w-3" />
-                  VIP
-                </Badge>
-              </div>
-
-              <div className="flex-1 text-center sm:text-left">
-                <div className="flex items-center justify-center gap-2 sm:justify-start">
-                  <h1 className="text-3xl font-bold">{user.username}</h1>
-                  <Badge variant="outline" className="gap-1">
-                    <Shield className="h-3 w-3" />
-                    Premium
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+                <div className="relative">
+                  <Avatar className="h-24 w-24 border-4 border-primary">
+                    <div className="flex h-full w-full items-center justify-center bg-primary/10">
+                      <User className="h-12 w-12 text-primary" />
+                    </div>
+                  </Avatar>
+                  <Badge className="absolute -bottom-2 left-1/2 -translate-x-1/2 gap-1">
+                    <Crown className="h-3 w-3" />
+                    VIP
                   </Badge>
                 </div>
-                <p className="mt-1 flex items-center justify-center gap-2 text-muted-foreground sm:justify-start">
-                  <Mail className="h-4 w-4" />
-                  {user.email}
-                </p>
-                <p className="mt-1 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
-                  <Calendar className="h-4 w-4" />
-                  Membro desde {new Date(user.createdAt).toLocaleDateString('pt-BR')}
-                </p>
-                <p className="mt-1 flex items-center justify-center gap-2 text-sm font-semibold text-primary sm:justify-start">
-                  <Crown className="h-4 w-4" />
-                  {user.nightcoins || 0} NightCoins
-                </p>
+
+                <div className="flex-1 text-center sm:text-left">
+                  <div className="flex items-center justify-center gap-2 sm:justify-start">
+                    <h1 className="text-3xl font-bold">{user.username}</h1>
+                    <Badge variant="outline" className="gap-1">
+                      <Shield className="h-3 w-3" />
+                      Premium
+                    </Badge>
+                  </div>
+                  <p className="mt-1 flex items-center justify-center gap-2 text-muted-foreground sm:justify-start">
+                    <Mail className="h-4 w-4" />
+                    {user.email}
+                  </p>
+                  <p className="mt-1 flex items-center justify-center gap-2 text-sm text-muted-foreground sm:justify-start">
+                    <Calendar className="h-4 w-4" />
+                    Membro desde {new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                  </p>
+                  <p className="mt-1 flex items-center justify-center gap-2 text-sm font-semibold text-primary sm:justify-start">
+                    <Crown className="h-4 w-4" />
+                    {user.nightcoins || 0} NightCoins
+                  </p>
+                  
+                  {/* Pokémon Favorito */}
+                  <div className="mt-3 flex items-center justify-center gap-2 sm:justify-start">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm text-muted-foreground">Pokémon Favorito:</span>
+                    <Select value={favoritePokemon} onValueChange={setFavoritePokemon}>
+                      <SelectTrigger className="w-[140px] h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pikachu">⚡ Pikachu</SelectItem>
+                        <SelectItem value="charizard">🔥 Charizard</SelectItem>
+                        <SelectItem value="bulbasaur">🌿 Bulbasaur</SelectItem>
+                        <SelectItem value="squirtle">💧 Squirtle</SelectItem>
+                        <SelectItem value="eevee">🌟 Eevee</SelectItem>
+                        <SelectItem value="meowth">💰 Meowth</SelectItem>
+                        <SelectItem value="snorlax">😴 Snorlax</SelectItem>
+                        <SelectItem value="lucario">⚔️ Lucario</SelectItem>
+                        <SelectItem value="charmander">🔥 Charmander</SelectItem>
+                        <SelectItem value="alakazam">🧠 Alakazam</SelectItem>
+                        <SelectItem value="psyduck">🦆 Psyduck</SelectItem>
+                        <SelectItem value="pidgeot">🕊️ Pidgeot</SelectItem>
+                        <SelectItem value="chansey">💊 Chansey</SelectItem>
+                        <SelectItem value="gengar">👻 Gengar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pokémon Favorito - Imagem Grande */}
+              <div className="flex flex-col items-center gap-2">
+                <img 
+                  src={`/pokemon/${favoritePokemon}.png`}
+                  alt={favoritePokemon}
+                  className="w-32 h-32 sm:w-40 sm:h-40 object-contain opacity-90 hover:opacity-100 transition-all hover:scale-110 transform duration-300"
+                />
+                <span className="text-xs text-muted-foreground capitalize">{favoritePokemon}</span>
               </div>
 
               <div className="flex gap-2">

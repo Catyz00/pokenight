@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState('')
   const turnstileRef = useRef(null)
+  const turnstileWidgetId = useRef(null)
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -32,12 +33,18 @@ export default function LoginPage() {
   useEffect(() => {
     const loadTurnstile = () => {
       if (typeof window !== 'undefined' && window.turnstile && turnstileRef.current) {
+        // Verificar se já existe um widget renderizado
+        if (turnstileWidgetId.current !== null) {
+          console.log('⚠️ Widget Turnstile já existe, pulando renderização')
+          return
+        }
+
         const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'
         
         console.log('🔒 Carregando Turnstile com sitekey:', siteKey)
         
         try {
-          window.turnstile.render(turnstileRef.current, {
+          turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
             sitekey: siteKey,
             callback: (token) => {
               console.log('✅ Token Turnstile recebido')
@@ -59,6 +66,18 @@ export default function LoginPage() {
     }
     
     loadTurnstile()
+
+    // Cleanup: remover widget ao desmontar componente
+    return () => {
+      if (typeof window !== 'undefined' && window.turnstile && turnstileWidgetId.current !== null) {
+        try {
+          window.turnstile.remove(turnstileWidgetId.current)
+          turnstileWidgetId.current = null
+        } catch (error) {
+          console.error('❌ Erro ao remover Turnstile:', error)
+        }
+      }
+    }
   }, [])
 
   const handleSubmit = async (e) => {
@@ -144,6 +163,14 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="flex flex-col items-center">
+        {/* Pokémon acima do título */}
+        <div className="flex justify-center mb-2">
+          <img 
+            src="/pokemon/charmander.png" 
+            alt="Charmander" 
+            className="w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-opacity animate-bounce"
+          />
+        </div>
         <CardTitle className="text-2xl text-center">Login</CardTitle>
         <CardDescription className="text-sm text-muted-foreground text-center">
           Acesse sua conta Pokenight

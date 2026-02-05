@@ -118,6 +118,14 @@ export function News() {
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col items-center text-center">
           <div>
+            {/* Pokémon acima do badge */}
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/pokemon/meowth.png" 
+                alt="Meowth" 
+                className="w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-opacity hover:scale-110 transform duration-300"
+              />
+            </div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-pokenight-yellow/30 bg-pokenight-yellow/10 px-4 py-1.5">
               <Newspaper className="h-5 w-5 text-pokenight-yellow" />
               <span className="font-semibold text-pokenight-yellow">

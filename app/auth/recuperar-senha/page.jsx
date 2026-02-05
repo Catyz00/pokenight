@@ -122,6 +122,14 @@ export default function RecuperarSenhaPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="flex flex-col items-center">
+        {/* Pokémon acima do título */}
+        <div className="flex justify-center mb-2">
+          <img 
+            src="/pokemon/psyduck.png" 
+            alt="Psyduck" 
+            className="w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-opacity hover:scale-110 transform duration-300"
+          />
+        </div>
         <CardTitle className="text-2xl text-center">Recuperar Senha</CardTitle>
         <CardDescription className="text-sm text-muted-foreground text-center">
           {!recoveryMethod && 'Escolha o método para recuperar sua conta'}
