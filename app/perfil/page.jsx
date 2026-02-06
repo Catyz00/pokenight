@@ -67,6 +67,19 @@ export default function PerfilPage() {
   const [selectedCharName, setSelectedCharName] = useState('')
   const [favoritePokemon, setFavoritePokemon] = useState('pikachu')
 
+  // Carregar Pokémon favorito do localStorage ao montar o componente
+  useEffect(() => {
+    const savedPokemon = localStorage.getItem('favoritePokemon')
+    if (savedPokemon) {
+      setFavoritePokemon(savedPokemon)
+    }
+  }, [])
+
+  // Salvar Pokémon favorito no localStorage sempre que mudar
+  useEffect(() => {
+    localStorage.setItem('favoritePokemon', favoritePokemon)
+  }, [favoritePokemon])
+
   useEffect(() => {
     if (characters.length > 0) {
       setSelectedCharName(characters[0].name)
@@ -336,7 +349,7 @@ export default function PerfilPage() {
                         <SelectItem value="lucario">⚔️ Lucario</SelectItem>
                         <SelectItem value="charmander">🔥 Charmander</SelectItem>
                         <SelectItem value="alakazam">🧠 Alakazam</SelectItem>
-                        <SelectItem value="psyduck">🦆 Psyduck</SelectItem>
+                        <SelectItem value="psyduck-confuso">🦆 Psyduck</SelectItem>
                         <SelectItem value="pidgeot">🕊️ Pidgeot</SelectItem>
                         <SelectItem value="chansey">💊 Chansey</SelectItem>
                         <SelectItem value="gengar">👻 Gengar</SelectItem>
