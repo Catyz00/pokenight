@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
-import crypto from 'crypto'
+import bcrypt from 'bcryptjs'
+import { createDbConnection } from '@/lib/db-config'
 
 export async function POST(request) {
   let connection = null;
@@ -53,17 +54,17 @@ export async function POST(request) {
       )
     }
 
-    // Validar nome do personagem (2-29 caracteres, apenas letras e espaços)
+
+    // Validar nome do personagem (2-29 caracteres, apenas letras e espaços, primeira letra maiúscula)
     if (nome.length < 2 || nome.length > 29) {
       return NextResponse.json(
         { error: 'Nome do personagem deve ter entre 2 e 29 caracteres' },
         { status: 400 }
       )
     }
-
-    if (!/^[a-zA-Z\s]+$/.test(nome)) {
+    if (!/^[A-Z][a-zA-Z\s]+$/.test(nome)) {
       return NextResponse.json(
-        { error: 'Nome do personagem deve conter apenas letras (sem números ou caracteres especiais)' },
+        { error: 'O nome do personagem deve começar com letra maiúscula e conter apenas letras (sem números ou caracteres especiais)' },
         { status: 400 }
       )
     }
@@ -77,14 +78,9 @@ export async function POST(request) {
     }
 
     // Conectar ao banco de dados
-    connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'global',
-    })
+    connection = await createDbConnection(mysql)
 
-    console.log('✅ Conectado ao MySQL - database: global')
+    console.log('✅ Conectado ao MySQL - database: poke')
 
     // Verificar se conta já existe
     const [accountCheck] = await connection.execute(
@@ -133,7 +129,7 @@ export async function POST(request) {
 
     // Inserir conta no banco de dados
     const [accountResult] = await connection.execute(
-      'INSERT INTO accounts (name, password, email, creation) VALUES (?, ?, ?, UNIX_TIMESTAMP())',
+      'INSERT INTO accounts (name, password, email, created) VALUES (?, ?, ?, UNIX_TIMESTAMP())',
       [login, passwordHash, email]
     )
 
@@ -142,10 +138,32 @@ export async function POST(request) {
 
     // Inserir personagem no banco de dados
     const sex = genero === 'masculino' ? 1 : 0
+  const looktype = sex === 1 ? 63 : 511
     const [playerResult] = await connection.execute(
-      `INSERT INTO players (name, account_id, sex, vocation, level, health, healthmax, mana, manamax, cap, town_id, posx, posy, posz, conditions, looktype, lookhead, lookbody, looklegs, lookfeet, lookaddons) 
-       VALUES (?, ?, ?, 0, 1, 150, 150, 0, 0, 400, 1, 160, 54, 7, '', ?, 0, 0, 0, 0, 0)`,
-      [nome, accountId, sex, sex === 1 ? 128 : 136] // looktype padrão
+      `INSERT INTO players (
+        name, account_id, group_id, sex, vocation, level, 
+        health, healthmax, experience, 
+        lookbody, lookfeet, lookhead, looklegs, looktype, lookaddons, lookmount,
+        maglevel, mana, manamax, manaspent, soul,
+        town_id, posx, posy, posz, conditions,
+        cap, lastlogin, lastip, save,
+        skull, skulltime, rank_id, guildnick, lastlogout,
+        blessings, pvp_blessing, balance, stamina, direction,
+        loss_experience, loss_mana, loss_skills, loss_containers, loss_items,
+        premend, online, marriage, marrystatus, promotion, deleted
+      ) VALUES (
+        ?, ?, 1, ?, 1, 8,
+        295, 295, 4200,
+        68, 76, 78, 58, ?, 0, 0,
+        0, 6, 6, 0, 0,
+  1, 1043, 1904, 6, '',
+        7, 0, 0, 1,
+        0, 0, 0, '', 0,
+        0, 0, 0, 151200000, 0,
+        10, 10, 10, 100, 100,
+        0, 0, 0, 0, 0, 0
+      )`,
+      [nome, accountId, sex, looktype]
     )
 
     console.log('✅ Personagem criado com ID:', playerResult.insertId)

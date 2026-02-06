@@ -25,6 +25,14 @@ export default function ComoJogarPage() {
       </div>
       {/* Hero minimalista */}
       <section className="mb-20 text-center">
+        {/* Pokémon acima do título */}
+        <div className="flex justify-center mb-4">
+          <img 
+            src="/pokemon/squirtle.png" 
+            alt="Squirtle" 
+            className="w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-opacity animate-bounce"
+          />
+        </div>
         <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-5xl">
           <span className="text-foreground">Como&nbsp;</span>
           <span className="text-[var(--color-pokenight-yellow)]">Jogar</span>

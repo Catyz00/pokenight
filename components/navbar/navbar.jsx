@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -28,6 +29,7 @@ import {
   Swords,
   Gamepad2,
   User,
+  LogOut,
 } from 'lucide-react';
 
 const navLinks = [
@@ -51,8 +53,88 @@ const resourceLinks = [
 ];
 
 export function Navbar() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const searchRef = useRef(null);
+
+  // Verificar se o usuário está logado
+  useEffect(() => {
+    const checkAuth = () => {
+      const user = localStorage.getItem('user');
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          setIsLoggedIn(true);
+          setUsername(userData.username || '');
+        } catch (error) {
+          console.error('Erro ao parsear dados do usuário:', error);
+          setIsLoggedIn(false);
+        }
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuth();
+    
+    // Listener para mudanças no localStorage (quando fizer login/logout em outra aba)
+    window.addEventListener('storage', checkAuth);
+    
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
+
+  // Função de logout
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('accountId');
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setUsername('');
+    router.push('/');
+  };
+
+  // Buscar jogadores quando o usuário digitar
+  useEffect(() => {
+    const searchPlayers = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/search-players?q=${encodeURIComponent(searchQuery)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setSearchResults(data.players || []);
+          setShowResults(true);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar jogadores:', error);
+        setSearchResults([]);
+      }
+    };
+
+    const timer = setTimeout(searchPlayers, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fechar resultados ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b-2 border-border bg-card/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -125,15 +207,55 @@ export function Navbar() {
             </DropdownMenu>
 
             {/* Search */}
-            <div className="relative ml-4">
+            <div className="relative ml-4" ref={searchRef}>
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Buscar jogador..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchResults.length > 0 && setShowResults(true)}
                 className="w-48 border-2 pl-9 lg:w-64"
               />
+              
+              {/* Resultados da busca */}
+              {showResults && searchResults.length > 0 && (
+                <div className="absolute top-full mt-2 w-full bg-card border-2 border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                  {searchResults.map((result, index) => (
+                    <Link
+                      key={index}
+                      href={`/personagem/${result.name}`}
+                      className="flex items-center justify-between px-4 py-3 hover:bg-muted transition-colors border-b last:border-b-0"
+                      onClick={() => {
+                        setShowResults(false);
+                        setSearchQuery('');
+                      }}
+                    >
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm">{result.name}</span>
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
+                            Level {result.level}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {result.subtitle}
+                        </span>
+                      </div>
+                      <User className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+              
+              {/* Mensagem quando não há resultados */}
+              {showResults && searchQuery.length >= 2 && searchResults.length === 0 && (
+                <div className="absolute top-full mt-2 w-full bg-card border-2 border-border rounded-lg shadow-lg p-4 z-50">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Nenhum resultado encontrado
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* User Profile Icon */}
@@ -154,11 +276,23 @@ export function Navbar() {
             {/* CTA Buttons */}
             <div className="hidden items-center gap-2 sm:flex">
               
-              <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="font-medium">
-                  Entrar
+              {isLoggedIn ? (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="font-medium gap-2"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
                 </Button>
-              </Link>
+              ) : (
+                <Link href="/auth/login">
+                  <Button variant="ghost" size="sm" className="font-medium">
+                    Entrar
+                  </Button>
+                </Link>
+              )}
               <Link href="/download">
                 <Button
                   size="sm"
@@ -249,14 +383,25 @@ export function Navbar() {
               </div>
 
               <div className="flex gap-2 border-t-2 border-border pt-4">
-                <Link href="/auth/login" className="flex-1">
+                {isLoggedIn ? (
                   <Button
                     variant="outline"
-                    className="w-full border-2 bg-transparent font-medium"
+                    className="w-full border-2 bg-transparent font-medium gap-2"
+                    onClick={handleLogout}
                   >
-                    Entrar
+                    <LogOut className="h-4 w-4" />
+                    Sair
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/auth/login" className="flex-1">
+                    <Button
+                      variant="outline"
+                      className="w-full border-2 bg-transparent font-medium"
+                    >
+                      Entrar
+                    </Button>
+                  </Link>
+                )}
                 <Link href="/download" className="flex-1">
                   <Button className="w-full gap-2 font-semibold shadow-md shadow-primary/30">
                     <Download className="h-4 w-4" />

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
+import { createDbConnection } from '@/lib/db-config'
 
 export async function POST(request) {
   let connection = null
@@ -20,17 +21,17 @@ export async function POST(request) {
       )
     }
 
+
     if (characterName.length < 2 || characterName.length > 29) {
       return NextResponse.json(
         { error: 'Nome deve ter entre 2 e 29 caracteres' },
         { status: 400 }
       )
     }
-
-    // Validar apenas letras e espaços
-    if (!/^[a-zA-Z\s]+$/.test(characterName)) {
+    // Validar: primeira letra maiúscula, apenas letras e espaços
+    if (!/^[A-Z][a-zA-Z\s]+$/.test(characterName)) {
       return NextResponse.json(
-        { error: 'Nome deve conter apenas letras (sem números ou caracteres especiais)' },
+        { error: 'O nome do personagem deve começar com letra maiúscula e conter apenas letras (sem números ou caracteres especiais)' },
         { status: 400 }
       )
     }
@@ -43,12 +44,7 @@ export async function POST(request) {
     }
 
     // Conectar ao banco
-    connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'global',
-    })
+    connection = await createDbConnection(mysql)
 
     console.log('✅ Conectado ao MySQL')
 
@@ -98,10 +94,32 @@ export async function POST(request) {
 
     // Criar personagem
     const sex = gender === 'masculino' ? 1 : 0
+  const looktype = sex === 1 ? 63 : 511
     const [result] = await connection.execute(
-      `INSERT INTO players (name, account_id, sex, vocation, level, health, healthmax, mana, manamax, cap, town_id, posx, posy, posz, conditions, looktype, lookhead, lookbody, looklegs, lookfeet, lookaddons) 
-       VALUES (?, ?, ?, 0, 1, 150, 150, 0, 0, 400, 1, 160, 54, 7, '', ?, 0, 0, 0, 0, 0)`,
-      [characterName, accountId, sex, sex === 1 ? 128 : 136]
+      `INSERT INTO players (
+        name, account_id, group_id, sex, vocation, level, 
+        health, healthmax, experience, 
+        lookbody, lookfeet, lookhead, looklegs, looktype, lookaddons, lookmount,
+        maglevel, mana, manamax, manaspent, soul,
+        town_id, posx, posy, posz, conditions,
+        cap, lastlogin, lastip, save,
+        skull, skulltime, rank_id, guildnick, lastlogout,
+        blessings, pvp_blessing, balance, stamina, direction,
+        loss_experience, loss_mana, loss_skills, loss_containers, loss_items,
+        premend, online, marriage, marrystatus, promotion, deleted
+      ) VALUES (
+        ?, ?, 1, ?, 1, 8,
+        295, 295, 4200,
+        68, 76, 78, 58, ?, 0, 0,
+        0, 6, 6, 0, 0,
+  1, 1043, 1904, 6, '',
+        7, 0, 0, 1,
+        0, 0, 0, '', 0,
+        0, 0, 0, 151200000, 0,
+        10, 10, 10, 100, 100,
+        0, 0, 0, 0, 0, 0
+      )`,
+      [characterName, accountId, sex, looktype]
     )
 
     await connection.end()
@@ -113,8 +131,8 @@ export async function POST(request) {
       message: 'Personagem criado com sucesso!',
       character: {
         name: characterName,
-        level: 1,
-        vocation: 'Novato',
+        level: 8,
+        vocation: 'Treinador',
         world: 'Pokenight',
         status: 'offline',
         gender: gender

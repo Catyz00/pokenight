@@ -7,7 +7,7 @@ const dbConfig = {
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'global'
+  database: 'poke'
 }
 
 export async function POST(request) {

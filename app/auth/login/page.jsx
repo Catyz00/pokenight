@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +13,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const turnstileRef = useRef(null)
+  const turnstileWidgetId = useRef(null)
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -26,18 +29,71 @@ export default function LoginPage() {
     }))
   }
 
+  // Renderizar Cloudflare Turnstile
+  useEffect(() => {
+    const loadTurnstile = () => {
+      if (typeof window !== 'undefined' && window.turnstile && turnstileRef.current) {
+        // Verificar se já existe um widget renderizado
+        if (turnstileWidgetId.current !== null) {
+          console.log('⚠️ Widget Turnstile já existe, pulando renderização')
+          return
+        }
+
+        const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'
+        
+        console.log('🔒 Carregando Turnstile com sitekey:', siteKey)
+        
+        try {
+          turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+            sitekey: siteKey,
+            callback: (token) => {
+              console.log('✅ Token Turnstile recebido')
+              setTurnstileToken(token)
+            },
+            'error-callback': () => {
+              console.error('❌ Erro no Turnstile')
+            },
+            theme: 'dark',
+            language: 'pt-BR',
+          })
+        } catch (error) {
+          console.error('❌ Erro ao renderizar Turnstile:', error)
+        }
+      } else if (typeof window !== 'undefined' && !window.turnstile) {
+        console.log('⏳ Aguardando script do Turnstile carregar...')
+        setTimeout(loadTurnstile, 100)
+      }
+    }
+    
+    loadTurnstile()
+
+    // Cleanup: remover widget ao desmontar componente
+    return () => {
+      if (typeof window !== 'undefined' && window.turnstile && turnstileWidgetId.current !== null) {
+        try {
+          window.turnstile.remove(turnstileWidgetId.current)
+          turnstileWidgetId.current = null
+        } catch (error) {
+          console.error('❌ Erro ao remover Turnstile:', error)
+        }
+      }
+    }
+  }, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      // Validações básicas
       if (!formData.username || !formData.password) {
         throw new Error('Por favor, preencha todos os campos')
       }
 
-      // Chamar API de login
+      if (!turnstileToken) {
+        throw new Error('Por favor, complete a verificação de segurança')
+      }
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -46,6 +102,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,
+          turnstileToken,
         }),
       })
 
@@ -55,11 +112,20 @@ export default function LoginPage() {
         throw new Error(data.error || 'Erro ao fazer login')
       }
 
-      // Login bem-sucedido
       console.log('Login successful:', data)
-      
-      // Salvar dados do usuário no localStorage
+
+      // ✅ Pega accountId (accounts.id) de qualquer nome que o backend possa estar usando
+      const accountId =
+        data?.accountId ??
+        data?.account_id ??
+        data?.id ??
+        data?.account?.id ??
+        data?.user?.id ??
+        null
+
+      // ✅ Salvar dados do usuário no localStorage (incluindo accountId)
       const userData = {
+        accountId: accountId ? Number(accountId) : null,
         username: data.username || formData.username,
         email: data.email || '',
         createdAt: data.createdAt || new Date().toISOString().split('T')[0],
@@ -68,13 +134,24 @@ export default function LoginPage() {
         guild: data.guild || 'Sem Guild',
         rank: data.rank || 'Membro',
       }
-      
+
       localStorage.setItem('user', JSON.stringify(userData))
+
+      // ✅ Chave que o ComprarPontos vai ler
+      if (accountId) {
+        localStorage.setItem('accountId', String(accountId))
+      } else {
+        // Se quiser, deixa um log pra debug (não quebra nada)
+        console.warn('Login OK, mas o backend não retornou accountId/id. Comprar NightCoins não vai funcionar sem isso.')
+      }
+
       if (data.token) {
         localStorage.setItem('token', data.token)
       }
-      
-      // Redirecionar para perfil
+
+      // Disparar evento para atualizar navbar
+      window.dispatchEvent(new Event('storage'))
+
       router.push('/perfil')
     } catch (err) {
       setError(err.message)
@@ -86,6 +163,14 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="flex flex-col items-center">
+        {/* Pokémon acima do título */}
+        <div className="flex justify-center mb-2">
+          <img 
+            src="/pokemon/charmander.png" 
+            alt="Charmander" 
+            className="w-20 h-20 object-contain opacity-90 hover:opacity-100 transition-opacity animate-bounce"
+          />
+        </div>
         <CardTitle className="text-2xl text-center">Login</CardTitle>
         <CardDescription className="text-sm text-muted-foreground text-center">
           Acesse sua conta Pokenight
@@ -146,7 +231,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          {/* Cloudflare Turnstile */}
+          <div ref={turnstileRef} className="flex justify-center"></div>
+
+          <Button type="submit" className="w-full" disabled={loading || !turnstileToken}>
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>

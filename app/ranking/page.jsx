@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PageLoader } from '@/components/ui/page-loader';
 import {
   Trophy,
   Target,
@@ -112,12 +113,12 @@ const rankingsData = {
 };
 
 const tabs = [
-  { id: 'level', label: 'Top Level', icon: Trophy },
-  { id: 'tournament', label: 'Torneio', icon: Trophy },
-  { id: 'catch', label: 'Capturas', icon: Target },
-  { id: 'pokedex', label: 'Pokedex', icon: BookOpen },
-  { id: 'bestiary', label: 'Bestiario', icon: Skull },
-  { id: 'tower', label: 'Torre', icon: Castle },
+  { id: 'level', label: 'Top Level', icon: Trophy, scoreLabel: 'level' },
+  { id: 'tournament', label: 'Torneio', icon: Trophy, scoreLabel: 'torneios' },
+  { id: 'catch', label: 'Capturas', icon: Target, scoreLabel: 'capturas' },
+  { id: 'pokedex', label: 'Pokedex', icon: BookOpen, scoreLabel: 'pokedex' },
+  { id: 'bestiary', label: 'Bestiário', icon: Skull, scoreLabel: 'bestiary' },
+  { id: 'tower', label: 'Torre', icon: Castle, scoreLabel: 'pontos' },
 ];
 
 const getRankBadgeColor = (color) => {
@@ -163,11 +164,32 @@ const getPositionStyle = (index) => {
 
 export default function Rankings() {
   const [activeTab, setActiveTab] = useState('level');
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 700)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) {
+    return <PageLoader rows={6} />
+  }
 
   return (
     <section className="py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
+          {/* Pokémon acima do badge */}
+          <div className="flex justify-center mb-3">
+            <img 
+              src="/pokemon/charizard.png" 
+              alt="Charizard" 
+              className="w-24 h-24 object-contain opacity-90 hover:opacity-100 transition-opacity hover:scale-110 transform duration-300"
+            />
+          </div>
+
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border-2 border-primary/30 bg-primary/10 px-4 py-1.5">
             <Trophy className="h-5 w-5 text-primary" />
             <span className="font-semibold text-primary">Hall da Fama</span>
@@ -252,7 +274,7 @@ export default function Rankings() {
                                 {player.score.toLocaleString()}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                pontos
+                                {tab.scoreLabel}
                               </p>
                             </div>
                           </div>

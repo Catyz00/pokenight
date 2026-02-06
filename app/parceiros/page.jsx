@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
+import { Navbar } from '@/components/navbar/navbar';
+import { Footer } from '@/components/navbar/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
