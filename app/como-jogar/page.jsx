@@ -132,7 +132,7 @@ Canal Guiis</div>
           <Mail className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
           <h3 className="mb-2 text-lg font-semibold text-[var(--color-primary)]">Precisa de ajuda?</h3>
           <a 
-            href="mailto:contato@pokenight.com" 
+            href="mailto:pokenightguiis7@gmail.com" 
             className="text-primary hover:underline"
           >
            pokenightguiis7@gmail.com

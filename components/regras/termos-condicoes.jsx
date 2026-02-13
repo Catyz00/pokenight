@@ -436,7 +436,7 @@ export default function TermosCondicoes() {
                 <div className="border-l-4 border-blue-500 pl-4 py-2">
                   <p className="font-semibold text-foreground mb-1">Art. 6.a - Críticas e Denúncias</p>
                   <p className="text-sm text-muted-foreground">
-                    Qualquer crítica ou denúncia contra os tutores ou gamemasters devem ser feitas diretamente à equipe por e-mail (contato@pokenight.com), que tomará as medidas cabíveis.
+                    Qualquer crítica ou denúncia contra os tutores ou gamemasters devem ser feitas diretamente à equipe por e-mail (pokenightguiis7@gmail.com), que tomará as medidas cabíveis.
                   </p>
                 </div>
 
