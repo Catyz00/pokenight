@@ -30,7 +30,10 @@ export async function GET(request) {
   } catch (error) {
     console.error('Erro ao buscar torneios:', error)
     return NextResponse.json(
-      { error: 'Erro ao buscar torneios' },
+      { 
+        error: 'Erro ao buscar torneios',
+        details: error.message
+      },
       { status: 500 }
     )
   }
@@ -61,6 +64,13 @@ export async function POST(request) {
       )
     }
 
+    console.log('Dados do torneio recebidos:', body)
+
+    // Converter prizePool para string se necessário
+    const prizePoolString = typeof prizePool === 'string' 
+      ? prizePool 
+      : (prizePool ? JSON.stringify(prizePool) : null)
+
     const [result] = await pool.query(
       `INSERT INTO tournaments 
        (title, description, type, start_date, end_date, max_participants, 
@@ -72,12 +82,12 @@ export async function POST(request) {
         type, 
         startDate, 
         endDate, 
-        maxParticipants || null,
-        entryFee || 0,
-        prizePool ? JSON.stringify(prizePool) : null,
+        maxParticipants ? parseInt(maxParticipants) : null,
+        entryFee ? parseInt(entryFee) : 0,
+        prizePoolString,
         rules || null,
         imageUrl || null,
-        createdBy
+        parseInt(createdBy)
       ]
     )
 
@@ -90,7 +100,11 @@ export async function POST(request) {
   } catch (error) {
     console.error('Erro ao criar torneio:', error)
     return NextResponse.json(
-      { error: 'Erro ao criar torneio' },
+      { 
+        error: 'Erro ao criar torneio',
+        details: error.message,
+        stack: error.stack
+      },
       { status: 500 }
     )
   }

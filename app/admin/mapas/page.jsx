@@ -23,21 +23,12 @@ export default function AdminMapsPage() {
     description: '',
     mapType: 'cidade',
     levelRequirement: '0',
-    coordinatesX: '',
-    coordinatesY: '',
-    coordinatesZ: '',
     imageUrl: '',
     availablePokemon: '',
     isActive: true
   })
 
   useEffect(() => {
-    try {
-      const userData = localStorage.getItem('user')
-      if (userData) setUser(JSON.parse(userData))
-    } catch (error) {
-      console.error('Erro ao carregar usuário:', error)
-    }
     fetchMaps()
   }, [])
 
@@ -56,7 +47,6 @@ export default function AdminMapsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!user) return
 
     try {
       const url = editingMap ? `/api/admin/maps/${editingMap.id}` : '/api/admin/maps'
@@ -65,7 +55,7 @@ export default function AdminMapsPage() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, createdBy: user.id })
+        body: JSON.stringify(formData)
       })
 
       const data = await response.json()
@@ -91,12 +81,9 @@ export default function AdminMapsPage() {
       description: map.description || '',
       mapType: map.map_type,
       levelRequirement: map.level_requirement?.toString() || '0',
-      coordinatesX: map.coordinates_x?.toString() || '',
-      coordinatesY: map.coordinates_y?.toString() || '',
-      coordinatesZ: map.coordinates_z?.toString() || '',
       imageUrl: map.image_url || '',
       availablePokemon: map.available_pokemon || '',
-      isActive: map.is_active === 1
+      isActive: map.is_active === true
     })
     setShowDialog(true)
   }
@@ -127,9 +114,6 @@ export default function AdminMapsPage() {
       description: '',
       mapType: 'cidade',
       levelRequirement: '0',
-      coordinatesX: '',
-      coordinatesY: '',
-      coordinatesZ: '',
       imageUrl: '',
       availablePokemon: '',
       isActive: true
@@ -250,18 +234,6 @@ export default function AdminMapsPage() {
               <div>
                 <Label htmlFor="levelRequirement">Nível Mínimo</Label>
                 <Input id="levelRequirement" type="number" value={formData.levelRequirement} onChange={(e) => setFormData({ ...formData, levelRequirement: e.target.value })} />
-              </div>
-              <div>
-                <Label htmlFor="coordinatesX">Coordenada X</Label>
-                <Input id="coordinatesX" type="number" value={formData.coordinatesX} onChange={(e) => setFormData({ ...formData, coordinatesX: e.target.value })} />
-              </div>
-              <div>
-                <Label htmlFor="coordinatesY">Coordenada Y</Label>
-                <Input id="coordinatesY" type="number" value={formData.coordinatesY} onChange={(e) => setFormData({ ...formData, coordinatesY: e.target.value })} />
-              </div>
-              <div>
-                <Label htmlFor="coordinatesZ">Coordenada Z</Label>
-                <Input id="coordinatesZ" type="number" value={formData.coordinatesZ} onChange={(e) => setFormData({ ...formData, coordinatesZ: e.target.value })} />
               </div>
               <div>
                 <Label htmlFor="isActive">Status</Label>
