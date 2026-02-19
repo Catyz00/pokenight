@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `tickets` (
   `username` varchar(255) NOT NULL,
   `subject` varchar(255) NOT NULL,
   `message` text NOT NULL,
+  `images` text DEFAULT NULL COMMENT 'URLs das imagens anexadas, separadas por vírgula',
   `category` enum('reclamacao', 'ajuda', 'sugestao', 'bug', 'outro') NOT NULL DEFAULT 'ajuda',
   `status` enum('aberto', 'em_andamento', 'resolvido', 'fechado') NOT NULL DEFAULT 'aberto',
   `priority` enum('baixa', 'media', 'alta', 'urgente') NOT NULL DEFAULT 'media',

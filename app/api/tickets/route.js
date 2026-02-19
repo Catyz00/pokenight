@@ -4,7 +4,7 @@ import pool from '@/lib/db-config'
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { userId, username, subject, message, category } = body
+    const { userId, username, subject, message, category, images } = body
 
     // Validação
     if (!userId || !username || !subject || !message || !category) {
@@ -37,10 +37,12 @@ export async function POST(request) {
     }
 
     // Inserir ticket no banco
+    const imagesString = images && images.length > 0 ? images.join(',') : null
+    
     const [result] = await pool.query(
-      `INSERT INTO tickets (user_id, username, subject, message, category, status, priority)
-       VALUES (?, ?, ?, ?, ?, 'aberto', 'media')`,
-      [userId, username, subject, message, category]
+      `INSERT INTO tickets (user_id, username, subject, message, images, category, status, priority)
+       VALUES (?, ?, ?, ?, ?, ?, 'aberto', 'media')`,
+      [userId, username, subject, message, imagesString, category]
     )
 
     return NextResponse.json({
