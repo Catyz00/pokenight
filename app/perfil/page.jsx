@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -42,6 +43,9 @@ import {
   Crown,
   Plus,
   Star,
+  Ticket,
+  Upload,
+  X,
 } from 'lucide-react'
 
 export default function PerfilPage() {
@@ -66,6 +70,17 @@ export default function PerfilPage() {
   const [characters, setCharacters] = useState([])
   const [selectedCharName, setSelectedCharName] = useState('')
   const [favoritePokemon, setFavoritePokemon] = useState('pikachu')
+  
+  // Estados para o modal de ticket
+  const [isTicketDialogOpen, setIsTicketDialogOpen] = useState(false)
+  const [ticketData, setTicketData] = useState({
+    subject: '',
+    message: '',
+    category: 'ajuda',
+    images: [],
+  })
+  const [ticketLoading, setTicketLoading] = useState(false)
+  const [imagePreview, setImagePreview] = useState([])
 
   // Carregar Pokémon favorito do localStorage ao montar o componente
   useEffect(() => {
@@ -155,6 +170,127 @@ export default function PerfilPage() {
     window.dispatchEvent(new Event('storage'))
     
     router.push('/auth/login')
+  }
+
+  // Funções para o modal de ticket
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files)
+    const validFiles = files.filter(file => file.type.startsWith('image/'))
+    
+    if (validFiles.length !== files.length) {
+      toast({
+        variant: 'destructive',
+        title: '✗ Formato inválido',
+        description: 'Apenas imagens são permitidas',
+      })
+      return
+    }
+
+    if (imagePreview.length + validFiles.length > 3) {
+      toast({
+        variant: 'destructive',
+        title: '✗ Limite excedido',
+        description: 'Você pode anexar no máximo 3 imagens',
+      })
+      return
+    }
+
+    // Criar URLs de preview
+    const newPreviews = validFiles.map(file => URL.createObjectURL(file))
+    setImagePreview([...imagePreview, ...newPreviews])
+
+    // Converter para base64 ou URLs (aqui usaremos URLs temporárias como exemplo)
+    const imageUrls = validFiles.map(file => URL.createObjectURL(file))
+    setTicketData({ ...ticketData, images: [...ticketData.images, ...imageUrls] })
+  }
+
+  const removeImage = (index) => {
+    const newPreviews = imagePreview.filter((_, i) => i !== index)
+    const newImages = ticketData.images.filter((_, i) => i !== index)
+    setImagePreview(newPreviews)
+    setTicketData({ ...ticketData, images: newImages })
+  }
+
+  const handleSubmitTicket = async () => {
+    if (!ticketData.subject || !ticketData.message) {
+      toast({
+        variant: 'destructive',
+        title: '✗ Campos obrigatórios',
+        description: 'Por favor, preencha o título e a descrição',
+      })
+      return
+    }
+
+    if (ticketData.subject.length < 5) {
+      toast({
+        variant: 'destructive',
+        title: '✗ Título muito curto',
+        description: 'O título deve ter pelo menos 5 caracteres',
+      })
+      return
+    }
+
+    if (ticketData.message.length < 10) {
+      toast({
+        variant: 'destructive',
+        title: '✗ Descrição muito curta',
+        description: 'A descrição deve ter pelo menos 10 caracteres',
+      })
+      return
+    }
+
+    setTicketLoading(true)
+
+    try {
+      const response = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          username: user.username,
+          subject: ticketData.subject,
+          message: ticketData.message,
+          category: ticketData.category,
+          images: ticketData.images,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast({
+          title: '✓ Ticket criado com sucesso!',
+          description: 'Nossa equipe entrará em contato em breve.',
+        })
+        
+        // Resetar formulário
+        setTicketData({
+          subject: '',
+          message: '',
+          category: 'ajuda',
+          images: [],
+        })
+        setImagePreview([])
+        setIsTicketDialogOpen(false)
+      } else {
+        toast({
+          variant: 'destructive',
+          title: '✗ Erro ao criar ticket',
+          description: data.error || 'Tente novamente mais tarde',
+        })
+      }
+    } catch (error) {
+      console.error('Erro ao criar ticket:', error)
+      toast({
+        variant: 'destructive',
+        title: '✗ Erro ao criar ticket',
+        description: 'Erro de conexão. Tente novamente.',
+      })
+    } finally {
+      setTicketLoading(false)
+    }
   }
 
   const handleCreateCharacter = async () => {
@@ -370,6 +506,150 @@ export default function PerfilPage() {
               </div>
 
               <div className="flex gap-2">
+                <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="text-primary hover:bg-primary hover:text-primary-foreground"
+                      title="Abrir Ticket de Suporte"
+                    >
+                      <Ticket className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Abrir Ticket de Suporte</DialogTitle>
+                      <DialogDescription>
+                        Descreva seu problema ou sugestão. Nossa equipe responderá em breve.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="category">Categoria</Label>
+                        <Select 
+                          value={ticketData.category} 
+                          onValueChange={(value) => setTicketData({ ...ticketData, category: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ajuda">🆘 Ajuda</SelectItem>
+                            <SelectItem value="bug">🐛 Bug/Erro</SelectItem>
+                            <SelectItem value="sugestao">💡 Sugestão</SelectItem>
+                            <SelectItem value="reclamacao">⚠️ Reclamação</SelectItem>
+                            <SelectItem value="outro">📝 Outro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="subject">Título *</Label>
+                        <Input
+                          id="subject"
+                          placeholder="Ex: Não consigo criar personagem"
+                          value={ticketData.subject}
+                          onChange={(e) => setTicketData({ ...ticketData, subject: e.target.value })}
+                          maxLength={255}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {ticketData.subject.length}/255 caracteres
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Descrição *</Label>
+                        <Textarea
+                          id="message"
+                          placeholder="Descreva detalhadamente o problema ou sugestão..."
+                          value={ticketData.message}
+                          onChange={(e) => setTicketData({ ...ticketData, message: e.target.value })}
+                          className="min-h-[150px] resize-none"
+                          maxLength={2000}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {ticketData.message.length}/2000 caracteres
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Imagens (opcional - máximo 3)</Label>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById('ticket-images').click()}
+                            disabled={imagePreview.length >= 3}
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            Adicionar Imagem
+                          </Button>
+                          <input
+                            id="ticket-images"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleImageUpload}
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            {imagePreview.length}/3 imagens
+                          </span>
+                        </div>
+                        
+                        {imagePreview.length > 0 && (
+                          <div className="grid grid-cols-3 gap-2 mt-2">
+                            {imagePreview.map((preview, index) => (
+                              <div key={index} className="relative group">
+                                <img
+                                  src={preview}
+                                  alt={`Preview ${index + 1}`}
+                                  className="w-full h-24 object-cover rounded-md border"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(index)}
+                                  className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsTicketDialogOpen(false)
+                          setTicketData({
+                            subject: '',
+                            message: '',
+                            category: 'ajuda',
+                            images: [],
+                          })
+                          setImagePreview([])
+                        }}
+                        disabled={ticketLoading}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        onClick={handleSubmitTicket}
+                        disabled={ticketLoading || !ticketData.subject || !ticketData.message}
+                      >
+                        {ticketLoading ? 'Enviando...' : 'Enviar Ticket'}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
                 <Button
                   variant="outline"
                   size="icon"

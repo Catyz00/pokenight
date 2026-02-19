@@ -133,6 +133,9 @@ export default function LoginPage() {
         vocation: data.vocation || 'Novato',
         guild: data.guild || 'Sem Guild',
         rank: data.rank || 'Membro',
+        group_id: data.group_id || 1,  // ✅ Adicionar group_id
+        id: accountId ? Number(accountId) : null,  // ✅ Adicionar id para uso nas APIs
+        name: data.playerName || data.username || formData.username  // ✅ Nome do personagem
       }
 
       localStorage.setItem('user', JSON.stringify(userData))

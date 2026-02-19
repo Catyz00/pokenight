@@ -109,6 +109,25 @@ export async function POST(request) {
 
     console.log('✅ Login bem-sucedido!');
     
+    // Buscar personagem principal (primeiro personagem) para obter group_id
+    const [players] = await connection.execute(
+      'SELECT id, name, group_id, level, vocation FROM players WHERE account_id = ? ORDER BY id ASC LIMIT 1',
+      [account.id]
+    );
+
+    let groupId = 1; // Default: jogador normal
+    let playerName = account.name;
+    let playerLevel = 1;
+    let playerVocation = 'Novato';
+
+    if (players.length > 0) {
+      groupId = players[0].group_id || 1;
+      playerName = players[0].name;
+      playerLevel = players[0].level || 1;
+      playerVocation = players[0].vocation || 'Novato';
+      console.log('✅ Personagem encontrado:', playerName, '- Group ID:', groupId);
+    }
+    
     await connection.end();
 
     return NextResponse.json(
@@ -117,7 +136,11 @@ export async function POST(request) {
         message: 'Login realizado com sucesso!',
         accountId: account.id,  // ✅ Retorna o ID da conta (accounts.id)
         username: account.name,
-        email: account.email || username + '@pokenight.com'
+        email: account.email || username + '@pokenight.com',
+        group_id: groupId,  // ✅ Retorna o group_id do player
+        playerName: playerName,
+        level: playerLevel,
+        vocation: playerVocation
       },
       { status: 200 }
     );

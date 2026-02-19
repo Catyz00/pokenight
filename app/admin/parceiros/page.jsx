@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,49 +55,6 @@ function YoutubeIcon({ className }) {
   );
 }
 
-// Dados de exemplo
-const mockYoutubers = [
-  {
-    id: "1",
-    channelId: "UC123456",
-    channelName: "PokeNight Official",
-    channelUrl: "https://youtube.com/@pokenightofficial",
-    description: "Canal oficial do PokeNight com tutoriais, novidades e gameplays",
-    subscribers: 125000,
-    profileImage: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
-    isVerified: true,
-    isFeatured: true,
-    isActive: true,
-    createdAt: "2024-01-10",
-  },
-  {
-    id: "2",
-    channelId: "UC789012",
-    channelName: "Pokemon Dicas BR",
-    channelUrl: "https://youtube.com/@pokemondicasbr",
-    description: "Dicas, truques e estrategias para Pokemon",
-    subscribers: 89000,
-    profileImage: "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=100&h=100&fit=crop",
-    isVerified: true,
-    isFeatured: false,
-    isActive: true,
-    createdAt: "2024-01-08",
-  },
-  {
-    id: "3",
-    channelId: "UC345678",
-    channelName: "Shiny Hunter BR",
-    channelUrl: "https://youtube.com/@shinyhunterbr",
-    description: "Especialista em caca de Pokemon Shiny",
-    subscribers: 67000,
-    profileImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    isVerified: false,
-    isFeatured: true,
-    isActive: true,
-    createdAt: "2024-01-05",
-  },
-];
-
 const mockTwitchSettings = {
   searchTerm: "pokenight.com.br",
   minViewers: 0,
@@ -109,11 +66,12 @@ const mockTwitchSettings = {
 const Loading = () => null;
 
 export default function AdminParceirosPage() {
-  const [youtubers, setYoutubers] = useState(mockYoutubers);
+  const [youtubers, setYoutubers] = useState([]);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingYoutuber, setEditingYoutuber] = useState(null);
   const [twitchSettings, setTwitchSettings] = useState(mockTwitchSettings);
+  const [loading, setLoading] = useState(true);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -126,10 +84,27 @@ export default function AdminParceirosPage() {
     isFeatured: false,
   });
 
+  useEffect(() => {
+    fetchYoutubers()
+  }, [])
+
+  const fetchYoutubers = async () => {
+    try {
+      setLoading(true)
+      // Aqui você pode criar uma API para buscar parceiros do banco
+      // Por enquanto, deixa vazio até criar a tabela
+      setYoutubers([])
+    } catch (error) {
+      console.error('Erro ao buscar parceiros:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const filteredYoutubers = youtubers.filter(
     (y) =>
-      y.channelName.toLowerCase().includes(search.toLowerCase()) ||
-      y.description.toLowerCase().includes(search.toLowerCase())
+      y.channelName?.toLowerCase().includes(search.toLowerCase()) ||
+      y.description?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleOpenDialog = (youtuber) => {

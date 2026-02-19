@@ -30,6 +30,7 @@ import {
   Gamepad2,
   User,
   LogOut,
+  Settings,
 } from 'lucide-react';
 
 const navLinks = [
@@ -60,6 +61,7 @@ export function Navbar() {
   const [showResults, setShowResults] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const searchRef = useRef(null);
 
   // Verificar se o usuário está logado
@@ -71,12 +73,15 @@ export function Navbar() {
           const userData = JSON.parse(user);
           setIsLoggedIn(true);
           setUsername(userData.username || '');
+          setIsAdmin(userData.group_id === 6);
         } catch (error) {
           console.error('Erro ao parsear dados do usuário:', error);
           setIsLoggedIn(false);
+          setIsAdmin(false);
         }
       } else {
         setIsLoggedIn(false);
+        setIsAdmin(false);
       }
     };
 
@@ -95,6 +100,7 @@ export function Navbar() {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
     setUsername('');
+    setIsAdmin(false);
     router.push('/');
   };
 
@@ -163,6 +169,17 @@ export function Navbar() {
                 {link.name}
               </Link>
             ))}
+
+            {/* Admin Panel Link - Only for group_id = 6 */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-primary/10 text-primary border border-primary/20 transition-colors hover:bg-primary/20 hover:border-primary/30 whitespace-nowrap"
+              >
+                <Settings className="h-4 w-4" />
+                Painel Admin
+              </Link>
+            )}
 
             {/* Community Dropdown */}
             <DropdownMenu>
@@ -347,6 +364,18 @@ export function Navbar() {
                   {link.name}
                 </Link>
               ))}
+
+              {/* Admin Panel Link for Mobile - Only for group_id = 6 */}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium bg-primary/10 text-primary border border-primary/20 transition-colors hover:bg-primary/20"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Settings className="h-4 w-4" />
+                  Painel Administrativo
+                </Link>
+              )}
 
               <div className="py-2">
                 <p className="px-3 text-xs font-bold uppercase tracking-wider text-primary">

@@ -14,6 +14,9 @@ import {
   ChevronLeft,
   Menu,
   Tv,
+  TicketIcon,
+  Map,
+  TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
@@ -25,9 +28,19 @@ const menuItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Noticias",
-    href: "/admin/noticias",
-    icon: Newspaper,
+    title: "Tickets",
+    href: "/admin/tickets",
+    icon: TicketIcon,
+  },
+  {
+    title: "Torneios",
+    href: "/admin/torneios",
+    icon: Trophy,
+  },
+  {
+    title: "Mapas",
+    href: "/admin/mapas",
+    icon: Map,
   },
   {
     title: "Eventos",
@@ -35,24 +48,9 @@ const menuItems = [
     icon: Calendar,
   },
   {
-    title: "Rankings",
-    href: "/admin/rankings",
-    icon: Trophy,
-  },
-  {
-    title: "Jogadores",
-    href: "/admin/jogadores",
-    icon: Users,
-  },
-  {
     title: "Parceiros",
     href: "/admin/parceiros",
     icon: Tv,
-  },
-  {
-    title: "Configuracoes",
-    href: "/admin/configuracoes",
-    icon: Settings,
   },
 ]
 
