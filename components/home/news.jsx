@@ -1,81 +1,24 @@
-'use client';
+﻿'use client';
 
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Calendar,
-  ArrowRight,
   Flame,
   Sparkles,
   AlertCircle,
   Newspaper,
   Zap,
   Star,
+  Instagram,
 } from 'lucide-react';
-
-// Dados de exemplo - na versao real viram do PHP/MariaDB
-const newsData = [
-  {
-    id: 1,
-    title: 'Novo Pokemon Lendario Disponivel!',
-    excerpt:
-      'Rayquaza agora pode ser encontrado nas torres do evento especial. Prepare sua equipe!',
-    category: 'Evento',
-    date: '2026-01-20',
-    featured: true,
-    image: '/news/rayquaza.jpg',
-  },
-  {
-    id: 2,
-    title: 'Atualizacao de Balanceamento v2.5',
-    excerpt:
-      'Ajustes em diversos Pokemon para melhorar a competitividade do jogo.',
-    category: 'Atualizacao',
-    date: '2026-01-18',
-    featured: false,
-  },
-  {
-    id: 3,
-    title: 'Torneio Mensal de Janeiro',
-    excerpt:
-      'Inscricoes abertas para o torneio mensal. Premios exclusivos para os top 10!',
-    category: 'Torneio',
-    date: '2026-01-15',
-    featured: true,
-  },
-  {
-    id: 4,
-    title: 'Manutencao Programada',
-    excerpt:
-      'Servidor ficara offline dia 25/01 das 03:00 as 06:00 para manutencao.',
-    category: 'Aviso',
-    date: '2026-01-14',
-    featured: false,
-  },
-  {
-    id: 5,
-    title: 'Novo Mapa: Caverna Cristal',
-    excerpt:
-      'Explore a nova caverna e descubra Pokemon raros do tipo Gelo e Rocha.',
-    category: 'Conteudo',
-    date: '2026-01-12',
-    featured: false,
-  },
-  {
-    id: 6,
-    title: 'Evento de Natal Encerrado',
-    excerpt:
-      'Obrigado a todos que participaram! Confira os vencedores do sorteio.',
-    category: 'Evento',
-    date: '2026-01-10',
-    featured: false,
-  },
-];
 
 const getCategoryIcon = (category) => {
   switch (category) {
+    case 'Instagram':
+      return Instagram;
     case 'Evento':
       return Sparkles;
     case 'Torneio':
@@ -91,6 +34,8 @@ const getCategoryIcon = (category) => {
 
 const getCategoryColor = (category) => {
   switch (category) {
+    case 'Instagram':
+      return 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-0';
     case 'Evento':
       return 'bg-gradient-to-r from-emerald-500 to-green-600 text-white border-0';
     case 'Torneio':
@@ -105,12 +50,47 @@ const getCategoryColor = (category) => {
 };
 
 export function News() {
-  const featuredNews = newsData.filter((news) => news.featured);
-  const regularNews = newsData.filter((news) => !news.featured);
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    try {
+      const response = await fetch('/api/instagram');
+      const data = await response.json();
+
+      if (data.success && data.posts) {
+        const instagramPosts = data.posts.slice(0, 6).map(post => ({
+          id: post.id,
+          title: post.title,
+          description: post.caption || post.excerpt,
+          category: 'Instagram',
+          date: post.timestamp,
+          featured: false,
+          permalink: post.permalink,
+          mediaUrl: post.thumbnailUrl || post.mediaUrl,
+        }));
+        
+        if (instagramPosts.length > 0) instagramPosts[0].featured = true;
+        if (instagramPosts.length > 1) instagramPosts[1].featured = true;
+
+        setNews(instagramPosts);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar notícias:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const featuredNews = news.filter((item) => item.featured);
+  const regularNews = news.filter((item) => !item.featured);
 
   return (
     <section className="relative overflow-hidden py-16">
-      {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-b from-muted/50 to-background" />
       <div className="absolute -right-32 top-0 h-64 w-64 rounded-full bg-pokemon-yellow/10 blur-3xl" />
       <div className="absolute -left-32 bottom-0 h-64 w-64 rounded-full bg-pokemon-blue/10 blur-3xl" />
@@ -118,7 +98,6 @@ export function News() {
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col items-center text-center">
           <div>
-            {/* Pokémon acima do badge */}
             <div className="flex justify-center mb-4">
               <img 
                 src="/pokemon/meowth.png" 
@@ -133,102 +112,102 @@ export function News() {
               </span>
             </div>
             <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-              <span className='text-foreground'>Novidades e&nbsp;</span><span className="text-pokenight-yellow">Notícias</span>
+              <span className='text-foreground'>Novidades e </span><span className="text-pokenight-yellow">Notícias</span>
             </h2>
-            <div
-          className="mx-auto mt-2 h-1 w-24 rounded bg-[var(--color-pokenight-yellow)]"
-          aria-hidden="true"
-        />
+            <div className="mx-auto mt-2 h-1 w-24 rounded bg-[var(--color-pokenight-yellow)]" aria-hidden="true" />
             <p className="mt-5 text-muted-foreground">
-              Fique por dentro de tudo que acontece no jogo
+              Fique por dentro de tudo que acontece no Instagram
             </p>
           </div>
         </div>
 
-        {/* Featured News */}
-        <div className="mb-8 grid gap-6 lg:grid-cols-2">
-          {featuredNews.slice(0, 2).map((news) => {
-            const CategoryIcon = getCategoryIcon(news.category);
-            return (
-              <Card
-                key={news.id}
-                className="group w-full overflow-hidden border-2 border-border bg-card shadow-lg transition-all hover:border-primary/50 hover:shadow-xl"
-              >
-                <CardHeader className="pb-3">
-                  <div className="mb-3 flex items-center gap-3">
-                    <Badge
-                      className={`gap-1.5 px-3 py-1 font-semibold shadow-sm ${getCategoryColor(news.category)}`}
-                    >
-                      <CategoryIcon className="h-3.5 w-3.5" />
-                      {news.category}
-                    </Badge>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(news.date).toLocaleDateString('pt-BR')}
-                    </div>
-                  </div>
-                  <CardTitle className="line-clamp-2 text-xl transition-colors group-hover:text-primary">
-                    <Star className="mr-2 inline h-5 w-5 text-pokemon-yellow" />
-                    {news.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    {news.excerpt}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Carregando notícias...</p>
+          </div>
+        ) : news.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Nenhuma notícia disponível no momento.</p>
+          </div>
+        ) : (
+          <>
+            {featuredNews.length > 0 && (
+              <div className="mb-8 grid gap-6 lg:grid-cols-2">
+                {featuredNews.map((item) => {
+                  const CategoryIcon = getCategoryIcon(item.category);
+                  return (
+                    <a key={item.id} href={item.permalink} target="_blank" rel="noopener noreferrer" className="block">
+                      <Card className="group h-full overflow-hidden border-2 border-border bg-card shadow-lg transition-all hover:border-primary/50 hover:shadow-xl">
+                        {item.mediaUrl && (
+                          <div className="relative h-48 w-full overflow-hidden bg-muted">
+                            <img src={item.mediaUrl} alt={item.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                          </div>
+                        )}
+                        <CardHeader className="pb-3">
+                          <div className="mb-3 flex items-center gap-3">
+                            <Badge className={`gap-1.5 px-3 py-1 font-semibold shadow-sm ${getCategoryColor(item.category)}`}>
+                              <CategoryIcon className="h-3.5 w-3.5" />
+                              {item.category}
+                            </Badge>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(item.date).toLocaleDateString('pt-BR')}
+                            </div>
+                          </div>
+                          <CardTitle className="line-clamp-2 text-xl transition-colors group-hover:text-primary">
+                            <Star className="mr-2 inline h-5 w-5 text-pokemon-yellow" />
+                            {item.title}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="whitespace-pre-line text-muted-foreground">{item.description}</p>
+                        </CardContent>
+                      </Card>
+                    </a>
+                  );
+                })}
+              </div>
+            )}
 
-        {/* Regular News Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-          {regularNews.slice(0, 4).map((news) => {
-            const CategoryIcon = getCategoryIcon(news.category);
-            return (
-              <Card
-                key={news.id}
-                className="group w-full border-2 border-border bg-card shadow-md transition-all hover:border-primary/50 hover:shadow-lg"
-              >
-                <CardContent className="p-4">
-                  <div className="mb-3">
-                    <Badge
-                      className={`gap-1 text-xs font-semibold ${getCategoryColor(news.category)}`}
-                    >
-                      <CategoryIcon className="h-3 w-3" />
-                      {news.category}
-                    </Badge>
-                  </div>
-                  <h3 className="mb-2 line-clamp-2 font-semibold text-foreground transition-colors group-hover:text-primary">
-                    {news.title}
-                  </h3>
-                  <p className="mb-3 text-sm text-muted-foreground">
-                    {news.excerpt}
-                  </p>
-                  <div className="flex items-center justify-start">
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(news.date).toLocaleDateString('pt-BR')}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+            {regularNews.length > 0 && (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+                {regularNews.map((item) => {
+                  const CategoryIcon = getCategoryIcon(item.category);
+                  return (
+                    <a key={item.id} href={item.permalink} target="_blank" rel="noopener noreferrer" className="block">
+                      <Card className="group h-full border-2 border-border bg-card shadow-md transition-all hover:border-primary/50 hover:shadow-lg">
+                        <CardContent className="p-4">
+                          <div className="mb-3">
+                            <Badge className={`gap-1 text-xs font-semibold ${getCategoryColor(item.category)}`}>
+                              <CategoryIcon className="h-3 w-3" />
+                              {item.category}
+                            </Badge>
+                          </div>
+                          <h3 className="mb-2 line-clamp-2 font-semibold text-foreground transition-colors group-hover:text-primary">{item.title}</h3>
+                          <p className="mb-3 whitespace-pre-line text-sm text-muted-foreground line-clamp-4">{item.description}</p>
+                          <div className="flex items-center justify-start">
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(item.date).toLocaleDateString('pt-BR')}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </a>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
 
-        {/* Mobile View All Button */}
         <div className="mt-8 text-center sm:hidden">
-          <Link href="/noticias">
-            <Button
-              variant="outline"
-              className="gap-2 border-2 bg-transparent font-semibold"
-            >
-              Ver Todas as Noticias
-              <ArrowRight className="h-4 w-4" />
+          <a href="https://www.instagram.com/pokenightofc/" target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" className="gap-2 border-2 bg-transparent font-semibold">
+              Ver Mais no Instagram
+              <Instagram className="h-4 w-4" />
             </Button>
-          </Link>
+          </a>
         </div>
       </div>
     </section>
