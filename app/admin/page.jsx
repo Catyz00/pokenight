@@ -1,5 +1,8 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Newspaper, Calendar, Trophy, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Users, Newspaper, Calendar, Trophy, TrendingUp, ArrowUpRight, ArrowDownRight, DollarSign, Coins } from "lucide-react"
 
 // Dados de exemplo - na versao real viram do PHP/MariaDB
 const stats = [
@@ -42,6 +45,34 @@ const recentActivities = [
 ]
 
 export default function AdminDashboard() {
+  const [coinsReport, setCoinsReport] = useState(null)
+  const [loadingCoins, setLoadingCoins] = useState(true)
+
+  useEffect(() => {
+    fetchCoinsReport()
+  }, [])
+
+  const fetchCoinsReport = async () => {
+    try {
+      const response = await fetch('/api/admin/reports/coins?period=week')
+      const data = await response.json()
+      if (response.ok) {
+        setCoinsReport(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar relatório de coins:', error)
+    } finally {
+      setLoadingCoins(false)
+    }
+  }
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value || 0)
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -82,6 +113,114 @@ export default function AdminDashboard() {
           </Card>
         ))}
       </div>
+
+      {/* Relatório Financeiro NightCoins */}
+      {!loadingCoins && coinsReport && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-green-500/50 bg-green-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Receita da Semana
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {formatCurrency(coinsReport.stats?.total_revenue)}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {coinsReport.stats?.approved_purchases} compras aprovadas
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-blue-500/50 bg-blue-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Coins className="h-4 w-4" />
+                NightCoins Vendidas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {coinsReport.stats?.total_coins_sold?.toLocaleString('pt-BR') || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Média: {formatCurrency(coinsReport.stats?.avg_purchase_value)}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-500/50 bg-purple-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total de Transações
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {coinsReport.stats?.total_purchases || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Últimos 7 dias
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-yellow-500/50 bg-yellow-500/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Top Comprador
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                {coinsReport.topBuyers?.[0]?.username || 'N/A'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formatCurrency(coinsReport.topBuyers?.[0]?.total_spent)}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Gráfico Simples de Vendas Diárias */}
+      {!loadingCoins && coinsReport?.dailySales?.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Vendas dos Últimos 7 Dias</CardTitle>
+            <CardDescription>Receita diária de NightCoins</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {coinsReport.dailySales.map((day, index) => {
+                const maxRevenue = Math.max(...coinsReport.dailySales.map(d => parseFloat(d.revenue) || 0))
+                const percentage = maxRevenue > 0 ? ((parseFloat(day.revenue) || 0) / maxRevenue) * 100 : 0
+                
+                return (
+                  <div key={index} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        {new Date(day.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                      </span>
+                      <span className="font-medium">
+                        {formatCurrency(day.revenue)}
+                      </span>
+                    </div>
+                    <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Content Grid */}
       <div className="grid gap-6 lg:grid-cols-2">

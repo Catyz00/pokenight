@@ -4,19 +4,89 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PageLoader } from '@/components/ui/page-loader'
-import { Mail, MessageCircle, ExternalLink, Copy, Check } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Mail, MessageCircle, ExternalLink, Copy, Check, Send, TicketIcon } from 'lucide-react'
 
 export default function SuportePage() {
   const [loading, setLoading] = useState(true)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedDiscord, setCopiedDiscord] = useState(false)
+  const [user, setUser] = useState(null)
+  const [showTicketForm, setShowTicketForm] = useState(false)
+  const [ticketForm, setTicketForm] = useState({
+    category: 'ajuda',
+    subject: '',
+    message: ''
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [alert, setAlert] = useState(null)
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false)
     }, 600)
+    
+    // Verifica se o usuário está logado
+    try {
+      const userData = localStorage.getItem('user')
+      if (userData) {
+        setUser(JSON.parse(userData))
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do usuário:', error)
+    }
+    
     return () => clearTimeout(timer)
   }, [])
+
+  const handleTicketSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!user) {
+      setAlert({ type: 'error', message: 'Você precisa estar logado para enviar um ticket.' })
+      return
+    }
+
+    if (!ticketForm.subject || !ticketForm.message) {
+      setAlert({ type: 'error', message: 'Por favor, preencha todos os campos.' })
+      return
+    }
+
+    setSubmitting(true)
+    setAlert(null)
+
+    try {
+      const response = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          username: user.name,
+          subject: ticketForm.subject,
+          message: ticketForm.message,
+          category: ticketForm.category
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setAlert({ type: 'success', message: data.message })
+        setTicketForm({ category: 'ajuda', subject: '', message: '' })
+        setShowTicketForm(false)
+      } else {
+        setAlert({ type: 'error', message: data.error || 'Erro ao enviar ticket.' })
+      }
+    } catch (error) {
+      console.error('Erro ao enviar ticket:', error)
+      setAlert({ type: 'error', message: 'Erro ao enviar ticket. Tente novamente.' })
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   const email = 'pokenightguiis7@gmail.com'
   const discordInvite = 'https://discord.com/invite/B7SHQaHnFh'
@@ -64,6 +134,105 @@ export default function SuportePage() {
           Entre em contato conosco através dos nossos canais oficiais
         </p>
       </div>
+
+      {/* Alert de feedback */}
+      {alert && (
+        <Alert className={`max-w-4xl mx-auto mb-6 ${alert.type === 'success' ? 'border-green-500 bg-green-500/10' : 'border-red-500 bg-red-500/10'}`}>
+          <AlertDescription className={alert.type === 'success' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}>
+            {alert.message}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Sistema de Tickets */}
+      {user && (
+        <div className="max-w-4xl mx-auto mb-6">
+          <Card className="border-2 border-primary/30">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-lg bg-primary/10">
+                    <TicketIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl">Sistema de Tickets</CardTitle>
+                    <CardDescription>
+                      Envie um ticket e nossa equipe responderá em breve
+                    </CardDescription>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => setShowTicketForm(!showTicketForm)}
+                  variant={showTicketForm ? 'outline' : 'default'}
+                >
+                  {showTicketForm ? 'Cancelar' : 'Abrir Ticket'}
+                </Button>
+              </div>
+            </CardHeader>
+
+            {showTicketForm && (
+              <CardContent>
+                <form onSubmit={handleTicketSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="category">Categoria</Label>
+                    <select
+                      id="category"
+                      value={ticketForm.category}
+                      onChange={(e) => setTicketForm({ ...ticketForm, category: e.target.value })}
+                      className="w-full mt-1 px-3 py-2 border border-input bg-background rounded-md"
+                    >
+                      <option value="ajuda">Ajuda / Dúvida</option>
+                      <option value="reclamacao">Reclamação</option>
+                      <option value="bug">Reportar Bug</option>
+                      <option value="sugestao">Sugestão</option>
+                      <option value="outro">Outro</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="subject">Assunto</Label>
+                    <Input
+                      id="subject"
+                      type="text"
+                      value={ticketForm.subject}
+                      onChange={(e) => setTicketForm({ ...ticketForm, subject: e.target.value })}
+                      placeholder="Descreva brevemente o assunto"
+                      required
+                      minLength={5}
+                      maxLength={255}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="message">Mensagem</Label>
+                    <Textarea
+                      id="message"
+                      value={ticketForm.message}
+                      onChange={(e) => setTicketForm({ ...ticketForm, message: e.target.value })}
+                      placeholder="Descreva detalhadamente seu problema ou dúvida"
+                      required
+                      minLength={10}
+                      rows={6}
+                      className="resize-none"
+                    />
+                  </div>
+
+                  <Button type="submit" disabled={submitting} className="w-full">
+                    {submitting ? (
+                      <>Enviando...</>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4 mr-2" />
+                        Enviar Ticket
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            )}
+          </Card>
+        </div>
+      )}
 
       {/* Cards de Contato */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-4xl mx-auto">
