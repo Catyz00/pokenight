@@ -146,7 +146,7 @@ export default function RegrasPage() {
             <li className="flex gap-2">
               <span className="text-primary mt-1">•</span>
               <span>
-                Para obter suporte via e-mail "contato@pokenight.com", sempre envie o nome do CHAR.
+                Para obter suporte via e-mail "pokenightguiis7@gmail.com", sempre envie o nome do CHAR.
               </span>
             </li>
             <li className="flex gap-2">
@@ -186,7 +186,7 @@ export default function RegrasPage() {
           </ul>
           
           <p className="font-semibold text-foreground">
-            Caso encontre algum problema ou tenha alguma dúvida, procure algum tutor, gamemaster ou à administração do jogo enviando e-mail para contato@pokenight.com.
+            Caso encontre algum problema ou tenha alguma dúvida, procure algum tutor, gamemaster ou à administração do jogo enviando e-mail para pokenightguiis7@gmail.com.
           </p>
         </CardContent>
       </Card>

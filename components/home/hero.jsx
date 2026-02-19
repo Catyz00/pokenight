@@ -44,39 +44,7 @@ const ACHIEVEMENT_COLORS = [
 ];
 
 export function Hero() {
-  const [countdown, setCountdown] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-  
   const [achievements, setAchievements] = useState(MOCK_ACHIEVEMENTS);
-
-  // Countdown para proximo torneio - data de exemplo
-  useEffect(() => {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 3);
-    targetDate.setHours(20, 0, 0, 0);
-
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate.getTime() - now;
-
-      if (distance > 0) {
-        setCountdown({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor(
-            (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-          ),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000),
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Simula novas conquistas
   useEffect(() => {
@@ -182,22 +150,22 @@ export function Hero() {
                 {[
                   {
                     label: 'Dias',
-                    value: countdown.days,
+                    value: 0,
                     color: 'from-pokemon-red to-pokemon-orange',
                   },
                   {
                     label: 'Horas',
-                    value: countdown.hours,
+                    value: 0,
                     color: 'from-pokemon-blue to-primary',
                   },
                   {
                     label: 'Min',
-                    value: countdown.minutes,
+                    value: 0,
                     color: 'from-pokemon-green to-pokemon-blue',
                   },
                   {
                     label: 'Seg',
-                    value: countdown.seconds,
+                    value: 0,
                     color: 'from-pokemon-purple to-pokemon-red',
                   },
                 ].map((item) => (
