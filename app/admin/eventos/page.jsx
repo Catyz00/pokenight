@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,55 +22,6 @@ import {
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye, Calendar } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
-
-// Dados de exemplo - na versao real viram do PHP/MariaDB
-const initialEvents = [
-  {
-    id: 1,
-    name: "Torneio Mensal de Janeiro",
-    type: "Torneio",
-    status: "Ativo",
-    startDate: "2026-01-24",
-    endDate: "2026-01-26",
-    participants: 128,
-  },
-  {
-    id: 2,
-    name: "Caca ao Rayquaza",
-    type: "Evento",
-    status: "Ativo",
-    startDate: "2026-01-20",
-    endDate: "2026-01-30",
-    participants: 456,
-  },
-  {
-    id: 3,
-    name: "Evento de Carnaval",
-    type: "Evento",
-    status: "Agendado",
-    startDate: "2026-02-15",
-    endDate: "2026-02-20",
-    participants: 0,
-  },
-  {
-    id: 4,
-    name: "Torneio PvP Semanal",
-    type: "Torneio",
-    status: "Encerrado",
-    startDate: "2026-01-10",
-    endDate: "2026-01-12",
-    participants: 64,
-  },
-  {
-    id: 5,
-    name: "Desafio da Torre",
-    type: "Desafio",
-    status: "Ativo",
-    startDate: "2026-01-01",
-    endDate: "2026-01-31",
-    participants: 892,
-  },
-]
 
 const getTypeColor = (type) => {
   switch (type) {
@@ -101,16 +52,52 @@ const getStatusColor = (status) => {
 const Loading = () => null;
 
 export default function AdminEventos() {
-  const [events, setEvents] = useState(initialEvents)
+  const [events, setEvents] = useState([])
   const [searchQuery, setSearchQuery] = useState("")
+  const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams();
 
+  useEffect(() => {
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true)
+      // Buscar eventos da API que já existe
+      const response = await fetch('/api/admin/tournaments')
+      if (response.ok) {
+        const data = await response.json()
+        setEvents(data.tournaments || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar eventos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const filteredEvents = events.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    item.name?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleDelete = (id) => {
-    setEvents(events.filter((item) => item.id !== id))
+  const handleDelete = async (id) => {
+    if (!confirm('Tem certeza que deseja deletar este evento?')) return
+    
+    try {
+      const response = await fetch(`/api/admin/tournaments/${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        setEvents(events.filter((item) => item.id !== id))
+      } else {
+        alert('Erro ao deletar evento')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar evento:', error)
+      alert('Erro ao deletar evento')
+    }
   }
 
   return (

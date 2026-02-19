@@ -43,11 +43,6 @@ const menuItems = [
     icon: Map,
   },
   {
-    title: "Noticias",
-    href: "/admin/noticias",
-    icon: Newspaper,
-  },
-  {
     title: "Eventos",
     href: "/admin/eventos",
     icon: Calendar,
