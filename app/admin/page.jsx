@@ -1,68 +1,48 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Newspaper, Calendar, Trophy, TrendingUp, ArrowUpRight, ArrowDownRight, DollarSign, Coins } from "lucide-react"
-
-// Dados de exemplo - na versao real viram do PHP/MariaDB
-const stats = [
-  {
-    title: "Jogadores Online",
-    value: "2,847",
-    change: "+12%",
-    trend: "up",
-    icon: Users,
-  },
-  {
-    title: "Noticias Publicadas",
-    value: "156",
-    change: "+3",
-    trend: "up",
-    icon: Newspaper,
-  },
-  {
-    title: "Eventos Ativos",
-    value: "12",
-    change: "-2",
-    trend: "down",
-    icon: Calendar,
-  },
-  {
-    title: "Torneios do Mes",
-    value: "8",
-    change: "+2",
-    trend: "up",
-    icon: Trophy,
-  },
-]
-
-const recentActivities = [
-  { action: "Nova noticia publicada", item: "Novo Pokemon Lendario Disponivel!", time: "Ha 2 horas" },
-  { action: "Evento criado", item: "Torneio Mensal de Janeiro", time: "Ha 5 horas" },
-  { action: "Ranking atualizado", item: "Top Level - Janeiro", time: "Ha 1 dia" },
-  { action: "Jogador banido", item: "user123 - Uso de hacks", time: "Ha 2 dias" },
-  { action: "Configuracao alterada", item: "Taxa de spawn aumentada", time: "Ha 3 dias" },
-]
+import { 
+  Users, 
+  TicketIcon, 
+  Trophy, 
+  Map as MapIcon, 
+  DollarSign, 
+  Coins,
+  Activity
+} from "lucide-react"
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState(null)
+  const [activities, setActivities] = useState([])
   const [coinsReport, setCoinsReport] = useState(null)
-  const [loadingCoins, setLoadingCoins] = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchCoinsReport()
+    fetchDashboardData()
   }, [])
 
-  const fetchCoinsReport = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/admin/reports/coins?period=week')
-      const data = await response.json()
-      if (response.ok) {
-        setCoinsReport(data)
-      }
+      setLoading(true)
+      
+      const statsRes = await fetch('/api/admin/stats')
+      const statsData = await statsRes.json()
+      if (statsRes.ok) setStats(statsData)
+
+      const activitiesRes = await fetch('/api/admin/activities')
+      const activitiesData = await activitiesRes.json()
+      if (activitiesRes.ok) setActivities(activitiesData.activities || [])
+
+      const coinsRes = await fetch('/api/admin/reports/coins?period=week')
+      const coinsData = await coinsRes.json()
+      if (coinsRes.ok) setCoinsReport(coinsData)
+
     } catch (error) {
-      console.error('Erro ao buscar relatório de coins:', error)
+      console.error('Erro ao buscar dados do dashboard:', error)
     } finally {
-      setLoadingCoins(false)
+      setLoading(false)
     }
   }
 
@@ -73,49 +53,116 @@ export default function AdminDashboard() {
     }).format(value || 0)
   }
 
+  const formatTimeAgo = (dateString) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now - date
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMins / 60)
+    const diffDays = Math.floor(diffHours / 24)
+
+    if (diffMins < 1) return 'Agora'
+    if (diffMins < 60) return `Há ${diffMins} min`
+    if (diffHours < 24) return `Há ${diffHours}h`
+    if (diffDays < 7) return `Há ${diffDays}d`
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="mt-1 text-muted-foreground">Carregando dados...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
         <p className="mt-1 text-muted-foreground">
-          Visao geral do sistema e estatisticas
+          Visão geral do sistema e estatísticas em tempo real
         </p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title} className="border-border bg-card">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className="h-5 w-5 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-foreground">{stat.value}</span>
-                <span
-                  className={`flex items-center text-xs font-medium ${
-                    stat.trend === "up" ? "text-emerald-500" : "text-red-500"
-                  }`}
-                >
-                  {stat.trend === "up" ? (
-                    <ArrowUpRight className="h-3 w-3" />
-                  ) : (
-                    <ArrowDownRight className="h-3 w-3" />
-                  )}
-                  {stat.change}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {stats && (
+          <>
+            <Card className="border-border bg-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Jogadores Cadastrados
+                </CardTitle>
+                <Users className="h-5 w-5 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {stats.players?.total?.toLocaleString('pt-BR') || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.players?.online || 0} online agora
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Tickets de Suporte
+                </CardTitle>
+                <TicketIcon className="h-5 w-5 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {stats.tickets?.total || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.tickets?.open || 0} aguardando resposta
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Torneios/Eventos
+                </CardTitle>
+                <Trophy className="h-5 w-5 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {stats.tournaments?.total || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.tournaments?.active || 0} ativos
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Mapas Ativos
+                </CardTitle>
+                <MapIcon className="h-5 w-5 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {stats.maps?.active || 0}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Disponíveis no jogo
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
-      {/* Relatório Financeiro NightCoins */}
-      {!loadingCoins && coinsReport && (
+      {coinsReport && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="border-green-500/50 bg-green-500/5">
             <CardHeader className="pb-2">
@@ -129,7 +176,7 @@ export default function AdminDashboard() {
                 {formatCurrency(coinsReport.stats?.total_revenue)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {coinsReport.stats?.approved_purchases} compras aprovadas
+                {coinsReport.stats?.approved_purchases || 0} compras aprovadas
               </p>
             </CardContent>
           </Card>
@@ -174,7 +221,7 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+              <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400 truncate">
                 {coinsReport.topBuyers?.[0]?.username || 'N/A'}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -185,8 +232,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Gráfico Simples de Vendas Diárias */}
-      {!loadingCoins && coinsReport?.dailySales?.length > 0 && (
+      {coinsReport?.dailySales?.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Vendas dos Últimos 7 Dias</CardTitle>
@@ -222,94 +268,97 @@ export default function AdminDashboard() {
         </Card>
       )}
 
-      {/* Content Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Activity */}
         <Card className="border-border bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <Activity className="h-5 w-5 text-primary" />
               Atividade Recente
             </CardTitle>
-            <CardDescription>Ultimas acoes realizadas no sistema</CardDescription>
+            <CardDescription>Últimas ações realizadas no sistema</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-4 rounded-lg border border-border bg-secondary/30 p-3"
-                >
-                  <div className="h-2 w-2 mt-2 rounded-full bg-primary" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground">{activity.action}</p>
-                    <p className="truncate text-sm text-muted-foreground">{activity.item}</p>
+              {activities.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nenhuma atividade recente
+                </p>
+              ) : (
+                activities.map((activity, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-4 rounded-lg border border-border bg-secondary/30 p-3"
+                  >
+                    <div className="h-2 w-2 mt-2 rounded-full bg-primary" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground">{activity.action}</p>
+                      <p className="truncate text-sm text-muted-foreground">{activity.item}</p>
+                    </div>
+                    <span className="flex-shrink-0 text-xs text-muted-foreground">
+                      {formatTimeAgo(activity.time)}
+                    </span>
                   </div>
-                  <span className="flex-shrink-0 text-xs text-muted-foreground">
-                    {activity.time}
-                  </span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
         <Card className="border-border bg-card">
           <CardHeader>
-            <CardTitle>Acoes Rapidas</CardTitle>
+            <CardTitle>Ações Rápidas</CardTitle>
             <CardDescription>Atalhos para tarefas comuns</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 sm:grid-cols-2">
-              <a
-                href="/admin/noticias/nova"
+              <Link
+                href="/admin/tickets"
                 className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:bg-secondary/50"
               >
                 <div className="rounded-lg bg-primary/10 p-2">
-                  <Newspaper className="h-5 w-5 text-primary" />
+                  <TicketIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Nova Noticia</p>
-                  <p className="text-xs text-muted-foreground">Criar publicacao</p>
+                  <p className="font-medium text-foreground">Tickets</p>
+                  <p className="text-xs text-muted-foreground">Ver tickets</p>
                 </div>
-              </a>
-              <a
-                href="/admin/eventos/novo"
-                className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:bg-secondary/50"
-              >
-                <div className="rounded-lg bg-primary/10 p-2">
-                  <Calendar className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Novo Evento</p>
-                  <p className="text-xs text-muted-foreground">Agendar evento</p>
-                </div>
-              </a>
-              <a
-                href="/admin/rankings"
+              </Link>
+              <Link
+                href="/admin/torneios"
                 className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:bg-secondary/50"
               >
                 <div className="rounded-lg bg-primary/10 p-2">
                   <Trophy className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Atualizar Rankings</p>
-                  <p className="text-xs text-muted-foreground">Gerenciar rankings</p>
+                  <p className="font-medium text-foreground">Torneios</p>
+                  <p className="text-xs text-muted-foreground">Gerenciar</p>
                 </div>
-              </a>
-              <a
-                href="/admin/jogadores"
+              </Link>
+              <Link
+                href="/admin/mapas"
+                className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:bg-secondary/50"
+              >
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <MapIcon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Mapas</p>
+                  <p className="text-xs text-muted-foreground">Adicionar mapa</p>
+                </div>
+              </Link>
+              <Link
+                href="/admin/parceiros"
                 className="flex items-center gap-3 rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:bg-secondary/50"
               >
                 <div className="rounded-lg bg-primary/10 p-2">
                   <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Ver Jogadores</p>
-                  <p className="text-xs text-muted-foreground">Lista de usuarios</p>
+                  <p className="font-medium text-foreground">Parceiros</p>
+                  <p className="text-xs text-muted-foreground">Ver parceiros</p>
                 </div>
-              </a>
+              </Link>
             </div>
           </CardContent>
         </Card>

@@ -53,24 +53,9 @@ const menuItems = [
     icon: Calendar,
   },
   {
-    title: "Rankings",
-    href: "/admin/rankings",
-    icon: TrendingUp,
-  },
-  {
-    title: "Jogadores",
-    href: "/admin/jogadores",
-    icon: Users,
-  },
-  {
     title: "Parceiros",
     href: "/admin/parceiros",
     icon: Tv,
-  },
-  {
-    title: "Configuracoes",
-    href: "/admin/configuracoes",
-    icon: Settings,
   },
 ]
 
